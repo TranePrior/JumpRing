@@ -11,18 +11,21 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private EdgeCollider2D edgeCollider;
 
-        [SerializeField]
-        private RunSessionController runSessionController;
-
         [Header("Path")]
-        [SerializeField, Min(2)]
-        private int pointsCount = 20;
+        [SerializeField]
+        private Camera gameplayCamera;
 
         [SerializeField, Min(0.1f)]
         private float segmentLength = 1f;
 
         [SerializeField]
-        private float startX = -6f;
+        private float behindCameraDistance = 10f;
+
+        [SerializeField]
+        private float aheadCameraDistance = 10f;
+
+        [SerializeField, Min(0.1f)]
+        private float rebuildDistance = 0.5f;
 
         [SerializeField]
         private float baseY = 0f;
@@ -40,37 +43,97 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private bool generateOnEnable = true;
 
-        private readonly Vector3[] worldPointsBuffer = new Vector3[256];
-        private readonly Vector2[] localPointsBuffer = new Vector2[256];
+        private readonly Vector3[] worldPointsBuffer = new Vector3[2048];
+        private readonly Vector2[] localPointsBuffer = new Vector2[2048];
+        private float currentPhase;
+        private float verticalOffsetY;
+        private float lastStartX;
+        private float lastEndX;
+        private bool hasWindow;
 
         private void OnEnable()
         {
             lineRenderer.useWorldSpace = true;
-            runSessionController.RunStarted += OnRunStarted;
+            currentPhase = randomizePhase ? Random.Range(0f, Mathf.PI * 2f) : 0f;
+            verticalOffsetY = baseY;
 
             if (generateOnEnable)
             {
-                Generate();
+                ForceRebuild();
             }
         }
 
-        private void OnDisable()
+        [ContextMenu("Generate Line")]
+        public void ForceRebuild()
         {
-            runSessionController.RunStarted -= OnRunStarted;
+            hasWindow = false;
+            UpdateWindow(force: true);
         }
 
-        [ContextMenu("Generate Line")]
-        public void Generate()
+        public void AlignAndRebuildToPoint(Vector2 anchorPoint)
         {
-            var clampedCount = Mathf.Clamp(pointsCount, 2, worldPointsBuffer.Length);
-            lineRenderer.positionCount = clampedCount;
-            var colliderPoints = new System.Collections.Generic.List<Vector2>(clampedCount);
-            var phase = randomizePhase ? Random.Range(0f, Mathf.PI * 2f) : 0f;
+            currentPhase = randomizePhase ? Random.Range(0f, Mathf.PI * 2f) : 0f;
+            var anchorWaveY = Mathf.Sin((anchorPoint.x * waveFrequency) + currentPhase) * waveAmplitude;
+            verticalOffsetY = anchorPoint.y - anchorWaveY;
+            ForceRebuildAroundX(anchorPoint.x);
+        }
 
-            for (var index = 0; index < clampedCount; index++)
+        public bool IsAlignedWithPoint(Vector2 point, float tolerance)
+        {
+            return Mathf.Abs(EvaluateY(point.x) - point.y) <= tolerance;
+        }
+
+        private void LateUpdate()
+        {
+            UpdateWindow(force: false);
+        }
+
+        private void ForceRebuildAroundX(float centerX)
+        {
+            var startX = Mathf.Floor((centerX - behindCameraDistance) / segmentLength) * segmentLength;
+            var endX = Mathf.Ceil((centerX + aheadCameraDistance) / segmentLength) * segmentLength;
+            BuildWindow(startX, endX);
+            lastStartX = startX;
+            lastEndX = endX;
+            hasWindow = true;
+        }
+
+        private void UpdateWindow(bool force)
+        {
+            var cameraX = gameplayCamera.transform.position.x;
+            var desiredStartX = cameraX - behindCameraDistance;
+            var desiredEndX = cameraX + aheadCameraDistance;
+
+            var startX = Mathf.Floor(desiredStartX / segmentLength) * segmentLength;
+            var endX = Mathf.Ceil(desiredEndX / segmentLength) * segmentLength;
+
+            if (!force && hasWindow)
+            {
+                var movedStart = Mathf.Abs(startX - lastStartX);
+                var movedEnd = Mathf.Abs(endX - lastEndX);
+                if (movedStart < rebuildDistance && movedEnd < rebuildDistance)
+                {
+                    return;
+                }
+            }
+
+            BuildWindow(startX, endX);
+            lastStartX = startX;
+            lastEndX = endX;
+            hasWindow = true;
+        }
+
+        private void BuildWindow(float startX, float endX)
+        {
+            var rawPointsCount = Mathf.FloorToInt((endX - startX) / segmentLength) + 1;
+            var pointsCount = Mathf.Clamp(rawPointsCount, 2, worldPointsBuffer.Length);
+            lineRenderer.positionCount = pointsCount;
+            var colliderPoints = new System.Collections.Generic.List<Vector2>(pointsCount);
+
+            for (var index = 0; index < pointsCount; index++)
             {
                 var x = startX + index * segmentLength;
-                var y = baseY + Mathf.Sin((x * waveFrequency) + phase) * waveAmplitude;
+                var y = EvaluateY(x);
 
                 var worldPoint = new Vector3(x, y, 0f);
                 worldPointsBuffer[index] = worldPoint;
@@ -82,9 +145,9 @@ namespace JumpRing.Game.Gameplay
             edgeCollider.SetPoints(colliderPoints);
         }
 
-        private void OnRunStarted()
+        private float EvaluateY(float x)
         {
-            Generate();
+            return verticalOffsetY + Mathf.Sin((x * waveFrequency) + currentPhase) * waveAmplitude;
         }
     }
 }

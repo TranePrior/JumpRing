@@ -2,6 +2,7 @@ using System;
 using JumpRing.Game.Core.Services;
 using JumpRing.Game.Core.State;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace JumpRing.Game.Gameplay
 {
@@ -20,6 +21,7 @@ namespace JumpRing.Game.Gameplay
         void ResumeRun();
         void OpenMainMenu();
         void ToggleMainMenu();
+        void RestartFromScratch();
     }
 
     public sealed class RunSessionController : MonoBehaviour, IRunSessionController
@@ -109,6 +111,12 @@ namespace JumpRing.Game.Gameplay
             {
                 ResumeRun();
             }
+        }
+
+        public void RestartFromScratch()
+        {
+            var activeScene = SceneManager.GetActiveScene();
+            SceneManager.LoadScene(activeScene.buildIndex, LoadSceneMode.Single);
         }
     }
 }

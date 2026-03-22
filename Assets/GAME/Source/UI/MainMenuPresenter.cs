@@ -45,7 +45,7 @@ namespace JumpRing.Game.UI
 
         public void RestartRun()
         {
-            runSessionController.StartRun();
+            runSessionController.RestartFromScratch();
         }
     }
 }

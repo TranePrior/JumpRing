@@ -12,11 +12,14 @@ namespace JumpRing.Game.Gameplay
 
         bool CanControlPlayer { get; }
         bool CanStartRun { get; }
+        bool HasActiveRun { get; }
 
         void StartRun();
         void FinishRun();
         void PauseRun();
         void ResumeRun();
+        void OpenMainMenu();
+        void ToggleMainMenu();
     }
 
     public sealed class RunSessionController : MonoBehaviour, IRunSessionController
@@ -27,6 +30,7 @@ namespace JumpRing.Game.Gameplay
         private IGameStateMachine gameStateMachine;
         private IScoreService scoreService;
         private bool isConstructed;
+        private bool hasActiveRun;
 
         public void Construct(IGameStateMachine stateMachine, IScoreService score)
         {
@@ -57,10 +61,13 @@ namespace JumpRing.Game.Gameplay
             }
         }
 
+        public bool HasActiveRun => hasActiveRun;
+
         public void StartRun()
         {
             scoreService.Reset();
             gameStateMachine.Enter(GameState.Gameplay);
+            hasActiveRun = true;
             RunStarted?.Invoke();
         }
 
@@ -83,6 +90,25 @@ namespace JumpRing.Game.Gameplay
         public void ResumeRun()
         {
             gameStateMachine.Enter(GameState.Gameplay);
+        }
+
+        public void OpenMainMenu()
+        {
+            gameStateMachine.Enter(GameState.MainMenu);
+        }
+
+        public void ToggleMainMenu()
+        {
+            if (gameStateMachine.CurrentState == GameState.Gameplay)
+            {
+                OpenMainMenu();
+                return;
+            }
+
+            if (gameStateMachine.CurrentState == GameState.MainMenu && hasActiveRun)
+            {
+                ResumeRun();
+            }
         }
     }
 }

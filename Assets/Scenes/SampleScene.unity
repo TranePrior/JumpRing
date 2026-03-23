@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
   - component: {fileID: 330585548}
+  - component: {fileID: 330585549}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -157,7 +158,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -270,6 +271,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.CameraFollowTarget
   target: {fileID: 771753746}
+--- !u!114 &330585549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fd2e6debf6643339af7afeb2aa083ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.ScoreBackgroundColorCycler
+  gameplayCamera: {fileID: 330585545}
+  scoreServiceComponent: {fileID: 1632676877}
+  clicksPerColorStep: 25
+  transitionDuration: 0.4
+  baseBackgroundColor: {r: 0.62, g: 0.62, b: 0.62, a: 1}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -486,15 +504,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.LinePathGenerator
   lineRenderer: {fileID: 987682181}
   edgeCollider: {fileID: 987682184}
+  runSessionController: {fileID: 0}
   gameplayCamera: {fileID: 330585545}
   segmentLength: 0.2
   behindCameraDistance: 50
   aheadCameraDistance: 50
   rebuildDistance: 0.1
-  baseY: 0
-  waveAmplitude: 0
-  waveFrequency: 0.01
-  randomizePhase: 1
+  startY: 0
+  minY: -1
+  maxY: 1
+  baseMinVerticalStep: 0.25
+  baseMaxVerticalStep: 0.8
+  verticalStepIncreasePerMinute: 0.08
+  baseTurnChance: 0.059
+  turnChanceIncreasePerMinute: 0.06
+  baseFlatChance: 0.099
+  flatChanceDecreasePerMinute: 0.015
+  baseMinSegmentRunLength: 4
+  baseMaxSegmentRunLength: 10
+  baseMinFlatRunLength: 3
+  baseMaxFlatRunLength: 8
+  baseMountainChance: 0.14
+  mountainStepMultiplier: 1.8
+  maxDifficultyLevel: 5
+  randomSeed: 10
   generateOnEnable: 1
   clicksPerGradientStep: 25
   gradientTransitionDuration: 0.35
@@ -1254,6 +1287,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 285f36c3b6c854991bcc6913fea88ef9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Services.CurrencyService
+--- !u!114 &1632676877 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8311599358015223967, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+  m_PrefabInstance: {fileID: 3420412210048066271}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632676867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e2c1938a08244673ac2e5d453391031, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Services.ScoreService
 --- !u!114 &1632676879
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3734,7 +3778,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5660350171841749728, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6045531315991704048, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_Color.b

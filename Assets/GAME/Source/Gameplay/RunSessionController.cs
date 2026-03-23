@@ -115,7 +115,8 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
-            gameStateMachine.Enter(GameState.GameOver);
+            gameStateMachine.Enter(GameState.MainMenu);
+            hasActiveRun = false;
             RunFinished?.Invoke();
         }
 

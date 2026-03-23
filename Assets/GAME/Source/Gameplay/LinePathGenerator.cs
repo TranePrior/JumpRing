@@ -43,6 +43,13 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private bool generateOnEnable = true;
 
+        [Header("Visual")]
+        [SerializeField, Min(1)]
+        private int clicksPerGradientStep = 25;
+
+        [SerializeField, Min(0.01f)]
+        private float gradientTransitionDuration = 0.35f;
+
         private readonly Vector3[] worldPointsBuffer = new Vector3[2048];
         private readonly Vector2[] localPointsBuffer = new Vector2[2048];
         private float currentPhase;
@@ -50,12 +57,20 @@ namespace JumpRing.Game.Gameplay
         private float lastStartX;
         private float lastEndX;
         private bool hasWindow;
+        private int appliedGradientStep;
+        private Color gradientTransitionStartColor = Color.white;
+        private Color gradientTransitionEndColor = Color.white;
+        private float gradientTransitionTime;
+        private bool isGradientTransitionRunning;
 
         private void OnEnable()
         {
             lineRenderer.useWorldSpace = true;
             currentPhase = randomizePhase ? Random.Range(0f, Mathf.PI * 2f) : 0f;
             verticalOffsetY = baseY;
+            appliedGradientStep = 0;
+            ApplyGradient(Color.white);
+            isGradientTransitionRunning = false;
 
             if (generateOnEnable)
             {
@@ -83,9 +98,40 @@ namespace JumpRing.Game.Gameplay
             return Mathf.Abs(EvaluateY(point.x) - point.y) <= tolerance;
         }
 
+        public float EvaluateHeightAtX(float x)
+        {
+            return EvaluateY(x);
+        }
+
+        public bool IsTouchingLine(Collider2D collider, float tolerance)
+        {
+            var distance = edgeCollider.Distance(collider);
+            return distance.isOverlapped || distance.distance <= tolerance;
+        }
+
+        public void NotifyScoreChanged(int score)
+        {
+            if (score <= 0)
+            {
+                appliedGradientStep = 0;
+                StartGradientTransition(Color.white);
+                return;
+            }
+
+            var gradientStep = score / clicksPerGradientStep;
+            if (gradientStep <= appliedGradientStep)
+            {
+                return;
+            }
+
+            appliedGradientStep = gradientStep;
+            StartGradientTransition(GenerateRandomGradientColor());
+        }
+
         private void LateUpdate()
         {
             UpdateWindow(force: false);
+            UpdateGradientTransition();
         }
 
         private void ForceRebuildAroundX(float centerX)
@@ -148,6 +194,75 @@ namespace JumpRing.Game.Gameplay
         private float EvaluateY(float x)
         {
             return verticalOffsetY + Mathf.Sin((x * waveFrequency) + currentPhase) * waveAmplitude;
+        }
+
+        private void StartGradientTransition(Color targetColor)
+        {
+            gradientTransitionStartColor = GetCurrentGradientEndColor();
+            gradientTransitionEndColor = targetColor;
+            gradientTransitionTime = 0f;
+            isGradientTransitionRunning = true;
+        }
+
+        private void UpdateGradientTransition()
+        {
+            if (!isGradientTransitionRunning)
+            {
+                return;
+            }
+
+            gradientTransitionTime += Time.deltaTime;
+            var progress = Mathf.Clamp01(gradientTransitionTime / gradientTransitionDuration);
+            var currentEndColor = Color.Lerp(gradientTransitionStartColor, gradientTransitionEndColor, progress);
+            ApplyGradient(currentEndColor);
+
+            if (progress >= 1f)
+            {
+                isGradientTransitionRunning = false;
+            }
+        }
+
+        private Color GetCurrentGradientEndColor()
+        {
+            var gradient = lineRenderer.colorGradient;
+            var colorKeys = gradient.colorKeys;
+            if (colorKeys.Length == 0)
+            {
+                return Color.white;
+            }
+
+            return colorKeys[colorKeys.Length - 1].color;
+        }
+
+        private void ApplyGradient(Color endColor)
+        {
+            var gradient = new Gradient();
+            gradient.SetKeys(
+                new[]
+                {
+                    new GradientColorKey(Color.white, 0f),
+                    new GradientColorKey(endColor, 1f),
+                },
+                new[]
+                {
+                    new GradientAlphaKey(1f, 0f),
+                    new GradientAlphaKey(1f, 1f),
+                });
+
+            lineRenderer.colorGradient = gradient;
+        }
+
+        private static Color GenerateRandomGradientColor()
+        {
+            return Random.ColorHSV(
+                0f,
+                1f,
+                0.65f,
+                1f,
+                0.75f,
+                1f,
+                1f,
+                1f);
         }
     }
 }

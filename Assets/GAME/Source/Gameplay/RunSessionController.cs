@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using JumpRing.Game.Core.Services;
 using JumpRing.Game.Core.State;
 using UnityEngine;
@@ -6,6 +7,11 @@ using UnityEngine.SceneManagement;
 
 namespace JumpRing.Game.Gameplay
 {
+    public interface IRunStartGate
+    {
+        bool CanStartRun();
+    }
+
     public interface IRunSessionController
     {
         event Action RunStarted;
@@ -22,6 +28,7 @@ namespace JumpRing.Game.Gameplay
         void OpenMainMenu();
         void ToggleMainMenu();
         void RestartFromScratch();
+        int RegisterTap();
     }
 
     public sealed class RunSessionController : MonoBehaviour, IRunSessionController
@@ -29,6 +36,7 @@ namespace JumpRing.Game.Gameplay
         public event Action RunStarted;
         public event Action RunFinished;
 
+        private readonly List<IRunStartGate> runStartGates = new();
         private IGameStateMachine gameStateMachine;
         private IScoreService scoreService;
         private bool isConstructed;
@@ -65,8 +73,35 @@ namespace JumpRing.Game.Gameplay
 
         public bool HasActiveRun => hasActiveRun;
 
+        public void RegisterStartGate(IRunStartGate gate)
+        {
+            if (runStartGates.Contains(gate))
+            {
+                return;
+            }
+
+            runStartGates.Add(gate);
+        }
+
+        public void UnregisterStartGate(IRunStartGate gate)
+        {
+            runStartGates.Remove(gate);
+        }
+
         public void StartRun()
         {
+            for (var gateIndex = 0; gateIndex < runStartGates.Count; gateIndex++)
+            {
+                if (runStartGates[gateIndex].CanStartRun())
+                {
+                    continue;
+                }
+
+                hasActiveRun = false;
+                OpenMainMenu();
+                return;
+            }
+
             scoreService.Reset();
             gameStateMachine.Enter(GameState.Gameplay);
             hasActiveRun = true;
@@ -117,6 +152,17 @@ namespace JumpRing.Game.Gameplay
         {
             var activeScene = SceneManager.GetActiveScene();
             SceneManager.LoadScene(activeScene.buildIndex, LoadSceneMode.Single);
+        }
+
+        public int RegisterTap()
+        {
+            if (!CanControlPlayer)
+            {
+                return scoreService.CurrentScore;
+            }
+
+            scoreService.Add(1);
+            return scoreService.CurrentScore;
         }
     }
 }

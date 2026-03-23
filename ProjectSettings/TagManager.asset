@@ -41,11 +41,17 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Ring
-    uniqueID: 578587543
+  - name: UnderLine
+    uniqueID: 807327147
     locked: 0
   - name: Line
-    uniqueID: 807327147
+    uniqueID: 578587543
+    locked: 0
+  - name: Coin
+    uniqueID: 1669562283
+    locked: 0
+  - name: ForwardLine
+    uniqueID: 4136550255
     locked: 0
   m_RenderingLayers:
   - Default

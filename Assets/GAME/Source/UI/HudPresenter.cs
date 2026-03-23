@@ -6,6 +6,10 @@ namespace JumpRing.Game.UI
 {
     public sealed class HudPresenter : MonoBehaviour
     {
+        private const string ScoreFormat = "Score: {0}";
+        private const string BestScoreFormat = "BEST SCORE: {0}";
+        private const string CoinsFormat = "COINS: {0}";
+
         [SerializeField]
         private TMP_Text scoreLabel;
 
@@ -50,13 +54,13 @@ namespace JumpRing.Game.UI
 
         private void OnScoreChanged(int score)
         {
-            scoreLabel.text = score.ToString();
-            bestScoreLabel.text = scoreService.BestScore.ToString();
+            scoreLabel.text = string.Format(ScoreFormat, score);
+            bestScoreLabel.text = string.Format(BestScoreFormat, scoreService.BestScore);
         }
 
         private void OnBalanceChanged(int balance)
         {
-            diamondsLabel.text = balance.ToString();
+            diamondsLabel.text = string.Format(CoinsFormat, balance);
         }
     }
 }

@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
+  - component: {fileID: 330585548}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -256,6 +257,19 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &330585548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23b64483b002147ee8fc93ef8f387a20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.CameraFollowTarget
+  target: {fileID: 771753746}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -394,6 +408,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86f69aee255a549a594f5de60cbe6ac3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.HudPresenter
+--- !u!4 &771753746 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2094155033869774277, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+  m_PrefabInstance: {fileID: 7174431161555079067}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -467,13 +486,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.LinePathGenerator
   lineRenderer: {fileID: 987682181}
   edgeCollider: {fileID: 987682184}
-  runSessionController: {fileID: 1632676868}
-  pointsCount: 20
-  segmentLength: 1
-  startY: -6
-  minX: -2
-  maxX: 2
-  maxStepDeltaX: 0.75
+  gameplayCamera: {fileID: 330585545}
+  segmentLength: 0.2
+  behindCameraDistance: 100
+  aheadCameraDistance: 100
+  rebuildDistance: 0.1
+  baseY: 0
+  waveAmplitude: 0
+  waveFrequency: 0.01
+  randomizePhase: 1
   generateOnEnable: 1
 --- !u!68 &987682184
 EdgeCollider2D:
@@ -832,6 +853,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7305132454681016829, guid: c196a468779eb44fb9379790094aa0b3, type: 3}
+      propertyPath: m_Loop
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7305132454681016829, guid: c196a468779eb44fb9379790094aa0b3, type: 3}
+      propertyPath: m_Positions.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7305132454681016829, guid: c196a468779eb44fb9379790094aa0b3, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a603f8cafe9f7483a8b5d46cb77662e9, type: 2}
+    - target: {fileID: 7305132454681016829, guid: c196a468779eb44fb9379790094aa0b3, type: 3}
+      propertyPath: m_Parameters.generateLightingData
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -952,10 +989,22 @@ PrefabInstance:
       propertyPath: runSessionController
       value: 
       objectReference: {fileID: 1632676868}
+    - target: {fileID: 870064300581209793, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+      propertyPath: runSessionController
+      value: 
+      objectReference: {fileID: 1632676868}
     - target: {fileID: 992563737597288226, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
       propertyPath: runSessionController
       value: 
       objectReference: {fileID: 1632676868}
+    - target: {fileID: 2074414745402918655, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+      propertyPath: m_SortingLayer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2074414745402918655, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 807327147
+      objectReference: {fileID: 0}
     - target: {fileID: 2094155033869774277, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -999,6 +1048,14 @@ PrefabInstance:
     - target: {fileID: 5121797076482540318, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
       propertyPath: m_Name
       value: RIng
+      objectReference: {fileID: 0}
+    - target: {fileID: 7638397765348525985, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+      propertyPath: m_SortingLayer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7638397765348525985, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 578587543
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

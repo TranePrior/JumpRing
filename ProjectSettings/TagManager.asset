@@ -41,6 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Ring
+    uniqueID: 578587543
+    locked: 0
+  - name: Line
+    uniqueID: 807327147
+    locked: 0
   m_RenderingLayers:
   - Default
   - Light Layer 1

@@ -5,6 +5,29 @@ namespace JumpRing.Game.Gameplay
 {
     public sealed class LinePathGenerator : MonoBehaviour
     {
+        [System.Serializable]
+        private struct WaveLayer
+        {
+            [Tooltip("Noise sampling frequency — higher values create tighter oscillations")]
+            [Min(0.001f)]
+            public float frequency;
+
+            [Tooltip("Maximum vertical displacement this layer can add")]
+            [Min(0f)]
+            public float amplitude;
+
+            [Tooltip("Difficulty value (0–1) at which this layer begins to fade in")]
+            [Range(0f, 1f)]
+            public float difficultyStart;
+
+            [Tooltip("Difficulty value (0–1) at which this layer is fully active")]
+            [Range(0f, 1f)]
+            public float difficultyEnd;
+
+            [Tooltip("Use triangle wave instead of Perlin noise for sharp zigzag peaks")]
+            public bool useTriangleWave;
+        }
+
         [Header("Dependencies")]
         [SerializeField]
         private LineRenderer lineRenderer;
@@ -20,7 +43,7 @@ namespace JumpRing.Game.Gameplay
         private Camera gameplayCamera;
 
         [SerializeField, Min(0.1f)]
-        private float segmentLength = 0.7f;
+        private float segmentLength = 0.5f;
 
         [SerializeField]
         private float behindCameraDistance = 10f;
@@ -31,58 +54,40 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(0.1f)]
         private float rebuildDistance = 0.5f;
 
-        [Header("Jagged Path")]
+        [Header("Path Bounds")]
         [SerializeField]
-        private float startY = 0f;
-
-        [SerializeField]
-        private float minY = -2f;
+        private float minY = -3.5f;
 
         [SerializeField]
-        private float maxY = 2f;
+        private float maxY = 3.5f;
 
-        [SerializeField, Min(0.05f)]
-        private float baseMinVerticalStep = 0.03f;
+        [Header("Difficulty Progression")]
+        [SerializeField, Tooltip("Number of clicks (taps) to advance one difficulty step"), Min(1)]
+        private int clicksPerDifficultyStep = 20;
 
-        [SerializeField, Min(0.05f)]
-        private float baseMaxVerticalStep = 0.12f;
+        [SerializeField, Tooltip("Total number of difficulty steps to reach maximum difficulty"), Min(1)]
+        private int maxDifficultySteps = 6;
 
-        [SerializeField, Min(0f)]
-        private float verticalStepIncreasePerMinute = 0.04f;
+        [SerializeField, Tooltip("Maps normalized step progress (0–1) to difficulty (0–1)")]
+        private AnimationCurve difficultyCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
-        [SerializeField, Range(0f, 1f)]
-        private float baseTurnChance = 0.03f;
+        [Header("Wave Layers")]
+        [SerializeField]
+        private WaveLayer[] waveLayers =
+        {
+            // Base zigzag — fades in first, gives the main sharp shape
+            new() { frequency = 0.18f, amplitude = 0.60f, difficultyStart = 0.05f, difficultyEnd = 0.20f, useTriangleWave = true },
+            // Secondary zigzag at different frequency — adds irregularity to peak heights
+            new() { frequency = 0.29f, amplitude = 0.50f, difficultyStart = 0.15f, difficultyEnd = 0.35f, useTriangleWave = true },
+            // Higher frequency detail — tighter oscillations at mid difficulty
+            new() { frequency = 0.47f, amplitude = 0.45f, difficultyStart = 0.30f, difficultyEnd = 0.55f, useTriangleWave = true },
+            // Large slow wave — big sweeping peaks at higher difficulty
+            new() { frequency = 0.08f, amplitude = 0.80f, difficultyStart = 0.50f, difficultyEnd = 0.70f, useTriangleWave = true },
+            // Fast sharp detail — makes line very aggressive at max difficulty
+            new() { frequency = 0.63f, amplitude = 0.35f, difficultyStart = 0.70f, difficultyEnd = 0.90f, useTriangleWave = true },
+        };
 
-        [SerializeField, Min(0f)]
-        private float turnChanceIncreasePerMinute = 0.02f;
-
-        [SerializeField, Range(0f, 1f)]
-        private float baseFlatChance = 0.88f;
-
-        [SerializeField, Min(0f)]
-        private float flatChanceDecreasePerMinute = 0.06f;
-
-        [SerializeField, Min(1)]
-        private int baseMinSegmentRunLength = 10;
-
-        [SerializeField, Min(1)]
-        private int baseMaxSegmentRunLength = 28;
-
-        [SerializeField, Min(1)]
-        private int baseMinFlatRunLength = 18;
-
-        [SerializeField, Min(1)]
-        private int baseMaxFlatRunLength = 40;
-
-        [SerializeField, Range(0f, 1f)]
-        private float baseMountainChance = 0.02f;
-
-        [SerializeField, Min(1f)]
-        private float mountainStepMultiplier = 1.4f;
-
-        [SerializeField, Min(0)]
-        private int maxDifficultyLevel = 8;
-
+        [Header("Seed")]
         [SerializeField]
         private int randomSeed = 12345;
 
@@ -99,23 +104,16 @@ namespace JumpRing.Game.Gameplay
 
         private readonly Vector3[] worldPointsBuffer = new Vector3[2048];
         private readonly Vector2[] localPointsBuffer = new Vector2[2048];
-        private readonly Dictionary<int, float> pathPoints = new();
+
         private float lastStartX;
         private float lastEndX;
         private bool hasWindow;
         private bool isRunActive;
-        private float runElapsedSeconds;
+        private float runStartX;
+        private float yOffset;
+        private float clickDifficulty;
 
-        private int minGeneratedStep;
-        private int maxGeneratedStep;
-        private int forwardDirection;
-        private int backwardDirection;
-        private int forwardStepsRemaining;
-        private int backwardStepsRemaining;
-        private float forwardStepDelta;
-        private float backwardStepDelta;
-        private System.Random forwardRandom;
-        private System.Random backwardRandom;
+        private float[] noiseOffsets;
 
         private int appliedGradientStep;
         private Color gradientTransitionStartColor = Color.white;
@@ -127,16 +125,11 @@ namespace JumpRing.Game.Gameplay
         {
             lineRenderer.useWorldSpace = true;
             runSessionController = Object.FindFirstObjectByType<RunSessionController>();
-            forwardRandom = new System.Random(randomSeed);
-            backwardRandom = new System.Random(unchecked(randomSeed * 486187739 + 1013904223));
-            runElapsedSeconds = 0f;
+            InitializeNoiseOffsets();
             isRunActive = false;
-            forwardDirection = 0;
-            backwardDirection = 0;
-            forwardStepsRemaining = 0;
-            backwardStepsRemaining = 0;
-            forwardStepDelta = 0f;
-            backwardStepDelta = 0f;
+            runStartX = 0f;
+            yOffset = 0f;
+            clickDifficulty = 0f;
             appliedGradientStep = 0;
             ApplyGradient(Color.white);
             isGradientTransitionRunning = false;
@@ -159,13 +152,14 @@ namespace JumpRing.Game.Gameplay
         public void ForceRebuild()
         {
             hasWindow = false;
-            pathPoints.Clear();
             UpdateWindow(force: true);
         }
 
         public void AlignAndRebuildToPoint(Vector2 anchorPoint)
         {
-            ResetPathAroundAnchor(anchorPoint);
+            runStartX = anchorPoint.x;
+            var rawY = EvaluateRawY(anchorPoint.x, 0f);
+            yOffset = anchorPoint.y - rawY;
             hasWindow = false;
             UpdateWindow(force: true);
         }
@@ -177,15 +171,9 @@ namespace JumpRing.Game.Gameplay
 
         public float EvaluateHeightAtX(float x)
         {
-            EnsureRangeForX(x);
-
-            var leftStep = Mathf.FloorToInt(x / segmentLength);
-            var rightStep = leftStep + 1;
-            var leftY = pathPoints[leftStep];
-            var rightY = pathPoints[rightStep];
-            var leftX = StepToX(leftStep);
-            var interpolation = Mathf.Clamp01((x - leftX) / segmentLength);
-            return Mathf.Lerp(leftY, rightY, interpolation);
+            var difficulty = GetDifficultyAtX(x);
+            var rawY = EvaluateRawY(x, difficulty);
+            return Mathf.Clamp(rawY + yOffset, minY, maxY);
         }
 
         public bool IsTouchingLine(Collider2D collider, float tolerance)
@@ -198,10 +186,15 @@ namespace JumpRing.Game.Gameplay
         {
             if (score <= 0)
             {
+                clickDifficulty = 0f;
                 appliedGradientStep = 0;
                 StartGradientTransition(Color.white);
                 return;
             }
+
+            var difficultyStep = score / clicksPerDifficultyStep;
+            var normalized = Mathf.Clamp01((float)difficultyStep / maxDifficultySteps);
+            clickDifficulty = difficultyCurve.Evaluate(normalized);
 
             var gradientStep = score / clicksPerGradientStep;
             if (gradientStep <= appliedGradientStep)
@@ -215,24 +208,94 @@ namespace JumpRing.Game.Gameplay
 
         private void LateUpdate()
         {
-            if (isRunActive)
-            {
-                runElapsedSeconds += Time.deltaTime;
-            }
-
             UpdateWindow(force: false);
             UpdateGradientTransition();
         }
 
         private void OnRunStarted()
         {
-            runElapsedSeconds = 0f;
             isRunActive = true;
         }
 
         private void OnRunFinished()
         {
             isRunActive = false;
+        }
+
+        private void InitializeNoiseOffsets()
+        {
+            var rng = new System.Random(randomSeed);
+            noiseOffsets = new float[waveLayers.Length];
+            for (var i = 0; i < waveLayers.Length; i++)
+            {
+                noiseOffsets[i] = (float)(rng.NextDouble() * 10000.0 + 1000.0);
+            }
+        }
+
+        private float GetDifficultyAtX(float x)
+        {
+            if (!isRunActive)
+            {
+                return 0f;
+            }
+
+            return clickDifficulty;
+        }
+
+        private float EvaluateRawY(float x, float difficulty)
+        {
+            var y = 0f;
+
+            for (var i = 0; i < waveLayers.Length; i++)
+            {
+                ref var layer = ref waveLayers[i];
+
+                float blend;
+                if (layer.difficultyStart <= 0f && layer.difficultyEnd <= 0f)
+                {
+                    blend = 1f;
+                }
+                else
+                {
+                    blend = SmoothStep(
+                        layer.difficultyStart,
+                        Mathf.Max(layer.difficultyStart + 0.001f, layer.difficultyEnd),
+                        difficulty);
+                }
+
+                if (blend < 0.001f)
+                {
+                    continue;
+                }
+
+                var sampleX = x * layer.frequency + noiseOffsets[i];
+
+                float value;
+                if (layer.useTriangleWave)
+                {
+                    value = TriangleWave(sampleX);
+                }
+                else
+                {
+                    value = Mathf.PerlinNoise(sampleX, noiseOffsets[i] * 0.7f) * 2f - 1f;
+                }
+
+                y += blend * layer.amplitude * value;
+            }
+
+            return y;
+        }
+
+        private static float TriangleWave(float x)
+        {
+            var t = x - Mathf.Floor(x);
+            return 4f * Mathf.Abs(t - 0.5f) - 1f;
+        }
+
+        private static float SmoothStep(float edge0, float edge1, float x)
+        {
+            var t = Mathf.Clamp01((x - edge0) / (edge1 - edge0));
+            return t * t * (3f - 2f * t);
         }
 
         private void UpdateWindow(bool force)
@@ -254,180 +317,10 @@ namespace JumpRing.Game.Gameplay
                 }
             }
 
-            EnsureRange(startX, endX);
             BuildWindow(startX, endX);
             lastStartX = startX;
             lastEndX = endX;
             hasWindow = true;
-        }
-
-        private void ResetPathAroundAnchor(Vector2 anchorPoint)
-        {
-            pathPoints.Clear();
-
-            var anchorStep = Mathf.RoundToInt(anchorPoint.x / segmentLength);
-            pathPoints[anchorStep] = anchorPoint.y;
-            minGeneratedStep = anchorStep;
-            maxGeneratedStep = anchorStep;
-            forwardDirection = 0;
-            backwardDirection = 0;
-            forwardStepsRemaining = 0;
-            backwardStepsRemaining = 0;
-            forwardStepDelta = 0f;
-            backwardStepDelta = 0f;
-            forwardRandom = new System.Random(randomSeed);
-            backwardRandom = new System.Random(unchecked(randomSeed * 486187739 + 1013904223));
-        }
-
-        private void EnsureRange(float startX, float endX)
-        {
-            var startStep = Mathf.FloorToInt(startX / segmentLength);
-            var endStep = Mathf.CeilToInt(endX / segmentLength);
-            EnsureRange(startStep, endStep);
-        }
-
-        private void EnsureRangeForX(float x)
-        {
-            var leftStep = Mathf.FloorToInt(x / segmentLength);
-            EnsureRange(leftStep, leftStep + 1);
-        }
-
-        private void EnsureRange(int startStep, int endStep)
-        {
-            if (pathPoints.Count == 0)
-            {
-                InitializePath(startStep, endStep);
-            }
-
-            while (maxGeneratedStep < endStep)
-            {
-                var currentY = pathPoints[maxGeneratedStep];
-                var nextY = GenerateNextY(
-                    currentY,
-                    ref forwardDirection,
-                    ref forwardStepsRemaining,
-                    ref forwardStepDelta,
-                    forwardRandom);
-                maxGeneratedStep += 1;
-                pathPoints[maxGeneratedStep] = nextY;
-            }
-
-            while (minGeneratedStep > startStep)
-            {
-                var currentY = pathPoints[minGeneratedStep];
-                var nextY = GenerateNextY(
-                    currentY,
-                    ref backwardDirection,
-                    ref backwardStepsRemaining,
-                    ref backwardStepDelta,
-                    backwardRandom);
-                minGeneratedStep -= 1;
-                pathPoints[minGeneratedStep] = nextY;
-            }
-        }
-
-        private void InitializePath(int startStep, int endStep)
-        {
-            var centerStep = Mathf.RoundToInt(((startStep + endStep) * 0.5f));
-            var clampedStartY = Mathf.Clamp(startY, minY, maxY);
-            pathPoints[centerStep] = clampedStartY;
-            minGeneratedStep = centerStep;
-            maxGeneratedStep = centerStep;
-        }
-
-        private float GenerateNextY(
-            float currentY,
-            ref int direction,
-            ref int stepsRemaining,
-            ref float stepDelta,
-            System.Random random)
-        {
-            var difficultyLevel = GetDifficultyLevel();
-            var maxDelta = Mathf.Min(baseMaxVerticalStep, baseMinVerticalStep + verticalStepIncreasePerMinute * difficultyLevel);
-            var minDelta = Mathf.Min(maxDelta, baseMinVerticalStep + verticalStepIncreasePerMinute * 0.5f * difficultyLevel);
-            var turnChance = Mathf.Clamp01(baseTurnChance + turnChanceIncreasePerMinute * difficultyLevel);
-            var flatChance = Mathf.Clamp01(baseFlatChance - flatChanceDecreasePerMinute * difficultyLevel);
-            var mountainChance = Mathf.Clamp01(baseMountainChance + 0.02f * difficultyLevel);
-            var minRunLength = Mathf.Max(1, baseMinSegmentRunLength - difficultyLevel / 2);
-            var maxRunLength = Mathf.Max(minRunLength, baseMaxSegmentRunLength - difficultyLevel);
-            var minFlatRunLength = Mathf.Max(1, baseMinFlatRunLength - difficultyLevel / 3);
-            var maxFlatRunLength = Mathf.Max(minFlatRunLength, baseMaxFlatRunLength - difficultyLevel / 2);
-
-            if (stepsRemaining <= 0)
-            {
-                var roll = (float)random.NextDouble();
-                if (roll < flatChance)
-                {
-                    direction = 0;
-                    stepsRemaining = random.Next(minFlatRunLength, maxFlatRunLength + 1);
-                    stepDelta = 0f;
-                }
-                else
-                {
-                    if (direction == 0)
-                    {
-                        direction = random.NextDouble() < 0.5d ? -1 : 1;
-                    }
-                    else if (random.NextDouble() < turnChance)
-                    {
-                        direction = -direction;
-                    }
-
-                    stepsRemaining = random.Next(minRunLength, maxRunLength + 1);
-                    stepDelta = SelectSegmentStepDelta(minDelta, maxDelta, mountainChance, random);
-                }
-            }
-
-            stepsRemaining = Mathf.Max(0, stepsRemaining - 1);
-
-            if (direction == 0)
-            {
-                return currentY;
-            }
-
-            var nextY = currentY + direction * stepDelta;
-            if (nextY > maxY)
-            {
-                nextY = maxY;
-                direction = -1;
-                stepsRemaining = 0;
-            }
-            else if (nextY < minY)
-            {
-                nextY = minY;
-                direction = 1;
-                stepsRemaining = 0;
-            }
-
-            return nextY;
-        }
-
-        private float SelectSegmentStepDelta(float minDelta, float maxDelta, float mountainChance, System.Random random)
-        {
-            var deltaRange = Mathf.Max(0.001f, maxDelta - minDelta);
-            if (random.NextDouble() < mountainChance)
-            {
-                // Mountain segments: steeper but still straight.
-                var steepMin = minDelta + deltaRange * 0.65f;
-                var steepMax = maxDelta * mountainStepMultiplier;
-                return Mathf.Lerp(steepMin, steepMax, (float)random.NextDouble());
-            }
-
-            // Normal segments: pick from a few discrete slopes for clean straight visuals.
-            var discreteLevel = random.Next(0, 3); // 0..2
-            var t = discreteLevel / 2f;
-            return Mathf.Lerp(minDelta, minDelta + deltaRange * 0.75f, t);
-        }
-
-        private int GetDifficultyLevel()
-        {
-            if (!isRunActive)
-            {
-                return 0;
-            }
-
-            var rawLevel = Mathf.FloorToInt(runElapsedSeconds / 60f);
-            return Mathf.Clamp(rawLevel, 0, maxDifficultyLevel);
         }
 
         private void BuildWindow(float startX, float endX)
@@ -441,9 +334,8 @@ namespace JumpRing.Game.Gameplay
 
             for (var index = 0; index < pointsCount; index++)
             {
-                var step = startStep + index;
-                var x = StepToX(step);
-                var y = pathPoints[step];
+                var x = (startStep + index) * segmentLength;
+                var y = EvaluateHeightAtX(x);
 
                 var worldPoint = new Vector3(x, y, 0f);
                 worldPointsBuffer[index] = worldPoint;
@@ -453,11 +345,6 @@ namespace JumpRing.Game.Gameplay
             }
 
             edgeCollider.SetPoints(colliderPoints);
-        }
-
-        private float StepToX(int step)
-        {
-            return step * segmentLength;
         }
 
         private void StartGradientTransition(Color targetColor)
@@ -519,14 +406,10 @@ namespace JumpRing.Game.Gameplay
         private static Color GenerateRandomGradientColor()
         {
             return Random.ColorHSV(
-                0f,
-                1f,
-                0.65f,
-                1f,
-                0.75f,
-                1f,
-                1f,
-                1f);
+                0f, 1f,
+                0.65f, 1f,
+                0.75f, 1f,
+                1f, 1f);
         }
     }
 }

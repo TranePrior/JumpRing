@@ -510,23 +510,65 @@ MonoBehaviour:
   behindCameraDistance: 50
   aheadCameraDistance: 50
   rebuildDistance: 0.1
-  startY: 0
   minY: -1
   maxY: 1
-  baseMinVerticalStep: 0.25
-  baseMaxVerticalStep: 0.8
-  verticalStepIncreasePerMinute: 0.08
-  baseTurnChance: 0.059
-  turnChanceIncreasePerMinute: 0.06
-  baseFlatChance: 0.099
-  flatChanceDecreasePerMinute: 0.015
-  baseMinSegmentRunLength: 4
-  baseMaxSegmentRunLength: 10
-  baseMinFlatRunLength: 3
-  baseMaxFlatRunLength: 8
-  baseMountainChance: 0.14
-  mountainStepMultiplier: 1.8
-  maxDifficultyLevel: 5
+  clicksPerDifficultyStep: 25
+  maxDifficultySteps: 6
+  difficultyCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  waveLayers:
+  - frequency: 0.04
+    amplitude: 0.2
+    difficultyStart: 0
+    difficultyEnd: 0
+    useTriangleWave: 0
+  - frequency: 0.1
+    amplitude: 0.35
+    difficultyStart: 0.05
+    difficultyEnd: 0.2
+    useTriangleWave: 0
+  - frequency: 0.22
+    amplitude: 0.45
+    difficultyStart: 0.15
+    difficultyEnd: 0.35
+    useTriangleWave: 0
+  - frequency: 0.4
+    amplitude: 0.35
+    difficultyStart: 0.35
+    difficultyEnd: 0.55
+    useTriangleWave: 0
+  - frequency: 0.65
+    amplitude: 0.25
+    difficultyStart: 0.55
+    difficultyEnd: 0.75
+    useTriangleWave: 0
+  - frequency: 0.45
+    amplitude: 0.4
+    difficultyStart: 0.65
+    difficultyEnd: 0.85
+    useTriangleWave: 1
   randomSeed: 10
   generateOnEnable: 1
   clicksPerGradientStep: 25

@@ -42,8 +42,15 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private Camera gameplayCamera;
 
-        [SerializeField, Min(0.1f)]
-        private float segmentLength = 0.5f;
+        [Header("Segment Length (dynamic)")]
+        [SerializeField, Min(0.5f)]
+        private float baseSegmentLength = 3f;
+
+        [SerializeField, Min(0.5f)]
+        private float minSegmentLength = 2f;
+
+        [SerializeField]
+        private AnimationCurve segmentByDifficulty = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
         [SerializeField]
         private float behindCameraDistance = 10f;
@@ -63,27 +70,36 @@ namespace JumpRing.Game.Gameplay
 
         [Header("Difficulty Progression")]
         [SerializeField, Tooltip("Number of clicks (taps) to advance one difficulty step"), Min(1)]
-        private int clicksPerDifficultyStep = 20;
+        private int clicksPerDifficultyStep = 5;
 
         [SerializeField, Tooltip("Total number of difficulty steps to reach maximum difficulty"), Min(1)]
-        private int maxDifficultySteps = 6;
+        private int maxDifficultySteps = 15;
 
         [SerializeField, Tooltip("Maps normalized step progress (0–1) to difficulty (0–1)")]
-        private AnimationCurve difficultyCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+        private AnimationCurve difficultyCurve = new(
+            new Keyframe(0f, 0f, 0f, 3f),
+            new Keyframe(0.3f, 0.5f, 1f, 0.6f),
+            new Keyframe(1f, 1f, 0.3f, 0f)
+        );
+
+        [Header("Comfort Zones")]
+        [SerializeField, Min(1)]
+        private int comfortZoneInterval = 20;
+
+        [SerializeField, Min(0.1f)]
+        private float comfortZoneDuration = 4f;
+
+        [SerializeField, Range(0f, 1f)]
+        private float comfortZoneAmplitudeScale = 0.5f;
 
         [Header("Wave Layers")]
         [SerializeField]
         private WaveLayer[] waveLayers =
         {
-            // Base zigzag — fades in first, gives the main sharp shape
             new() { frequency = 0.18f, amplitude = 0.60f, difficultyStart = 0.05f, difficultyEnd = 0.20f, useTriangleWave = true },
-            // Secondary zigzag at different frequency — adds irregularity to peak heights
             new() { frequency = 0.29f, amplitude = 0.50f, difficultyStart = 0.15f, difficultyEnd = 0.35f, useTriangleWave = true },
-            // Higher frequency detail — tighter oscillations at mid difficulty
             new() { frequency = 0.47f, amplitude = 0.45f, difficultyStart = 0.30f, difficultyEnd = 0.55f, useTriangleWave = true },
-            // Large slow wave — big sweeping peaks at higher difficulty
             new() { frequency = 0.08f, amplitude = 0.80f, difficultyStart = 0.50f, difficultyEnd = 0.70f, useTriangleWave = true },
-            // Fast sharp detail — makes line very aggressive at max difficulty
             new() { frequency = 0.63f, amplitude = 0.35f, difficultyStart = 0.70f, difficultyEnd = 0.90f, useTriangleWave = true },
         };
 
@@ -95,13 +111,6 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private bool generateOnEnable = true;
 
-        [Header("Visual")]
-        [SerializeField, Min(1)]
-        private int clicksPerGradientStep = 25;
-
-        [SerializeField, Min(0.01f)]
-        private float gradientTransitionDuration = 0.35f;
-
         private readonly Vector3[] worldPointsBuffer = new Vector3[2048];
         private readonly Vector2[] localPointsBuffer = new Vector2[2048];
 
@@ -112,14 +121,25 @@ namespace JumpRing.Game.Gameplay
         private float runStartX;
         private float yOffset;
         private float clickDifficulty;
+        private float comfortZoneMultiplier = 1f;
+        private float comfortZoneTimer;
+        private bool isInComfortZone;
+        private int lastComfortZoneStep;
 
         private float[] noiseOffsets;
 
-        private int appliedGradientStep;
-        private Color gradientTransitionStartColor = Color.white;
-        private Color gradientTransitionEndColor = Color.white;
-        private float gradientTransitionTime;
-        private bool isGradientTransitionRunning;
+        public LineRenderer LineRenderer => lineRenderer;
+        public float CurrentDifficulty => clickDifficulty;
+        public float CurrentWidth => lineRenderer.widthMultiplier;
+
+        private float CurrentSegmentLength
+        {
+            get
+            {
+                var t = segmentByDifficulty.Evaluate(clickDifficulty);
+                return Mathf.Lerp(baseSegmentLength, minSegmentLength, t);
+            }
+        }
 
         private void OnEnable()
         {
@@ -130,9 +150,10 @@ namespace JumpRing.Game.Gameplay
             runStartX = 0f;
             yOffset = 0f;
             clickDifficulty = 0f;
-            appliedGradientStep = 0;
-            ApplyGradient(Color.white);
-            isGradientTransitionRunning = false;
+            comfortZoneMultiplier = 1f;
+            comfortZoneTimer = 0f;
+            isInComfortZone = false;
+            lastComfortZoneStep = 0;
             runSessionController.RunStarted += OnRunStarted;
             runSessionController.RunFinished += OnRunFinished;
 
@@ -187,8 +208,9 @@ namespace JumpRing.Game.Gameplay
             if (score <= 0)
             {
                 clickDifficulty = 0f;
-                appliedGradientStep = 0;
-                StartGradientTransition(Color.white);
+                comfortZoneMultiplier = 1f;
+                isInComfortZone = false;
+                lastComfortZoneStep = 0;
                 return;
             }
 
@@ -196,20 +218,43 @@ namespace JumpRing.Game.Gameplay
             var normalized = Mathf.Clamp01((float)difficultyStep / maxDifficultySteps);
             clickDifficulty = difficultyCurve.Evaluate(normalized);
 
-            var gradientStep = score / clicksPerGradientStep;
-            if (gradientStep <= appliedGradientStep)
+            var comfortStep = score / comfortZoneInterval;
+            if (comfortStep > lastComfortZoneStep && !isInComfortZone)
             {
-                return;
+                lastComfortZoneStep = comfortStep;
+                isInComfortZone = true;
+                comfortZoneTimer = comfortZoneDuration;
+                comfortZoneMultiplier = comfortZoneAmplitudeScale;
             }
-
-            appliedGradientStep = gradientStep;
-            StartGradientTransition(GenerateRandomGradientColor());
         }
 
         private void LateUpdate()
         {
+            UpdateComfortZone();
             UpdateWindow(force: false);
-            UpdateGradientTransition();
+        }
+
+        private void UpdateComfortZone()
+        {
+            if (!isInComfortZone)
+            {
+                return;
+            }
+
+            comfortZoneTimer -= Time.deltaTime;
+            if (comfortZoneTimer <= 0f)
+            {
+                isInComfortZone = false;
+                comfortZoneMultiplier = 1f;
+            }
+            else
+            {
+                var remainingRatio = comfortZoneTimer / comfortZoneDuration;
+                if (remainingRatio < 0.3f)
+                {
+                    comfortZoneMultiplier = Mathf.Lerp(1f, comfortZoneAmplitudeScale, remainingRatio / 0.3f);
+                }
+            }
         }
 
         private void OnRunStarted()
@@ -280,7 +325,7 @@ namespace JumpRing.Game.Gameplay
                     value = Mathf.PerlinNoise(sampleX, noiseOffsets[i] * 0.7f) * 2f - 1f;
                 }
 
-                y += blend * layer.amplitude * value;
+                y += blend * layer.amplitude * value * comfortZoneMultiplier;
             }
 
             return y;
@@ -300,12 +345,13 @@ namespace JumpRing.Game.Gameplay
 
         private void UpdateWindow(bool force)
         {
+            var seg = CurrentSegmentLength;
             var cameraX = gameplayCamera.transform.position.x;
             var desiredStartX = cameraX - behindCameraDistance;
             var desiredEndX = cameraX + aheadCameraDistance;
 
-            var startX = Mathf.Floor(desiredStartX / segmentLength) * segmentLength;
-            var endX = Mathf.Ceil(desiredEndX / segmentLength) * segmentLength;
+            var startX = Mathf.Floor(desiredStartX / seg) * seg;
+            var endX = Mathf.Ceil(desiredEndX / seg) * seg;
 
             if (!force && hasWindow)
             {
@@ -317,16 +363,16 @@ namespace JumpRing.Game.Gameplay
                 }
             }
 
-            BuildWindow(startX, endX);
+            BuildWindow(startX, endX, seg);
             lastStartX = startX;
             lastEndX = endX;
             hasWindow = true;
         }
 
-        private void BuildWindow(float startX, float endX)
+        private void BuildWindow(float startX, float endX, float seg)
         {
-            var startStep = Mathf.FloorToInt(startX / segmentLength);
-            var endStep = Mathf.CeilToInt(endX / segmentLength);
+            var startStep = Mathf.FloorToInt(startX / seg);
+            var endStep = Mathf.CeilToInt(endX / seg);
             var rawPointsCount = endStep - startStep + 1;
             var pointsCount = Mathf.Clamp(rawPointsCount, 2, worldPointsBuffer.Length);
             lineRenderer.positionCount = pointsCount;
@@ -334,7 +380,7 @@ namespace JumpRing.Game.Gameplay
 
             for (var index = 0; index < pointsCount; index++)
             {
-                var x = (startStep + index) * segmentLength;
+                var x = (startStep + index) * seg;
                 var y = EvaluateHeightAtX(x);
 
                 var worldPoint = new Vector3(x, y, 0f);
@@ -345,71 +391,6 @@ namespace JumpRing.Game.Gameplay
             }
 
             edgeCollider.SetPoints(colliderPoints);
-        }
-
-        private void StartGradientTransition(Color targetColor)
-        {
-            gradientTransitionStartColor = GetCurrentGradientEndColor();
-            gradientTransitionEndColor = targetColor;
-            gradientTransitionTime = 0f;
-            isGradientTransitionRunning = true;
-        }
-
-        private void UpdateGradientTransition()
-        {
-            if (!isGradientTransitionRunning)
-            {
-                return;
-            }
-
-            gradientTransitionTime += Time.deltaTime;
-            var progress = Mathf.Clamp01(gradientTransitionTime / gradientTransitionDuration);
-            var currentEndColor = Color.Lerp(gradientTransitionStartColor, gradientTransitionEndColor, progress);
-            ApplyGradient(currentEndColor);
-
-            if (progress >= 1f)
-            {
-                isGradientTransitionRunning = false;
-            }
-        }
-
-        private Color GetCurrentGradientEndColor()
-        {
-            var gradient = lineRenderer.colorGradient;
-            var colorKeys = gradient.colorKeys;
-            if (colorKeys.Length == 0)
-            {
-                return Color.white;
-            }
-
-            return colorKeys[colorKeys.Length - 1].color;
-        }
-
-        private void ApplyGradient(Color endColor)
-        {
-            var gradient = new Gradient();
-            gradient.SetKeys(
-                new[]
-                {
-                    new GradientColorKey(Color.white, 0f),
-                    new GradientColorKey(endColor, 1f),
-                },
-                new[]
-                {
-                    new GradientAlphaKey(1f, 0f),
-                    new GradientAlphaKey(1f, 1f),
-                });
-
-            lineRenderer.colorGradient = gradient;
-        }
-
-        private static Color GenerateRandomGradientColor()
-        {
-            return Random.ColorHSV(
-                0f, 1f,
-                0.65f, 1f,
-                0.75f, 1f,
-                1f, 1f);
         }
     }
 }

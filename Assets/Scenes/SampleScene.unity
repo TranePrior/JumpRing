@@ -506,14 +506,39 @@ MonoBehaviour:
   edgeCollider: {fileID: 987682184}
   runSessionController: {fileID: 0}
   gameplayCamera: {fileID: 330585545}
-  segmentLength: 0.2
+  baseSegmentLength: 3
+  minSegmentLength: 2
+  segmentByDifficulty:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   behindCameraDistance: 50
   aheadCameraDistance: 50
   rebuildDistance: 0.1
   minY: -1
   maxY: 1
-  clicksPerDifficultyStep: 25
-  maxDifficultySteps: 6
+  clicksPerDifficultyStep: 5
+  maxDifficultySteps: 15
   difficultyCurve:
     serializedVersion: 2
     m_Curve:
@@ -538,6 +563,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  comfortZoneInterval: 20
+  comfortZoneDuration: 4
+  comfortZoneAmplitudeScale: 0.5
   waveLayers:
   - frequency: 0.04
     amplitude: 0.2
@@ -571,8 +599,6 @@ MonoBehaviour:
     useTriangleWave: 1
   randomSeed: 10
   generateOnEnable: 1
-  clicksPerGradientStep: 25
-  gradientTransitionDuration: 0.35
 --- !u!68 &987682184
 EdgeCollider2D:
   m_ObjectHideFlags: 0
@@ -3575,7 +3601,8 @@ PrefabInstance:
       propertyPath: m_Parameters.generateLightingData
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2598418744477660793, guid: c196a468779eb44fb9379790094aa0b3, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -3717,6 +3744,10 @@ PrefabInstance:
       propertyPath: runSessionController
       value: 
       objectReference: {fileID: 1632676868}
+    - target: {fileID: 870064300581209793, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+      propertyPath: linePathGenerator
+      value: 
+      objectReference: {fileID: 987682183}
     - target: {fileID: 870064300581209793, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
       propertyPath: runSessionController
       value: 

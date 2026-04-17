@@ -5,6 +5,13 @@ namespace JumpRing.Game.Gameplay
 {
     public sealed class LinePathGenerator : MonoBehaviour
     {
+        private enum WaveType
+        {
+            Perlin = 0,
+            Triangle = 1,
+            Sawtooth = 2,
+        }
+
         [System.Serializable]
         private struct WaveLayer
         {
@@ -24,8 +31,40 @@ namespace JumpRing.Game.Gameplay
             [Range(0f, 1f)]
             public float difficultyEnd;
 
-            [Tooltip("Use triangle wave instead of Perlin noise for sharp zigzag peaks")]
+            [Tooltip("Wave shape: Perlin (smooth), Triangle (zigzag), Sawtooth (ramp up + drop)")]
+            public WaveType waveType;
+
+            [Tooltip("Legacy field — use waveType instead")]
+            [HideInInspector]
             public bool useTriangleWave;
+        }
+
+        [System.Serializable]
+        private struct SlopeConfig
+        {
+            [Tooltip("Difficulty at which slopes start appearing")]
+            [Range(0f, 1f)]
+            public float minDifficulty;
+
+            [Tooltip("Average distance between slope starts (in world X units)")]
+            [Min(5f)]
+            public float interval;
+
+            [Tooltip("Length of a slope segment in world X units")]
+            [Min(2f)]
+            public float length;
+
+            [Tooltip("Slope angle in degrees (30 = gentle, 60 = steep)")]
+            [Range(15f, 70f)]
+            public float maxAngle;
+
+            [Tooltip("How much to dampen wave layers during a slope (0 = full dampen, 1 = no dampen)")]
+            [Range(0f, 1f)]
+            public float waveDampening;
+
+            [Tooltip("Blend distance at slope entry/exit")]
+            [Min(0.5f)]
+            public float blendDistance;
         }
 
         [Header("Dependencies")]
@@ -48,7 +87,7 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private Camera gameplayCamera;
 
-        [Header("Segment Length (dynamic)")]
+        [Header("Segment Length")]
         [SerializeField, Min(0.5f)]
         private float baseSegmentLength = 3f;
 
@@ -69,10 +108,10 @@ namespace JumpRing.Game.Gameplay
 
         [Header("Path Bounds")]
         [SerializeField]
-        private float minY = -3.5f;
+        private float minY = -2.5f;
 
         [SerializeField]
-        private float maxY = 3.5f;
+        private float maxY = 2.5f;
 
         [Header("Line Width")]
         [SerializeField]
@@ -82,11 +121,24 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private WaveLayer[] waveLayers =
         {
-            new() { frequency = 0.18f, amplitude = 0.60f, difficultyStart = 0.05f, difficultyEnd = 0.20f, useTriangleWave = true },
-            new() { frequency = 0.29f, amplitude = 0.50f, difficultyStart = 0.15f, difficultyEnd = 0.35f, useTriangleWave = true },
-            new() { frequency = 0.47f, amplitude = 0.45f, difficultyStart = 0.30f, difficultyEnd = 0.55f, useTriangleWave = true },
-            new() { frequency = 0.08f, amplitude = 0.80f, difficultyStart = 0.50f, difficultyEnd = 0.70f, useTriangleWave = true },
-            new() { frequency = 0.63f, amplitude = 0.35f, difficultyStart = 0.70f, difficultyEnd = 0.90f, useTriangleWave = true },
+            new() { frequency = 0.12f, amplitude = 0.80f, difficultyStart = 0.05f, difficultyEnd = 0.20f, waveType = WaveType.Perlin },
+            new() { frequency = 0.25f, amplitude = 0.40f, difficultyStart = 0.15f, difficultyEnd = 0.35f, waveType = WaveType.Perlin },
+            new() { frequency = 0.50f, amplitude = 0.55f, difficultyStart = 0.30f, difficultyEnd = 0.55f, waveType = WaveType.Triangle },
+            new() { frequency = 0.07f, amplitude = 1.00f, difficultyStart = 0.50f, difficultyEnd = 0.70f, waveType = WaveType.Triangle },
+            new() { frequency = 0.80f, amplitude = 0.25f, difficultyStart = 0.70f, difficultyEnd = 0.90f, waveType = WaveType.Triangle },
+            new() { frequency = 0.04f, amplitude = 1.20f, difficultyStart = 0.30f, difficultyEnd = 0.60f, waveType = WaveType.Sawtooth },
+        };
+
+        [Header("Slope Segments")]
+        [SerializeField]
+        private SlopeConfig slopeConfig = new()
+        {
+            minDifficulty = 0.5f,
+            interval = 30f,
+            length = 6f,
+            maxAngle = 45f,
+            waveDampening = 0.3f,
+            blendDistance = 1.5f,
         };
 
         [Header("Seed")]
@@ -108,15 +160,25 @@ namespace JumpRing.Game.Gameplay
         private float yOffset;
 
         private float[] noiseOffsets;
+        private float slopeNoiseOffset;
+
+        // Baking system: once a point is generated, it never changes
+        private readonly Dictionary<int, float> bakedHeights = new(256);
+        private float activeSegmentLength;
 
         public LineRenderer LineRenderer => lineRenderer;
         public float CurrentDifficulty => difficultyManager != null ? difficultyManager.EffectiveDifficulty : 0f;
         public float CurrentWidth => lineRenderer.widthMultiplier;
 
-        private float CurrentSegmentLength
+        private float ActiveSegmentLength
         {
             get
             {
+                if (isRunActive)
+                {
+                    return activeSegmentLength;
+                }
+
                 var t = segmentByDifficulty.Evaluate(CurrentDifficulty);
                 return Mathf.Lerp(baseSegmentLength, minSegmentLength, t);
             }
@@ -141,6 +203,7 @@ namespace JumpRing.Game.Gameplay
             isRunActive = false;
             runStartX = 0f;
             yOffset = 0f;
+            activeSegmentLength = baseSegmentLength;
 
             runSessionController.RunStarted += OnRunStarted;
             runSessionController.RunFinished += OnRunFinished;
@@ -160,6 +223,7 @@ namespace JumpRing.Game.Gameplay
         [ContextMenu("Generate Line")]
         public void ForceRebuild()
         {
+            bakedHeights.Clear();
             hasWindow = false;
             UpdateWindow(force: true);
         }
@@ -169,6 +233,7 @@ namespace JumpRing.Game.Gameplay
             runStartX = anchorPoint.x;
             var rawY = EvaluateRawY(anchorPoint.x, 0f);
             yOffset = anchorPoint.y - rawY;
+            bakedHeights.Clear();
             hasWindow = false;
             UpdateWindow(force: true);
         }
@@ -180,7 +245,16 @@ namespace JumpRing.Game.Gameplay
 
         public float EvaluateHeightAtX(float x)
         {
-            var difficulty = GetDifficultyAtX(x);
+            var seg = ActiveSegmentLength;
+            var step = Mathf.RoundToInt(x / seg);
+
+            if (bakedHeights.TryGetValue(step, out var bakedY))
+            {
+                return bakedY;
+            }
+
+            // Not baked yet — evaluate fresh (used for points ahead of frontier)
+            var difficulty = isRunActive ? CurrentDifficulty : 0f;
             var rawY = EvaluateRawY(x, difficulty);
             return Mathf.Clamp(rawY + yOffset, minY, maxY);
         }
@@ -217,11 +291,15 @@ namespace JumpRing.Game.Gameplay
         private void OnRunStarted()
         {
             isRunActive = true;
+            var t = segmentByDifficulty.Evaluate(0f);
+            activeSegmentLength = Mathf.Lerp(baseSegmentLength, minSegmentLength, t);
+            bakedHeights.Clear();
         }
 
         private void OnRunFinished()
         {
             isRunActive = false;
+            bakedHeights.Clear();
         }
 
         private void InitializeNoiseOffsets()
@@ -233,25 +311,37 @@ namespace JumpRing.Game.Gameplay
             {
                 noiseOffsets[i] = (float)(rng.NextDouble() * 10000.0 + 1000.0);
             }
+
+            slopeNoiseOffset = (float)(rng.NextDouble() * 10000.0 + 1000.0);
         }
 
-        private float GetDifficultyAtX(float x)
+        private float BakeOrGetHeight(int step, float seg)
         {
-            if (!isRunActive)
+            if (bakedHeights.TryGetValue(step, out var cachedY))
             {
-                return 0f;
+                return cachedY;
             }
 
-            return CurrentDifficulty;
+            var x = step * seg;
+            var difficulty = isRunActive ? CurrentDifficulty : 0f;
+            var rawY = EvaluateRawY(x, difficulty);
+            var clampedY = Mathf.Clamp(rawY + yOffset, minY, maxY);
+
+            bakedHeights[step] = clampedY;
+            return clampedY;
         }
 
         private float EvaluateRawY(float x, float difficulty)
         {
-            var y = 0f;
             var freqMult = difficultyManager != null ? difficultyManager.FrequencyMultiplier : 1f;
             var ampMult = difficultyManager != null ? difficultyManager.AmplitudeMultiplier : 1f;
             var eventAmpMult = microEventSystem != null ? microEventSystem.EventAmplitudeMultiplier : 1f;
             var inversionSign = (microEventSystem != null && microEventSystem.IsInverted) ? -1f : 1f;
+
+            var slopeResult = EvaluateSlope(x, difficulty);
+            var waveDampen = Mathf.Lerp(1f, slopeResult.waveDampening, slopeResult.blend);
+
+            var y = 0f;
 
             for (var i = 0; i < waveLayers.Length; i++)
             {
@@ -278,25 +368,116 @@ namespace JumpRing.Game.Gameplay
                 var sampleX = x * layer.frequency * freqMult + noiseOffsets[i];
 
                 float value;
-                if (layer.useTriangleWave)
+                switch (layer.waveType)
                 {
-                    value = TriangleWave(sampleX);
-                }
-                else
-                {
-                    value = Mathf.PerlinNoise(sampleX, noiseOffsets[i] * 0.7f) * 2f - 1f;
+                    case WaveType.Triangle:
+                        value = TriangleWave(sampleX);
+                        break;
+                    case WaveType.Sawtooth:
+                        value = SawtoothWave(sampleX);
+                        break;
+                    default:
+                        value = Mathf.PerlinNoise(sampleX, noiseOffsets[i] * 0.7f) * 2f - 1f;
+                        break;
                 }
 
-                y += blend * layer.amplitude * ampMult * eventAmpMult * value * inversionSign;
+                y += blend * layer.amplitude * ampMult * eventAmpMult * value * inversionSign * waveDampen;
             }
 
+            y += slopeResult.yOffset * slopeResult.blend;
+
             return y;
+        }
+
+        private struct SlopeResult
+        {
+            public float yOffset;
+            public float blend;
+            public float waveDampening;
+        }
+
+        private SlopeResult EvaluateSlope(float x, float difficulty)
+        {
+            var result = new SlopeResult { yOffset = 0f, blend = 0f, waveDampening = 1f };
+
+            if (difficulty < slopeConfig.minDifficulty)
+            {
+                return result;
+            }
+
+            var slopePhase = (x + slopeNoiseOffset) / slopeConfig.interval;
+            var slopeIndex = Mathf.FloorToInt(slopePhase);
+            var posInCycle = (slopePhase - slopeIndex) * slopeConfig.interval;
+
+            if (posInCycle > slopeConfig.length + slopeConfig.blendDistance * 2f)
+            {
+                return result;
+            }
+
+            // Deterministic direction: hash slope index to get up/down
+            var direction = ((slopeIndex * 73856093) & 1) == 0 ? 1f : -1f;
+
+            var slopeRise = Mathf.Tan(slopeConfig.maxAngle * Mathf.Deg2Rad);
+            var totalSlopeWithBlend = slopeConfig.length + slopeConfig.blendDistance * 2f;
+
+            float blend;
+            float localT;
+
+            if (posInCycle < slopeConfig.blendDistance)
+            {
+                // Blending in
+                blend = SmoothStep(0f, slopeConfig.blendDistance, posInCycle);
+                localT = posInCycle;
+            }
+            else if (posInCycle > slopeConfig.length + slopeConfig.blendDistance)
+            {
+                // Blending out
+                blend = 1f - SmoothStep(
+                    slopeConfig.length + slopeConfig.blendDistance,
+                    totalSlopeWithBlend,
+                    posInCycle);
+                localT = posInCycle;
+            }
+            else
+            {
+                // Fully in slope
+                blend = 1f;
+                localT = posInCycle;
+            }
+
+            var difficultyBlend = SmoothStep(
+                slopeConfig.minDifficulty,
+                Mathf.Min(slopeConfig.minDifficulty + 0.2f, 1f),
+                difficulty);
+
+            blend *= difficultyBlend;
+
+            // Y offset: centered ramp (goes up half, then down half)
+            var halfLength = (slopeConfig.length + slopeConfig.blendDistance * 2f) * 0.5f;
+            var distFromCenter = localT - halfLength;
+            result.yOffset = direction * distFromCenter * slopeRise;
+            result.blend = blend;
+            result.waveDampening = slopeConfig.waveDampening;
+
+            return result;
         }
 
         private static float TriangleWave(float x)
         {
             var t = x - Mathf.Floor(x);
             return 4f * Mathf.Abs(t - 0.5f) - 1f;
+        }
+
+        private static float SawtoothWave(float x)
+        {
+            var t = x - Mathf.Floor(x);
+            // Ramp up 0→1 over 75% of period, sharp drop over 25%
+            if (t < 0.75f)
+            {
+                return (t / 0.75f) * 2f - 1f;
+            }
+
+            return 1f - ((t - 0.75f) / 0.25f) * 2f;
         }
 
         private static float SmoothStep(float edge0, float edge1, float x)
@@ -307,7 +488,7 @@ namespace JumpRing.Game.Gameplay
 
         private void UpdateWindow(bool force)
         {
-            var seg = CurrentSegmentLength;
+            var seg = ActiveSegmentLength;
             var cameraX = gameplayCamera.transform.position.x;
             var desiredStartX = cameraX - behindCameraDistance;
             var desiredEndX = cameraX + aheadCameraDistance;
@@ -341,10 +522,15 @@ namespace JumpRing.Game.Gameplay
             lineRenderer.positionCount = pointsCount;
             var colliderPoints = new List<Vector2>(pointsCount);
 
+            // Prune baked points far behind the camera
+            var pruneStep = startStep - 20;
+            PruneBakedBefore(pruneStep);
+
             for (var index = 0; index < pointsCount; index++)
             {
-                var x = (startStep + index) * seg;
-                var y = EvaluateHeightAtX(x);
+                var step = startStep + index;
+                var x = step * seg;
+                var y = BakeOrGetHeight(step, seg);
 
                 var worldPoint = new Vector3(x, y, 0f);
                 worldPointsBuffer[index] = worldPoint;
@@ -354,6 +540,25 @@ namespace JumpRing.Game.Gameplay
             }
 
             edgeCollider.SetPoints(colliderPoints);
+        }
+
+        private void PruneBakedBefore(int minStep)
+        {
+            // Collect keys to remove to avoid modifying dictionary during iteration
+            var toRemove = new List<int>();
+
+            foreach (var key in bakedHeights.Keys)
+            {
+                if (key < minStep)
+                {
+                    toRemove.Add(key);
+                }
+            }
+
+            for (var i = 0; i < toRemove.Count; i++)
+            {
+                bakedHeights.Remove(toRemove[i]);
+            }
         }
     }
 }

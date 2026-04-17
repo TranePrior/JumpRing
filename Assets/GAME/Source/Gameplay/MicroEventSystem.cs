@@ -11,6 +11,7 @@ namespace JumpRing.Game.Gameplay
         Storm = 2,
         Inversion = 3,
         BlindZone = 4,
+        [System.Obsolete("Replaced by permanent speed steps in PlayerForwardMover")]
         SpeedBurst = 5,
     }
 
@@ -93,16 +94,6 @@ namespace JumpRing.Game.Gameplay
                 coinMultiplier = 2f,
                 hideLine = true,
                 minDifficulty = 0.6f,
-            },
-            new()
-            {
-                type = MicroEventType.SpeedBurst,
-                duration = 2f,
-                amplitudeMultiplier = 0.8f,
-                speedMultiplier = 1.5f,
-                coinMultiplier = 2f,
-                hideLine = false,
-                minDifficulty = 0.35f,
             },
         };
 

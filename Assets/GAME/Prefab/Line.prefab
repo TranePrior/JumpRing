@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5301715406462402401}
   - component: {fileID: 7305132454681016829}
   - component: {fileID: 2598418744477660793}
+  - component: {fileID: 6474539012588945122}
   m_Layer: 6
   m_Name: Line
   m_TagString: Untagged
@@ -155,26 +156,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d733b73d28ee94863945cd215c98e35f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.LinePathGenerator
-  lineRenderer: {fileID: 0}
-  edgeCollider: {fileID: 0}
+  lineRenderer: {fileID: 7305132454681016829}
+  edgeCollider: {fileID: 6474539012588945122}
   runSessionController: {fileID: 0}
+  difficultyManager: {fileID: 0}
+  microEventSystem: {fileID: 0}
   gameplayCamera: {fileID: 0}
-  segmentLength: 0.5
-  behindCameraDistance: 10
-  aheadCameraDistance: 10
-  rebuildDistance: 0.5
-  minY: -3.5
-  maxY: 3.5
-  clicksPerDifficultyStep: 20
-  maxDifficultySteps: 6
-  difficultyCurve:
+  baseSegmentLength: 3
+  minSegmentLength: 2
+  segmentByDifficulty:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
       inSlope: 0
-      outSlope: 0
+      outSlope: 1
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -182,7 +179,7 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0
+      inSlope: 1
       outSlope: 0
       tangentMode: 0
       weightedMode: 0
@@ -191,31 +188,98 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  behindCameraDistance: 10
+  aheadCameraDistance: 10
+  rebuildDistance: 0.5
+  minY: -2.5
+  maxY: 2.5
+  baseLineWidth: 0.15
   waveLayers:
-  - frequency: 0.18
-    amplitude: 0.6
+  - frequency: 0.12
+    amplitude: 0.8
     difficultyStart: 0.05
     difficultyEnd: 0.2
-    useTriangleWave: 1
-  - frequency: 0.29
-    amplitude: 0.5
+    waveType: 0
+    useTriangleWave: 0
+  - frequency: 0.25
+    amplitude: 0.4
     difficultyStart: 0.15
     difficultyEnd: 0.35
-    useTriangleWave: 1
-  - frequency: 0.47
-    amplitude: 0.45
+    waveType: 0
+    useTriangleWave: 0
+  - frequency: 0.5
+    amplitude: 0.55
     difficultyStart: 0.3
     difficultyEnd: 0.55
-    useTriangleWave: 1
-  - frequency: 0.08
-    amplitude: 0.8
+    waveType: 1
+    useTriangleWave: 0
+  - frequency: 0.07
+    amplitude: 1
     difficultyStart: 0.5
     difficultyEnd: 0.7
-    useTriangleWave: 1
-  - frequency: 0.63
-    amplitude: 0.35
+    waveType: 1
+    useTriangleWave: 0
+  - frequency: 0.8
+    amplitude: 0.25
     difficultyStart: 0.7
     difficultyEnd: 0.9
-    useTriangleWave: 1
+    waveType: 1
+    useTriangleWave: 0
+  - frequency: 0.04
+    amplitude: 1.2
+    difficultyStart: 0.3
+    difficultyEnd: 0.6
+    waveType: 2
+    useTriangleWave: 0
+  slopeConfig:
+    minDifficulty: 0.5
+    interval: 30
+    length: 6
+    maxAngle: 45
+    waveDampening: 0.3
+    blendDistance: 1.5
   randomSeed: 12345
   generateOnEnable: 1
+--- !u!68 &6474539012588945122
+EdgeCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4024959300269087870}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_EdgeRadius: 0
+  m_Points:
+  - {x: -0.125, y: 0}
+  - {x: 0.125, y: 0}
+  m_AdjacentStartPoint: {x: 0, y: 0}
+  m_AdjacentEndPoint: {x: 0, y: 0}
+  m_UseAdjacentStartPoint: 0
+  m_UseAdjacentEndPoint: 0

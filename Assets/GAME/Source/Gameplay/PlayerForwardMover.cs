@@ -13,18 +13,24 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private DifficultyManager difficultyManager;
 
-        [SerializeField]
-        private MicroEventSystem microEventSystem;
-
         [Header("Speed")]
         [SerializeField, Min(0.1f)]
         private float baseSpeed = 4f;
 
-        [SerializeField, Min(0.1f)]
-        private float maxSpeed = 6.5f;
+        [SerializeField, Min(0.01f)]
+        private float speedPerStep = 0.4f;
 
-        [SerializeField]
-        private AnimationCurve speedByDifficulty = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+        [SerializeField, Min(1)]
+        private int scorePerSpeedStep = 40;
+
+        [SerializeField, Min(0.1f)]
+        private float maxSpeed = 8f;
+
+        [SerializeField, Min(0.1f)]
+        private float speedSmoothTime = 0.5f;
+
+        private float targetSpeed;
+        private float smoothVelocity;
 
         public float CurrentSpeed { get; private set; }
 
@@ -36,15 +42,15 @@ namespace JumpRing.Game.Gameplay
                 velocity.x = 0f;
                 playerRigidbody.linearVelocity = velocity;
                 CurrentSpeed = 0f;
+                targetSpeed = baseSpeed;
                 return;
             }
 
-            var difficulty = difficultyManager != null ? difficultyManager.EffectiveDifficulty : 0f;
-            var speedT = speedByDifficulty.Evaluate(difficulty);
-            CurrentSpeed = Mathf.Lerp(baseSpeed, maxSpeed, speedT);
+            var score = difficultyManager != null ? difficultyManager.CurrentScore : 0;
+            var steps = score / scorePerSpeedStep;
+            targetSpeed = Mathf.Min(baseSpeed + steps * speedPerStep, maxSpeed);
 
-            var eventSpeedMult = microEventSystem != null ? microEventSystem.EventSpeedMultiplier : 1f;
-            CurrentSpeed *= eventSpeedMult;
+            CurrentSpeed = Mathf.SmoothDamp(CurrentSpeed, targetSpeed, ref smoothVelocity, speedSmoothTime);
 
             var vel = playerRigidbody.linearVelocity;
             vel.x = CurrentSpeed;

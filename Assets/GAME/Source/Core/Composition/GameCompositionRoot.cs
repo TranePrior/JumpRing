@@ -25,6 +25,16 @@ namespace JumpRing.Game.Core.Composition
         [SerializeField]
         private HudPresenter hudPresenter;
 
+        [Header("Difficulty Systems")]
+        [SerializeField]
+        private DifficultyManager difficultyManager;
+
+        [SerializeField]
+        private MicroEventSystem microEventSystem;
+
+        [SerializeField]
+        private RiskRewardSystem riskRewardSystem;
+
         private IGameStateMachine GameStateMachine => (IGameStateMachine)gameStateMachineComponent;
 
         private IScoreService ScoreService => (IScoreService)scoreServiceComponent;
@@ -36,7 +46,46 @@ namespace JumpRing.Game.Core.Composition
             runSessionController.Construct(GameStateMachine, ScoreService);
             hudPresenter.Construct(ScoreService, CurrencyService);
 
+            if (difficultyManager != null)
+            {
+                runSessionController.RunStarted += difficultyManager.OnRunStarted;
+                runSessionController.RunFinished += difficultyManager.OnRunFinished;
+            }
+
+            if (microEventSystem != null)
+            {
+                runSessionController.RunStarted += microEventSystem.OnRunStarted;
+                runSessionController.RunFinished += microEventSystem.OnRunFinished;
+            }
+
+            if (riskRewardSystem != null)
+            {
+                runSessionController.RunStarted += riskRewardSystem.OnRunStarted;
+                runSessionController.RunFinished += riskRewardSystem.OnRunFinished;
+            }
+
             GameStateMachine.Enter(GameState.MainMenu);
+        }
+
+        private void OnDestroy()
+        {
+            if (difficultyManager != null)
+            {
+                runSessionController.RunStarted -= difficultyManager.OnRunStarted;
+                runSessionController.RunFinished -= difficultyManager.OnRunFinished;
+            }
+
+            if (microEventSystem != null)
+            {
+                runSessionController.RunStarted -= microEventSystem.OnRunStarted;
+                runSessionController.RunFinished -= microEventSystem.OnRunFinished;
+            }
+
+            if (riskRewardSystem != null)
+            {
+                runSessionController.RunStarted -= riskRewardSystem.OnRunStarted;
+                runSessionController.RunFinished -= riskRewardSystem.OnRunFinished;
+            }
         }
     }
 }

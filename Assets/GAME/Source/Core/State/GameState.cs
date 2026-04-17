@@ -6,6 +6,7 @@ namespace JumpRing.Game.Core.State
         MainMenu = 1,
         Gameplay = 2,
         Paused = 3,
-        GameOver = 4
+        GameOver = 4,
+        Ready = 5,
     }
 }

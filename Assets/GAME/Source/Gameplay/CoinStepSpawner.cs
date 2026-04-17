@@ -34,6 +34,12 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private CurrencyService currencyService;
 
+        [SerializeField]
+        private RiskRewardSystem riskRewardSystem;
+
+        [SerializeField]
+        private MicroEventSystem microEventSystem;
+
         [Header("Spawn")]
         [SerializeField, Min(0.1f)]
         private float spawnStep = 2f;
@@ -61,6 +67,16 @@ namespace JumpRing.Game.Gameplay
 
         private void OnEnable()
         {
+            if (riskRewardSystem == null)
+            {
+                riskRewardSystem = Object.FindFirstObjectByType<RiskRewardSystem>();
+            }
+
+            if (microEventSystem == null)
+            {
+                microEventSystem = Object.FindFirstObjectByType<MicroEventSystem>();
+            }
+
             runSessionController.RunStarted += OnRunStarted;
             runSessionController.RunFinished += OnRunFinished;
         }
@@ -98,6 +114,7 @@ namespace JumpRing.Game.Gameplay
         private void SpawnAhead()
         {
             var spawnLimitX = ringTransform.position.x + spawnAheadDistance;
+
             while (nextSpawnX <= spawnLimitX)
             {
                 SpawnCoin(nextSpawnX);
@@ -108,9 +125,11 @@ namespace JumpRing.Game.Gameplay
         private void DespawnBehind()
         {
             var despawnX = ringTransform.position.x - despawnBehindDistance;
+
             while (spawnedCoins.Count > 0)
             {
                 var coin = spawnedCoins.Peek();
+
                 if (coin == null)
                 {
                     spawnedCoins.Dequeue();
@@ -133,7 +152,7 @@ namespace JumpRing.Game.Gameplay
             var spawnPosition = new Vector3(xPosition, yPosition, 0f);
             var spawnedCoin = Instantiate(coinPrefab, spawnPosition, Quaternion.identity, spawnedCoinsParent);
             var coinCollectible = spawnedCoin.GetComponent<CoinCollectible>();
-            coinCollectible.Construct(CurrencyService, runSessionController);
+            coinCollectible.Construct(CurrencyService, runSessionController, riskRewardSystem, microEventSystem);
             spawnedCoins.Enqueue(spawnedCoin);
         }
 
@@ -158,6 +177,7 @@ namespace JumpRing.Game.Gameplay
             while (spawnedCoins.Count > 0)
             {
                 var coin = spawnedCoins.Dequeue();
+
                 if (coin == null)
                 {
                     continue;

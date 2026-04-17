@@ -10,12 +10,20 @@ namespace JumpRing.Game.Gameplay
 
         private ICurrencyService currencyService;
         private RunSessionController runSessionController;
+        private RiskRewardSystem riskRewardSystem;
+        private MicroEventSystem microEventSystem;
         private bool isCollected;
 
-        public void Construct(ICurrencyService currency, RunSessionController runSession)
+        public void Construct(
+            ICurrencyService currency,
+            RunSessionController runSession,
+            RiskRewardSystem riskReward,
+            MicroEventSystem microEvent)
         {
             currencyService = currency;
             runSessionController = runSession;
+            riskRewardSystem = riskReward;
+            microEventSystem = microEvent;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -46,7 +54,21 @@ namespace JumpRing.Game.Gameplay
             }
 
             isCollected = true;
-            currencyService.Add(amount);
+
+            var coinMultiplier = 1f;
+
+            if (riskRewardSystem != null)
+            {
+                coinMultiplier *= riskRewardSystem.CoinValueMultiplier;
+            }
+
+            if (microEventSystem != null)
+            {
+                coinMultiplier *= microEventSystem.EventCoinMultiplier;
+            }
+
+            var finalAmount = Mathf.Max(1, Mathf.RoundToInt(amount * coinMultiplier));
+            currencyService.Add(finalAmount);
             Destroy(gameObject);
         }
     }

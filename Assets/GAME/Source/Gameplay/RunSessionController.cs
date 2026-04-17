@@ -20,8 +20,10 @@ namespace JumpRing.Game.Gameplay
         bool CanControlPlayer { get; }
         bool CanStartRun { get; }
         bool HasActiveRun { get; }
+        bool IsInReadyState { get; }
 
         void StartRun();
+        void BeginGameplay();
         void FinishRun();
         void PauseRun();
         void ResumeRun();
@@ -73,6 +75,8 @@ namespace JumpRing.Game.Gameplay
 
         public bool HasActiveRun => hasActiveRun;
 
+        public bool IsInReadyState => gameStateMachine.CurrentState == GameState.Ready;
+
         public void RegisterStartGate(IRunStartGate gate)
         {
             if (runStartGates.Contains(gate))
@@ -103,9 +107,19 @@ namespace JumpRing.Game.Gameplay
             }
 
             scoreService.Reset();
-            gameStateMachine.Enter(GameState.Gameplay);
+            gameStateMachine.Enter(GameState.Ready);
             hasActiveRun = true;
             RunStarted?.Invoke();
+        }
+
+        public void BeginGameplay()
+        {
+            if (gameStateMachine.CurrentState != GameState.Ready)
+            {
+                return;
+            }
+
+            gameStateMachine.Enter(GameState.Gameplay);
         }
 
         public void FinishRun()

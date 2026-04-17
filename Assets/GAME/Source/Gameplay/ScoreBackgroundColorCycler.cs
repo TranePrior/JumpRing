@@ -18,7 +18,7 @@ namespace JumpRing.Game.Gameplay
         private float transitionDuration = 0.4f;
 
         [SerializeField]
-        private Color baseBackgroundColor = new(0.62f, 0.62f, 0.62f, 1f);
+        private Color baseBackgroundColor = new(0.939f, 0.875f, 0.845f, 1f);
 
         private int appliedColorStep;
         private Color transitionStartColor;
@@ -91,12 +91,12 @@ namespace JumpRing.Game.Gameplay
         private static Color GenerateMutedColor()
         {
             return Random.ColorHSV(
-                0f,
-                1f,
+                0.02f,
+                0.12f,
                 0.08f,
-                0.28f,
-                0.45f,
-                0.72f,
+                0.25f,
+                0.75f,
+                0.95f,
                 1f,
                 1f);
         }

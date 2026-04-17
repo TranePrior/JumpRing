@@ -38,6 +38,12 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private RunSessionController runSessionController;
 
+        [SerializeField]
+        private DifficultyManager difficultyManager;
+
+        [SerializeField]
+        private MicroEventSystem microEventSystem;
+
         [Header("Window")]
         [SerializeField]
         private Camera gameplayCamera;
@@ -68,29 +74,9 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private float maxY = 3.5f;
 
-        [Header("Difficulty Progression")]
-        [SerializeField, Tooltip("Number of clicks (taps) to advance one difficulty step"), Min(1)]
-        private int clicksPerDifficultyStep = 5;
-
-        [SerializeField, Tooltip("Total number of difficulty steps to reach maximum difficulty"), Min(1)]
-        private int maxDifficultySteps = 15;
-
-        [SerializeField, Tooltip("Maps normalized step progress (0–1) to difficulty (0–1)")]
-        private AnimationCurve difficultyCurve = new(
-            new Keyframe(0f, 0f, 0f, 3f),
-            new Keyframe(0.3f, 0.5f, 1f, 0.6f),
-            new Keyframe(1f, 1f, 0.3f, 0f)
-        );
-
-        [Header("Comfort Zones")]
-        [SerializeField, Min(1)]
-        private int comfortZoneInterval = 20;
-
-        [SerializeField, Min(0.1f)]
-        private float comfortZoneDuration = 4f;
-
-        [SerializeField, Range(0f, 1f)]
-        private float comfortZoneAmplitudeScale = 0.5f;
+        [Header("Line Width")]
+        [SerializeField]
+        private float baseLineWidth = 0.15f;
 
         [Header("Wave Layers")]
         [SerializeField]
@@ -120,23 +106,18 @@ namespace JumpRing.Game.Gameplay
         private bool isRunActive;
         private float runStartX;
         private float yOffset;
-        private float clickDifficulty;
-        private float comfortZoneMultiplier = 1f;
-        private float comfortZoneTimer;
-        private bool isInComfortZone;
-        private int lastComfortZoneStep;
 
         private float[] noiseOffsets;
 
         public LineRenderer LineRenderer => lineRenderer;
-        public float CurrentDifficulty => clickDifficulty;
+        public float CurrentDifficulty => difficultyManager != null ? difficultyManager.EffectiveDifficulty : 0f;
         public float CurrentWidth => lineRenderer.widthMultiplier;
 
         private float CurrentSegmentLength
         {
             get
             {
-                var t = segmentByDifficulty.Evaluate(clickDifficulty);
+                var t = segmentByDifficulty.Evaluate(CurrentDifficulty);
                 return Mathf.Lerp(baseSegmentLength, minSegmentLength, t);
             }
         }
@@ -145,15 +126,22 @@ namespace JumpRing.Game.Gameplay
         {
             lineRenderer.useWorldSpace = true;
             runSessionController = Object.FindFirstObjectByType<RunSessionController>();
+
+            if (difficultyManager == null)
+            {
+                difficultyManager = Object.FindFirstObjectByType<DifficultyManager>();
+            }
+
+            if (microEventSystem == null)
+            {
+                microEventSystem = Object.FindFirstObjectByType<MicroEventSystem>();
+            }
+
             InitializeNoiseOffsets();
             isRunActive = false;
             runStartX = 0f;
             yOffset = 0f;
-            clickDifficulty = 0f;
-            comfortZoneMultiplier = 1f;
-            comfortZoneTimer = 0f;
-            isInComfortZone = false;
-            lastComfortZoneStep = 0;
+
             runSessionController.RunStarted += OnRunStarted;
             runSessionController.RunFinished += OnRunFinished;
 
@@ -203,57 +191,26 @@ namespace JumpRing.Game.Gameplay
             return distance.isOverlapped || distance.distance <= tolerance;
         }
 
-        public void NotifyScoreChanged(int score)
-        {
-            if (score <= 0)
-            {
-                clickDifficulty = 0f;
-                comfortZoneMultiplier = 1f;
-                isInComfortZone = false;
-                lastComfortZoneStep = 0;
-                return;
-            }
-
-            var difficultyStep = score / clicksPerDifficultyStep;
-            var normalized = Mathf.Clamp01((float)difficultyStep / maxDifficultySteps);
-            clickDifficulty = difficultyCurve.Evaluate(normalized);
-
-            var comfortStep = score / comfortZoneInterval;
-            if (comfortStep > lastComfortZoneStep && !isInComfortZone)
-            {
-                lastComfortZoneStep = comfortStep;
-                isInComfortZone = true;
-                comfortZoneTimer = comfortZoneDuration;
-                comfortZoneMultiplier = comfortZoneAmplitudeScale;
-            }
-        }
-
         private void LateUpdate()
         {
-            UpdateComfortZone();
+            UpdateLineVisibility();
+            UpdateLineWidth();
             UpdateWindow(force: false);
         }
 
-        private void UpdateComfortZone()
+        private void UpdateLineVisibility()
         {
-            if (!isInComfortZone)
+            if (microEventSystem != null)
             {
-                return;
+                lineRenderer.enabled = !microEventSystem.IsLineHidden;
             }
+        }
 
-            comfortZoneTimer -= Time.deltaTime;
-            if (comfortZoneTimer <= 0f)
+        private void UpdateLineWidth()
+        {
+            if (difficultyManager != null)
             {
-                isInComfortZone = false;
-                comfortZoneMultiplier = 1f;
-            }
-            else
-            {
-                var remainingRatio = comfortZoneTimer / comfortZoneDuration;
-                if (remainingRatio < 0.3f)
-                {
-                    comfortZoneMultiplier = Mathf.Lerp(1f, comfortZoneAmplitudeScale, remainingRatio / 0.3f);
-                }
+                lineRenderer.widthMultiplier = baseLineWidth * difficultyManager.LineWidthMultiplier;
             }
         }
 
@@ -271,6 +228,7 @@ namespace JumpRing.Game.Gameplay
         {
             var rng = new System.Random(randomSeed);
             noiseOffsets = new float[waveLayers.Length];
+
             for (var i = 0; i < waveLayers.Length; i++)
             {
                 noiseOffsets[i] = (float)(rng.NextDouble() * 10000.0 + 1000.0);
@@ -284,12 +242,16 @@ namespace JumpRing.Game.Gameplay
                 return 0f;
             }
 
-            return clickDifficulty;
+            return CurrentDifficulty;
         }
 
         private float EvaluateRawY(float x, float difficulty)
         {
             var y = 0f;
+            var freqMult = difficultyManager != null ? difficultyManager.FrequencyMultiplier : 1f;
+            var ampMult = difficultyManager != null ? difficultyManager.AmplitudeMultiplier : 1f;
+            var eventAmpMult = microEventSystem != null ? microEventSystem.EventAmplitudeMultiplier : 1f;
+            var inversionSign = (microEventSystem != null && microEventSystem.IsInverted) ? -1f : 1f;
 
             for (var i = 0; i < waveLayers.Length; i++)
             {
@@ -313,7 +275,7 @@ namespace JumpRing.Game.Gameplay
                     continue;
                 }
 
-                var sampleX = x * layer.frequency + noiseOffsets[i];
+                var sampleX = x * layer.frequency * freqMult + noiseOffsets[i];
 
                 float value;
                 if (layer.useTriangleWave)
@@ -325,7 +287,7 @@ namespace JumpRing.Game.Gameplay
                     value = Mathf.PerlinNoise(sampleX, noiseOffsets[i] * 0.7f) * 2f - 1f;
                 }
 
-                y += blend * layer.amplitude * value * comfortZoneMultiplier;
+                y += blend * layer.amplitude * ampMult * eventAmpMult * value * inversionSign;
             }
 
             return y;
@@ -357,6 +319,7 @@ namespace JumpRing.Game.Gameplay
             {
                 var movedStart = Mathf.Abs(startX - lastStartX);
                 var movedEnd = Mathf.Abs(endX - lastEndX);
+
                 if (movedStart < rebuildDistance && movedEnd < rebuildDistance)
                 {
                     return;

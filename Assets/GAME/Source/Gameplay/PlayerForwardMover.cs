@@ -11,7 +11,10 @@ namespace JumpRing.Game.Gameplay
         private RunSessionController runSessionController;
 
         [SerializeField]
-        private LinePathGenerator linePathGenerator;
+        private DifficultyManager difficultyManager;
+
+        [SerializeField]
+        private MicroEventSystem microEventSystem;
 
         [Header("Speed")]
         [SerializeField, Min(0.1f)]
@@ -36,9 +39,12 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
-            var difficulty = linePathGenerator.CurrentDifficulty;
+            var difficulty = difficultyManager != null ? difficultyManager.EffectiveDifficulty : 0f;
             var speedT = speedByDifficulty.Evaluate(difficulty);
             CurrentSpeed = Mathf.Lerp(baseSpeed, maxSpeed, speedT);
+
+            var eventSpeedMult = microEventSystem != null ? microEventSystem.EventSpeedMultiplier : 1f;
+            CurrentSpeed *= eventSpeedMult;
 
             var vel = playerRigidbody.linearVelocity;
             vel.x = CurrentSpeed;

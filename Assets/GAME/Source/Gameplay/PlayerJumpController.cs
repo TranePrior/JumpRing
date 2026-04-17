@@ -19,6 +19,8 @@ namespace JumpRing.Game.Gameplay
         private RunSessionController runSessionController;
 
         private LinePathGenerator linePathGenerator;
+        private DifficultyManager difficultyManager;
+        private RiskRewardSystem riskRewardSystem;
 
         [SerializeField]
         private Transform hitTop;
@@ -46,6 +48,8 @@ namespace JumpRing.Game.Gameplay
         private void Awake()
         {
             linePathGenerator = Object.FindFirstObjectByType<LinePathGenerator>();
+            difficultyManager = Object.FindFirstObjectByType<DifficultyManager>();
+            riskRewardSystem = Object.FindFirstObjectByType<RiskRewardSystem>();
             defaultGravityScale = playerRigidbody.gravityScale;
         }
 
@@ -72,6 +76,11 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
+            if (runSessionController.IsInReadyState)
+            {
+                runSessionController.BeginGameplay();
+            }
+
             if (!runSessionController.CanControlPlayer)
             {
                 if (!runSessionController.CanStartRun)
@@ -80,17 +89,20 @@ namespace JumpRing.Game.Gameplay
                 }
 
                 runSessionController.StartRun();
-
-                if (!runSessionController.CanControlPlayer)
-                {
-                    return;
-                }
-
-                linePathGenerator.NotifyScoreChanged(0);
+                return;
             }
 
             var currentScore = runSessionController.RegisterTap();
-            linePathGenerator.NotifyScoreChanged(currentScore);
+
+            if (difficultyManager != null)
+            {
+                difficultyManager.NotifyTap(currentScore);
+            }
+
+            if (riskRewardSystem != null)
+            {
+                riskRewardSystem.NotifyTap();
+            }
 
             var velocity = playerRigidbody.linearVelocity;
             velocity.y = 0f;
@@ -154,6 +166,7 @@ namespace JumpRing.Game.Gameplay
         private bool IsLineInsidePlayableWindow()
         {
             var lineAnchorPoint = new Vector2(playerRigidbody.position.x, GetPlayableWindowCenterY());
+
             if (!linePathGenerator.IsAlignedWithPoint(lineAnchorPoint, alignmentTolerance))
             {
                 return false;

@@ -59,6 +59,11 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private float spawnYOffset = 0f;
 
+        public void SetCoinPrefab(GameObject prefab)
+        {
+            coinPrefab = prefab;
+        }
+
         private readonly Queue<GameObject> spawnedCoins = new();
         private float nextSpawnX;
         private bool isSpawning;

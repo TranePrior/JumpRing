@@ -167,6 +167,14 @@ namespace JumpRing.Game.Gameplay
         private float activeSegmentLength;
 
         public LineRenderer LineRenderer => lineRenderer;
+
+        public void SetLineMaterial(Material material)
+        {
+            if (lineRenderer != null && material != null)
+            {
+                lineRenderer.material = material;
+            }
+        }
         public float CurrentDifficulty => difficultyManager != null ? difficultyManager.EffectiveDifficulty : 0f;
         public float CurrentWidth => lineRenderer.widthMultiplier;
 

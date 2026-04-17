@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df16d498784304bf99a4822d45cf8fbf, type: 3}
+  m_Name: ThemeData_PacMan
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.ThemeData
+  themeName: PacMan
+  playerSkinPrefab: {fileID: 3447231655194750, guid: 0c6a5cf53365d4697be953643f251732, type: 3}
+  lineMaterial: {fileID: 2100000, guid: 49d240bfb12b0433d9a4fca03fe14e92, type: 2}
+  coinPrefab: {fileID: 4993492142992724362, guid: 5b4b32ec8e8e643f78be12ed334dd7dd, type: 3}

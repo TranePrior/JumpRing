@@ -555,32 +555,45 @@ MonoBehaviour:
     amplitude: 0.2
     difficultyStart: 0
     difficultyEnd: 0
+    waveType: 0
     useTriangleWave: 0
   - frequency: 0.1
     amplitude: 0.35
     difficultyStart: 0.05
     difficultyEnd: 0.2
+    waveType: 0
     useTriangleWave: 0
   - frequency: 0.22
     amplitude: 0.45
     difficultyStart: 0.15
     difficultyEnd: 0.35
+    waveType: 1
     useTriangleWave: 0
   - frequency: 0.4
     amplitude: 0.35
     difficultyStart: 0.35
     difficultyEnd: 0.55
+    waveType: 1
     useTriangleWave: 0
   - frequency: 0.65
     amplitude: 0.25
     difficultyStart: 0.55
     difficultyEnd: 0.75
+    waveType: 1
     useTriangleWave: 0
   - frequency: 0.45
     amplitude: 0.4
     difficultyStart: 0.65
     difficultyEnd: 0.85
+    waveType: 2
     useTriangleWave: 1
+  slopeConfig:
+    minDifficulty: 0.5
+    interval: 30
+    length: 6
+    maxAngle: 45
+    waveDampening: 0.3
+    blendDistance: 1.5
   randomSeed: 10
   generateOnEnable: 1
 --- !u!68 &987682184
@@ -1304,6 +1317,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.TapGesturePresenter
   tapGestureImage: {fileID: 1278071189}
   gameStateMachineComponent: {fileID: 1632676869}
+  pulseSpeed: 2
+  scaleMin: 0.85
+  scaleMax: 1.1
+  alphaMin: 0.4
+  alphaMax: 1
 --- !u!1 &1535813555 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5660350171841749728, guid: 9002e3c2114304b888ecf40829781193, type: 3}
@@ -1712,6 +1730,22 @@ MonoBehaviour:
     coinMultiplier: 2
     hideLine: 0
     minDifficulty: 0.35
+--- !u!114 &1632676885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632676867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58eaceca943d94833939f6b856c440ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.ThemeManager
+  activeTheme: {fileID: 11400000, guid: 723a65e9c457b4f82982bf38939e1c87, type: 2}
+  playerSkinSlot: {fileID: 7174431161555079068}
+  linePathGenerator: {fileID: 987682183}
+  coinStepSpawner: {fileID: 1632676879}
 --- !u!1 &1785498134
 GameObject:
   m_ObjectHideFlags: 0
@@ -2017,6 +2051,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 518728953}
     - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      propertyPath: themeManager
+      value: 
+      objectReference: {fileID: 1632676885}
+    - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       propertyPath: microEventSystem
       value: 
       objectReference: {fileID: 1632676884}
@@ -2047,6 +2085,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1632676883}
+    - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1632676885}
   m_SourcePrefab: {fileID: 100100000, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
 --- !u!1001 &3530500232422484129
 PrefabInstance:
@@ -4292,7 +4333,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6210637601165726536, guid: d340cdaa631d04a3c930a1fb02a995e3, type: 3}
       propertyPath: m_fontSize
-      value: 18
+      value: 60.6
       objectReference: {fileID: 0}
     - target: {fileID: 6210637601165726536, guid: d340cdaa631d04a3c930a1fb02a995e3, type: 3}
       propertyPath: m_fontColor.b
@@ -4440,7 +4481,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7919036337219259543, guid: d340cdaa631d04a3c930a1fb02a995e3, type: 3}
       propertyPath: m_fontSize
-      value: 18
+      value: 56.7
       objectReference: {fileID: 0}
     - target: {fileID: 7919036337219259543, guid: d340cdaa631d04a3c930a1fb02a995e3, type: 3}
       propertyPath: m_fontStyle
@@ -4514,6 +4555,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 417182712511083237, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+      propertyPath: playerSkinSlot
+      value: 
+      objectReference: {fileID: 7174431161555079068}
     - target: {fileID: 417182712511083237, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
       propertyPath: runSessionController
       value: 
@@ -4607,6 +4652,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+--- !u!114 &7174431161555079068 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2227094313106591048, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+  m_PrefabInstance: {fileID: 7174431161555079067}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9a0cbc75b5f8477bb6d3164b5b2ccb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.PlayerSkinSlot
 --- !u!1001 &8136499206885469059
 PrefabInstance:
   m_ObjectHideFlags: 0

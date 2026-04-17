@@ -2,6 +2,7 @@ using UnityEngine;
 using JumpRing.Game.Core.Services;
 using JumpRing.Game.Core.State;
 using JumpRing.Game.Gameplay;
+using JumpRing.Game.Theming;
 using JumpRing.Game.UI;
 
 namespace JumpRing.Game.Core.Composition
@@ -24,6 +25,10 @@ namespace JumpRing.Game.Core.Composition
 
         [SerializeField]
         private HudPresenter hudPresenter;
+
+        [Header("Theming")]
+        [SerializeField]
+        private ThemeManager themeManager;
 
         [Header("Difficulty Systems")]
         [SerializeField]
@@ -62,6 +67,11 @@ namespace JumpRing.Game.Core.Composition
             {
                 runSessionController.RunStarted += riskRewardSystem.OnRunStarted;
                 runSessionController.RunFinished += riskRewardSystem.OnRunFinished;
+            }
+
+            if (themeManager != null)
+            {
+                themeManager.Initialize();
             }
 
             GameStateMachine.Enter(GameState.MainMenu);

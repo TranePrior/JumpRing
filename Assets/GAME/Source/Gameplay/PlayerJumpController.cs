@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 #endif
 
+using JumpRing.Game.Theming;
+
 namespace JumpRing.Game.Gameplay
 {
     public sealed class PlayerJumpController : MonoBehaviour, IRunStartGate
@@ -17,6 +19,9 @@ namespace JumpRing.Game.Gameplay
 
         [SerializeField]
         private RunSessionController runSessionController;
+
+        [SerializeField]
+        private PlayerSkinSlot playerSkinSlot;
 
         private LinePathGenerator linePathGenerator;
         private DifficultyManager difficultyManager;
@@ -108,6 +113,7 @@ namespace JumpRing.Game.Gameplay
             velocity.y = 0f;
             playerRigidbody.linearVelocity = velocity;
             playerRigidbody.AddForce(Vector2.up * jumpImpulse, ForceMode2D.Impulse);
+            playerSkinSlot?.Skin?.OnJump();
         }
 
         private void FixedUpdate()
@@ -129,6 +135,7 @@ namespace JumpRing.Game.Gameplay
             }
 
             runSessionController.FinishRun();
+            playerSkinSlot?.Skin?.OnDie();
             playerRigidbody.gravityScale = 0f;
             playerRigidbody.linearVelocity = Vector2.zero;
             playerRigidbody.angularVelocity = 0f;

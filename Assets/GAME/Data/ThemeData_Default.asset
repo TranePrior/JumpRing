@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df16d498784304bf99a4822d45cf8fbf, type: 3}
+  m_Name: ThemeData_Default
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.ThemeData
+  themeName: Default
+  playerSkinPrefab: {fileID: 9173337736600875290, guid: e0e1b4ef3b56d4d1e95460d4523460a8, type: 3}
+  lineMaterial: {fileID: 2100000, guid: a603f8cafe9f7483a8b5d46cb77662e9, type: 2}
+  coinPrefab: {fileID: 4993492142992724362, guid: 575e5b5fe59ea4f10b464461deec50d8, type: 3}

@@ -1143,6 +1143,24 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5301715406462402401, guid: c196a468779eb44fb9379790094aa0b3, type: 3}
   m_PrefabInstance: {fileID: 3530500232422484129}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &987682187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 987682180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28ff169df5ca34d16b9dc22c9ed2c5b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.LineDotsRenderer
+  linePathGenerator: {fileID: 987682183}
+  gameplayCamera: {fileID: 0}
+  spacing: 1.5
+  dotSize: 0.5
+  behindCameraDistance: 15
+  aheadCameraDistance: 15
 --- !u!224 &1090625423 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5555796050533463399, guid: 6a885f9c9b0944095980e59aa3d22dc2, type: 3}
@@ -1746,6 +1764,7 @@ MonoBehaviour:
   playerSkinSlot: {fileID: 7174431161555079068}
   linePathGenerator: {fileID: 987682183}
   coinStepSpawner: {fileID: 1632676879}
+  lineDotsRenderer: {fileID: 987682187}
 --- !u!1 &1785498134
 GameObject:
   m_ObjectHideFlags: 0
@@ -4212,6 +4231,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4024959300269087870, guid: c196a468779eb44fb9379790094aa0b3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 987682183}
+    - targetCorrespondingSourceObject: {fileID: 4024959300269087870, guid: c196a468779eb44fb9379790094aa0b3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 987682187}
   m_SourcePrefab: {fileID: 100100000, guid: c196a468779eb44fb9379790094aa0b3, type: 3}
 --- !u!1001 &4090204410794501927
 PrefabInstance:

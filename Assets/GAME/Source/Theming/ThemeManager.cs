@@ -18,6 +18,9 @@ namespace JumpRing.Game.Theming
         [SerializeField]
         private CoinStepSpawner coinStepSpawner;
 
+        [SerializeField]
+        private LineDotsRenderer lineDotsRenderer;
+
         public ThemeData ActiveTheme => activeTheme;
 
         public void Initialize()
@@ -40,6 +43,21 @@ namespace JumpRing.Game.Theming
             if (linePathGenerator != null && theme.LineMaterial != null)
             {
                 linePathGenerator.SetLineMaterial(theme.LineMaterial);
+            }
+
+            if (lineDotsRenderer != null)
+            {
+                if (theme.UseLineDots)
+                {
+                    lineDotsRenderer.Configure(theme.LineDotSprite, theme.LineDotSpacing, theme.LineDotSize);
+                    lineDotsRenderer.Activate();
+                    linePathGenerator.SetLineVisible(false);
+                }
+                else
+                {
+                    lineDotsRenderer.Deactivate();
+                    linePathGenerator.SetLineVisible(true);
+                }
             }
 
             if (coinStepSpawner != null && theme.CoinPrefab != null)

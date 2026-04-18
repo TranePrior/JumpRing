@@ -15,7 +15,7 @@ namespace JumpRing.Game.Gameplay
         private Rigidbody2D playerRigidbody;
 
         [SerializeField, Min(0.1f)]
-        private float jumpImpulse = 8f;
+        private float jumpImpulse = 13f;
 
         [SerializeField]
         private RunSessionController runSessionController;
@@ -47,6 +47,29 @@ namespace JumpRing.Game.Gameplay
 
         [SerializeField, Min(0f)]
         private float lineTouchTolerance = 0.001f;
+
+        [Header("Fall Feel")]
+        [SerializeField, Min(1f), Tooltip("Gravity multiplier when falling — makes descent snappier")]
+        private float fallGravityMultiplier = 2.2f;
+
+        [SerializeField, Min(1f), Tooltip("Gravity multiplier at jump peak for faster turnaround")]
+        private float peakGravityMultiplier = 1.6f;
+
+        [SerializeField, Min(0f), Tooltip("Velocity threshold to consider 'at peak'")]
+        private float peakVelocityThreshold = 1.5f;
+
+        [Header("Squash & Stretch")]
+        [SerializeField, Tooltip("Transform of the ring visual (skin slot or player sprite)")]
+        private Transform ringVisual;
+
+        [SerializeField, Range(0f, 0.4f)]
+        private float stretchAmount = 0.18f;
+
+        [SerializeField, Range(0f, 0.4f)]
+        private float squashAmount = 0.12f;
+
+        [SerializeField, Min(1f)]
+        private float scaleResponseSpeed = 14f;
 
         private float defaultGravityScale;
 
@@ -126,7 +149,20 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
-            playerRigidbody.gravityScale = defaultGravityScale;
+            // Snappier fall: boost gravity when descending or at jump peak
+            var vy = playerRigidbody.linearVelocity.y;
+            if (vy < -peakVelocityThreshold)
+            {
+                playerRigidbody.gravityScale = defaultGravityScale * fallGravityMultiplier;
+            }
+            else if (Mathf.Abs(vy) < peakVelocityThreshold)
+            {
+                playerRigidbody.gravityScale = defaultGravityScale * peakGravityMultiplier;
+            }
+            else
+            {
+                playerRigidbody.gravityScale = defaultGravityScale;
+            }
 
             if (!linePathGenerator.IsTouchingLine(hitTopCollider, lineTouchTolerance) &&
                 !linePathGenerator.IsTouchingLine(hitBottomCollider, lineTouchTolerance))
@@ -139,6 +175,46 @@ namespace JumpRing.Game.Gameplay
             playerRigidbody.gravityScale = 0f;
             playerRigidbody.linearVelocity = Vector2.zero;
             playerRigidbody.angularVelocity = 0f;
+        }
+
+        private void LateUpdate()
+        {
+            if (ringVisual == null)
+            {
+                return;
+            }
+
+            if (!runSessionController.CanControlPlayer)
+            {
+                ringVisual.localScale = Vector3.Lerp(ringVisual.localScale, Vector3.one, Time.deltaTime * scaleResponseSpeed);
+                return;
+            }
+
+            var vy = playerRigidbody.linearVelocity.y;
+            var normalizedVy = Mathf.Clamp(vy / jumpImpulse, -1f, 1f);
+
+            float sx, sy;
+            if (normalizedVy > 0.05f)
+            {
+                // Going up — stretch vertically
+                sy = 1f + stretchAmount * normalizedVy;
+                sx = 1f - stretchAmount * normalizedVy * 0.5f;
+            }
+            else if (normalizedVy < -0.05f)
+            {
+                // Falling — squash vertically
+                var abs = -normalizedVy;
+                sy = 1f - squashAmount * abs;
+                sx = 1f + squashAmount * abs * 0.5f;
+            }
+            else
+            {
+                sx = 1f;
+                sy = 1f;
+            }
+
+            var target = new Vector3(sx, sy, 1f);
+            ringVisual.localScale = Vector3.Lerp(ringVisual.localScale, target, Time.deltaTime * scaleResponseSpeed);
         }
 
         public bool CanStartRun()

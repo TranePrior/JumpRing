@@ -27,10 +27,10 @@ namespace JumpRing.Game.Gameplay
 
         [Header("Segment Length")]
         [SerializeField, Min(0.5f)]
-        private float baseSegmentLength = 0.8f;
+        private float baseSegmentLength = 1.5f;
 
         [SerializeField, Min(0.5f)]
-        private float minSegmentLength = 0.5f;
+        private float minSegmentLength = 0.8f;
 
         [SerializeField]
         private AnimationCurve segmentByDifficulty = AnimationCurve.Linear(0f, 0f, 1f, 1f);
@@ -94,44 +94,98 @@ namespace JumpRing.Game.Gameplay
         private const float Tan45 = 1f;
         private const float Tan60 = 1.7321f;
 
-        // Predefined patterns: each value = tan(angle) * direction
-        // Positive = up, negative = down, 0 = flat
-        private static readonly float[][] Patterns =
+        // Score thresholds for difficulty levels 0–4
+        private static readonly int[] LevelThresholds = { 0, 10, 20, 35, 70 };
+
+        // Pattern pools per difficulty level
+        // Level 0 (0-9): mostly flat, rare gentle 30° angles
+        private static readonly float[][] PatternsLevel0 =
         {
-            // Staircase up (3 steps 45°)
-            new[] { Tan45, Tan45, Tan45 },
-            // Staircase down
-            new[] { -Tan45, -Tan45, -Tan45 },
-            // Peak Λ
-            new[] { Tan45, Tan45, -Tan45, -Tan45 },
-            // Valley V
-            new[] { -Tan45, -Tan45, Tan45, Tan45 },
-            // Zigzag fast
-            new[] { Tan45, -Tan45, Tan45, -Tan45 },
-            // Shelf high: climb, rest, descend
-            new[] { Tan45, Tan45, 0f, 0f, -Tan45 },
-            // Shelf low: descend, rest, climb
-            new[] { -Tan45, -Tan45, 0f, 0f, Tan45 },
-            // Spike up (60° sharp)
-            new[] { Tan60, -Tan60 },
-            // Spike down (60° sharp)
-            new[] { -Tan60, Tan60 },
-            // Gentle rise (30°)
-            new[] { Tan30, Tan30, Tan30, 0f },
-            // Gentle descent (30°)
-            new[] { -Tan30, -Tan30, -Tan30, 0f },
-            // Flat rest (short breather)
+            new[] { 0f, 0f, 0f },
+            new[] { 0f, 0f, 0f, 0f },
+            new[] { Tan30, 0f, 0f },
+            new[] { -Tan30, 0f, 0f },
+            new[] { Tan30, Tan30, 0f, 0f },
+            new[] { -Tan30, -Tan30, 0f, 0f },
+            new[] { Tan30, 0f, -Tan30 },
+            new[] { -Tan30, 0f, Tan30 },
+        };
+
+        // Level 1 (10-19): shorter flats, 30° and some 45° angles
+        private static readonly float[][] PatternsLevel1 =
+        {
             new[] { 0f, 0f },
-            // W shape
-            new[] { -Tan45, Tan45, -Tan45, Tan45 },
-            // Long staircase up (30°)
+            new[] { Tan30, Tan30, Tan30, 0f },
+            new[] { -Tan30, -Tan30, -Tan30, 0f },
+            new[] { Tan45, 0f, 0f, -Tan45 },
+            new[] { -Tan45, 0f, 0f, Tan45 },
+            new[] { Tan30, Tan30, -Tan30, -Tan30 },
+            new[] { -Tan30, -Tan30, Tan30, Tan30 },
+            new[] { Tan45, -Tan45 },
             new[] { Tan30, Tan30, Tan30, Tan30, Tan30 },
-            // Long staircase down (30°)
             new[] { -Tan30, -Tan30, -Tan30, -Tan30, -Tan30 },
-            // Bump: up-flat-down
+        };
+
+        // Level 2 (20-34): balanced mix, all angles, 60° rare
+        private static readonly float[][] PatternsLevel2 =
+        {
+            new[] { 0f, 0f },
+            new[] { Tan45, Tan45, Tan45 },
+            new[] { -Tan45, -Tan45, -Tan45 },
+            new[] { Tan45, Tan45, -Tan45, -Tan45 },
+            new[] { -Tan45, -Tan45, Tan45, Tan45 },
+            new[] { Tan45, Tan45, 0f, 0f, -Tan45 },
+            new[] { -Tan45, -Tan45, 0f, 0f, Tan45 },
+            new[] { Tan30, Tan30, Tan30, Tan30, -Tan45, -Tan45 },
+            new[] { -Tan30, -Tan30, -Tan30, -Tan30, Tan45, Tan45 },
             new[] { Tan60, 0f, -Tan60 },
-            // Dip: down-flat-up
             new[] { -Tan60, 0f, Tan60 },
+        };
+
+        // Level 3 (35-69): mostly angles, few flats, 60° common
+        private static readonly float[][] PatternsLevel3 =
+        {
+            new[] { Tan45, -Tan45, Tan45, -Tan45 },
+            new[] { -Tan45, Tan45, -Tan45, Tan45 },
+            new[] { Tan45, Tan45, Tan45, -Tan45, -Tan45 },
+            new[] { -Tan45, -Tan45, -Tan45, Tan45, Tan45 },
+            new[] { Tan60, -Tan60 },
+            new[] { -Tan60, Tan60 },
+            new[] { Tan60, Tan60, -Tan30, -Tan30, -Tan30 },
+            new[] { -Tan60, -Tan60, Tan30, Tan30, Tan30 },
+            new[] { -Tan45, -Tan45, -Tan45, 0f, 0f, Tan60, Tan60 },
+            new[] { Tan45, Tan45, Tan45, 0f, 0f, -Tan60, -Tan60 },
+            new[] { Tan30, Tan30, Tan30, -Tan60, 0f },
+            new[] { -Tan30, -Tan30, -Tan30, Tan60, 0f },
+        };
+
+        // Level 4 (70+): hardcore, almost no flats, aggressive patterns
+        private static readonly float[][] PatternsLevel4 =
+        {
+            new[] { Tan45, -Tan45, Tan45, -Tan45 },
+            new[] { -Tan45, Tan45, -Tan45, Tan45 },
+            new[] { Tan60, -Tan60 },
+            new[] { -Tan60, Tan60 },
+            new[] { Tan60, -Tan60, Tan60, -Tan60 },
+            new[] { -Tan60, Tan60, -Tan60, Tan60 },
+            new[] { Tan60, Tan60, -Tan45, -Tan45, -Tan45 },
+            new[] { -Tan60, -Tan60, Tan45, Tan45, Tan45 },
+            new[] { Tan30, Tan30, Tan30, Tan30, -Tan60 },
+            new[] { -Tan30, -Tan30, -Tan30, -Tan30, Tan60 },
+            new[] { Tan45, Tan45, -Tan60, -Tan60 },
+            new[] { -Tan45, -Tan45, Tan60, Tan60 },
+            new[] { Tan60, 0f, -Tan60, Tan45, -Tan45 },
+            new[] { -Tan60, 0f, Tan60, -Tan45, Tan45 },
+        };
+
+        // All pools indexed by level
+        private static readonly float[][][] PatternsByLevel =
+        {
+            PatternsLevel0,
+            PatternsLevel1,
+            PatternsLevel2,
+            PatternsLevel3,
+            PatternsLevel4,
         };
 
         public LineRenderer LineRenderer => lineRenderer;
@@ -317,14 +371,26 @@ namespace JumpRing.Game.Gameplay
             return ((step * 73856093) ^ (randomSeed * 19349663)) & 0x7FFFFFFF;
         }
 
+        private int GetDifficultyLevel()
+        {
+            var score = difficultyManager != null ? difficultyManager.CurrentScore : 0;
+            for (var i = LevelThresholds.Length - 1; i >= 0; i--)
+            {
+                if (score >= LevelThresholds[i]) return i;
+            }
+            return 0;
+        }
+
         private float GenerateFromPattern(int step, float seg, float prevY,
             ref float[] pattern, ref int patternPos)
         {
             // Pick new pattern if current is exhausted
             if (pattern == null || patternPos >= pattern.Length)
             {
+                var level = GetDifficultyLevel();
+                var pool = PatternsByLevel[level];
                 var hash = StepHash(step);
-                pattern = Patterns[hash % Patterns.Length];
+                pattern = pool[hash % pool.Length];
                 patternPos = 0;
             }
 
@@ -390,7 +456,15 @@ namespace JumpRing.Game.Gameplay
                 }
             }
 
-            return bakedHeights[step];
+            // Fallback: step was pruned but sits between frontiers — regenerate it
+            if (!bakedHeights.TryGetValue(step, out var result))
+            {
+                result = GenerateFromPattern(step, seg, frontierYForward,
+                    ref patternForward, ref patternPosForward);
+                bakedHeights[step] = result;
+            }
+
+            return result;
         }
 
         private void UpdateWindow(bool force)

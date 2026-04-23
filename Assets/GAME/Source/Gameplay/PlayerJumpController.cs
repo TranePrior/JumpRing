@@ -133,9 +133,8 @@ namespace JumpRing.Game.Gameplay
             }
 
             var velocity = playerRigidbody.linearVelocity;
-            velocity.y = 0f;
+            velocity.y = jumpImpulse;
             playerRigidbody.linearVelocity = velocity;
-            playerRigidbody.AddForce(Vector2.up * jumpImpulse, ForceMode2D.Impulse);
             playerSkinSlot?.Skin?.OnJump();
         }
 

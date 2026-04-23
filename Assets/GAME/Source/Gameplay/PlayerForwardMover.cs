@@ -41,8 +41,9 @@ namespace JumpRing.Game.Gameplay
                 var velocity = playerRigidbody.linearVelocity;
                 velocity.x = 0f;
                 playerRigidbody.linearVelocity = velocity;
-                CurrentSpeed = 0f;
+                CurrentSpeed = baseSpeed;
                 targetSpeed = baseSpeed;
+                smoothVelocity = 0f;
                 return;
             }
 

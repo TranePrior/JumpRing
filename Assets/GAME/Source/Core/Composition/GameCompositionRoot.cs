@@ -30,6 +30,9 @@ namespace JumpRing.Game.Core.Composition
         [SerializeField]
         private ThemeManager themeManager;
 
+        [SerializeField]
+        private SkinShopService skinShopService;
+
         [Header("Difficulty Systems")]
         [SerializeField]
         private DifficultyManager difficultyManager;
@@ -71,7 +74,14 @@ namespace JumpRing.Game.Core.Composition
 
             if (themeManager != null)
             {
-                themeManager.Initialize();
+                if (skinShopService != null && skinShopService.ActiveSkin != null)
+                {
+                    themeManager.ApplyTheme(skinShopService.ActiveSkin.ThemeData);
+                }
+                else
+                {
+                    themeManager.Initialize();
+                }
             }
 
             GameStateMachine.Enter(GameState.MainMenu);

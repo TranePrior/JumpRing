@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -99,7 +100,7 @@ namespace JumpRing.Game.Gameplay
 
         private void Update()
         {
-            if (!WasJumpPressed())
+            if (!WasJumpPressed() || IsPointerOverUI())
             {
                 return;
             }
@@ -263,6 +264,24 @@ namespace JumpRing.Game.Gameplay
         private float GetPlayableWindowCenterY()
         {
             return (hitBottom.position.y + hitTop.position.y) * 0.5f;
+        }
+
+        private static bool IsPointerOverUI()
+        {
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+            {
+                return false;
+            }
+
+#if ENABLE_INPUT_SYSTEM
+            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
+            {
+                return eventSystem.IsPointerOverGameObject(Touchscreen.current.primaryTouch.touchId.ReadValue());
+            }
+#endif
+
+            return eventSystem.IsPointerOverGameObject();
         }
 
         private static bool WasJumpPressed()

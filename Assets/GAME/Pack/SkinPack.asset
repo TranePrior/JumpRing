@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd3679dff4edc4776a21cb88be0f97b0, type: 3}
+  m_Name: SkinPack
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinPack
+  packId: Ring
+  displayName: 
+  icon: {fileID: 0}
+  packType: 0
+  skins:
+  - {fileID: 11400000, guid: 0ca618d383ac04c0b8c3fbea3e6b91f6, type: 2}

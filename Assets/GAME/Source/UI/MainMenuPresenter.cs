@@ -16,6 +16,9 @@ namespace JumpRing.Game.UI
         private RunSessionController runSessionController;
 
         [SerializeField]
+        private ShopPresenter shopPresenter;
+
+        [SerializeField]
         private bool showOnGameOver = true;
 
         private void OnEnable()
@@ -46,6 +49,14 @@ namespace JumpRing.Game.UI
         public void RestartRun()
         {
             runSessionController.RestartFromScratch();
+        }
+
+        public void OpenShop()
+        {
+            if (shopPresenter != null)
+            {
+                shopPresenter.Open();
+            }
         }
     }
 }

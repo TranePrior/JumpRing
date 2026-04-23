@@ -15,16 +15,16 @@ namespace JumpRing.Game.Gameplay
 
         [Header("Speed")]
         [SerializeField, Min(0.1f)]
-        private float baseSpeed = 4f;
+        private float baseSpeed = 3f;
 
         [SerializeField, Min(0.01f)]
         private float speedPerStep = 0.4f;
 
         [SerializeField, Min(1)]
-        private int scorePerSpeedStep = 40;
+        private int scorePerSpeedStep = 30;
 
         [SerializeField, Min(0.1f)]
-        private float maxSpeed = 8f;
+        private float maxSpeed = 6f;
 
         [SerializeField, Min(0.1f)]
         private float speedSmoothTime = 0.5f;

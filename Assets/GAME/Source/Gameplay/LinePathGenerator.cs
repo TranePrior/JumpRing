@@ -92,7 +92,6 @@ namespace JumpRing.Game.Gameplay
         // tan values for angle types
         private const float Tan30 = 0.5774f;
         private const float Tan45 = 1f;
-        private const float Tan60 = 1.7321f;
 
         // Score thresholds for difficulty levels 0–4
         private static readonly int[] LevelThresholds = { 0, 10, 20, 35, 70 };
@@ -126,7 +125,7 @@ namespace JumpRing.Game.Gameplay
             new[] { -Tan30, -Tan30, -Tan30, -Tan30, -Tan30 },
         };
 
-        // Level 2 (20-34): balanced mix, all angles, 60° rare
+        // Level 2 (20-34): balanced mix, all angles up to 45°
         private static readonly float[][] PatternsLevel2 =
         {
             new[] { 0f, 0f },
@@ -138,44 +137,44 @@ namespace JumpRing.Game.Gameplay
             new[] { -Tan45, -Tan45, 0f, 0f, Tan45 },
             new[] { Tan30, Tan30, Tan30, Tan30, -Tan45, -Tan45 },
             new[] { -Tan30, -Tan30, -Tan30, -Tan30, Tan45, Tan45 },
-            new[] { Tan60, 0f, -Tan60 },
-            new[] { -Tan60, 0f, Tan60 },
+            new[] { Tan45, 0f, -Tan45 },
+            new[] { -Tan45, 0f, Tan45 },
         };
 
-        // Level 3 (35-69): mostly angles, few flats, 60° common
+        // Level 3 (35-69): mostly angles, few flats, aggressive 45°
         private static readonly float[][] PatternsLevel3 =
         {
             new[] { Tan45, -Tan45, Tan45, -Tan45 },
             new[] { -Tan45, Tan45, -Tan45, Tan45 },
             new[] { Tan45, Tan45, Tan45, -Tan45, -Tan45 },
             new[] { -Tan45, -Tan45, -Tan45, Tan45, Tan45 },
-            new[] { Tan60, -Tan60 },
-            new[] { -Tan60, Tan60 },
-            new[] { Tan60, Tan60, -Tan30, -Tan30, -Tan30 },
-            new[] { -Tan60, -Tan60, Tan30, Tan30, Tan30 },
-            new[] { -Tan45, -Tan45, -Tan45, 0f, 0f, Tan60, Tan60 },
-            new[] { Tan45, Tan45, Tan45, 0f, 0f, -Tan60, -Tan60 },
-            new[] { Tan30, Tan30, Tan30, -Tan60, 0f },
-            new[] { -Tan30, -Tan30, -Tan30, Tan60, 0f },
+            new[] { Tan45, -Tan45, Tan45 },
+            new[] { -Tan45, Tan45, -Tan45 },
+            new[] { Tan45, Tan45, -Tan30, -Tan30, -Tan30 },
+            new[] { -Tan45, -Tan45, Tan30, Tan30, Tan30 },
+            new[] { -Tan45, -Tan45, -Tan45, 0f, Tan45, Tan45 },
+            new[] { Tan45, Tan45, Tan45, 0f, -Tan45, -Tan45 },
+            new[] { Tan30, Tan30, Tan30, -Tan45, 0f },
+            new[] { -Tan30, -Tan30, -Tan30, Tan45, 0f },
         };
 
-        // Level 4 (70+): hardcore, almost no flats, aggressive patterns
+        // Level 4 (70+): hardcore, no flats, rapid 45° direction changes
         private static readonly float[][] PatternsLevel4 =
         {
             new[] { Tan45, -Tan45, Tan45, -Tan45 },
             new[] { -Tan45, Tan45, -Tan45, Tan45 },
-            new[] { Tan60, -Tan60 },
-            new[] { -Tan60, Tan60 },
-            new[] { Tan60, -Tan60, Tan60, -Tan60 },
-            new[] { -Tan60, Tan60, -Tan60, Tan60 },
-            new[] { Tan60, Tan60, -Tan45, -Tan45, -Tan45 },
-            new[] { -Tan60, -Tan60, Tan45, Tan45, Tan45 },
-            new[] { Tan30, Tan30, Tan30, Tan30, -Tan60 },
-            new[] { -Tan30, -Tan30, -Tan30, -Tan30, Tan60 },
-            new[] { Tan45, Tan45, -Tan60, -Tan60 },
-            new[] { -Tan45, -Tan45, Tan60, Tan60 },
-            new[] { Tan60, 0f, -Tan60, Tan45, -Tan45 },
-            new[] { -Tan60, 0f, Tan60, -Tan45, Tan45 },
+            new[] { Tan45, -Tan45, Tan45 },
+            new[] { -Tan45, Tan45, -Tan45 },
+            new[] { Tan45, -Tan45, Tan45, -Tan45, Tan45, -Tan45 },
+            new[] { -Tan45, Tan45, -Tan45, Tan45, -Tan45, Tan45 },
+            new[] { Tan45, Tan45, Tan45, -Tan45, -Tan45, -Tan45 },
+            new[] { -Tan45, -Tan45, -Tan45, Tan45, Tan45, Tan45 },
+            new[] { Tan45, -Tan30, Tan45, -Tan30, Tan45 },
+            new[] { -Tan45, Tan30, -Tan45, Tan30, -Tan45 },
+            new[] { Tan45, Tan45, -Tan45, -Tan45 },
+            new[] { -Tan45, -Tan45, Tan45, Tan45 },
+            new[] { Tan45, -Tan45, Tan30, -Tan45, Tan45 },
+            new[] { -Tan45, Tan45, -Tan30, Tan45, -Tan45 },
         };
 
         // All pools indexed by level

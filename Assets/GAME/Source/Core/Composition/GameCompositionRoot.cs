@@ -43,6 +43,10 @@ namespace JumpRing.Game.Core.Composition
         [SerializeField]
         private RiskRewardSystem riskRewardSystem;
 
+        [Header("Bonus System")]
+        [SerializeField]
+        private BonusEffectManager bonusEffectManager;
+
         private IGameStateMachine GameStateMachine => (IGameStateMachine)gameStateMachineComponent;
 
         private IScoreService ScoreService => (IScoreService)scoreServiceComponent;
@@ -70,6 +74,12 @@ namespace JumpRing.Game.Core.Composition
             {
                 runSessionController.RunStarted += riskRewardSystem.OnRunStarted;
                 runSessionController.RunFinished += riskRewardSystem.OnRunFinished;
+            }
+
+            if (bonusEffectManager != null)
+            {
+                runSessionController.RunStarted += bonusEffectManager.OnRunStarted;
+                runSessionController.RunFinished += bonusEffectManager.OnRunFinished;
             }
 
             if (themeManager != null)
@@ -105,6 +115,12 @@ namespace JumpRing.Game.Core.Composition
             {
                 runSessionController.RunStarted -= riskRewardSystem.OnRunStarted;
                 runSessionController.RunFinished -= riskRewardSystem.OnRunFinished;
+            }
+
+            if (bonusEffectManager != null)
+            {
+                runSessionController.RunStarted -= bonusEffectManager.OnRunStarted;
+                runSessionController.RunFinished -= bonusEffectManager.OnRunFinished;
             }
         }
     }

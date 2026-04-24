@@ -5,10 +5,11 @@ namespace JumpRing.Game.Gameplay
 {
     public enum DifficultyPhase
     {
-        Calm = 0,
-        Rhythm = 1,
-        Chaos = 2,
-        Mastery = 3,
+        Tutorial = 0,
+        Calm = 1,
+        Rhythm = 2,
+        Chaos = 3,
+        Mastery = 4,
     }
 
     public sealed class DifficultyManager : MonoBehaviour
@@ -40,13 +41,16 @@ namespace JumpRing.Game.Gameplay
 
         [Header("Phase Thresholds")]
         [SerializeField]
-        private int rhythmPhaseScore = 30;
+        private int tutorialEndScore = 30;
 
         [SerializeField]
-        private int chaosPhaseScore = 75;
+        private int rhythmPhaseScore = 60;
 
         [SerializeField]
-        private int masteryPhaseScore = 150;
+        private int chaosPhaseScore = 105;
+
+        [SerializeField]
+        private int masteryPhaseScore = 180;
 
         [Header("Comfort Zones")]
         [SerializeField, Min(1)]
@@ -127,7 +131,7 @@ namespace JumpRing.Game.Gameplay
             isInComfortZone = false;
             comfortZoneTimer = 0f;
             lastComfortZoneStep = 0;
-            SetPhase(DifficultyPhase.Calm);
+            SetPhase(DifficultyPhase.Tutorial);
         }
 
         public void OnRunFinished()
@@ -174,7 +178,14 @@ namespace JumpRing.Game.Gameplay
 
         private void UpdateTargetDifficulty()
         {
-            var normalized = Mathf.Clamp01((float)currentScore / maxTapsForFullDifficulty);
+            if (currentScore < tutorialEndScore)
+            {
+                targetDifficulty = 0f;
+                return;
+            }
+
+            var scoreAfterTutorial = currentScore - tutorialEndScore;
+            var normalized = Mathf.Clamp01((float)scoreAfterTutorial / maxTapsForFullDifficulty);
             var baseDiff = difficultyCurve.Evaluate(normalized);
             targetDifficulty = baseDiff * (1f + tensionValue);
         }
@@ -206,9 +217,13 @@ namespace JumpRing.Game.Gameplay
             {
                 newPhase = DifficultyPhase.Rhythm;
             }
-            else
+            else if (currentScore >= tutorialEndScore)
             {
                 newPhase = DifficultyPhase.Calm;
+            }
+            else
+            {
+                newPhase = DifficultyPhase.Tutorial;
             }
 
             if (newPhase != currentPhase)

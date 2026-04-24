@@ -16,6 +16,7 @@ namespace JumpRing.Game.Gameplay
     {
         event Action RunStarted;
         event Action RunFinished;
+        event Action DeathRequested;
 
         bool CanControlPlayer { get; }
         bool CanStartRun { get; }
@@ -25,6 +26,7 @@ namespace JumpRing.Game.Gameplay
         void StartRun();
         void BeginGameplay();
         void FinishRun();
+        void ForceFinishRun();
         void PauseRun();
         void ResumeRun();
         void OpenMainMenu();
@@ -37,6 +39,7 @@ namespace JumpRing.Game.Gameplay
     {
         public event Action RunStarted;
         public event Action RunFinished;
+        public event Action DeathRequested;
 
         private readonly List<IRunStartGate> runStartGates = new();
         private IGameStateMachine gameStateMachine;
@@ -107,6 +110,7 @@ namespace JumpRing.Game.Gameplay
             }
 
             scoreService.Reset();
+            ScorePerTap = 1;
             gameStateMachine.Enter(GameState.Ready);
             hasActiveRun = true;
             RunStarted?.Invoke();
@@ -123,6 +127,18 @@ namespace JumpRing.Game.Gameplay
         }
 
         public void FinishRun()
+        {
+            if (gameStateMachine.CurrentState == GameState.GameOver ||
+                gameStateMachine.CurrentState == GameState.Paused)
+            {
+                return;
+            }
+
+            PauseRun();
+            DeathRequested?.Invoke();
+        }
+
+        public void ForceFinishRun()
         {
             if (gameStateMachine.CurrentState == GameState.GameOver)
             {
@@ -142,6 +158,11 @@ namespace JumpRing.Game.Gameplay
         public void ResumeRun()
         {
             gameStateMachine.Enter(GameState.Gameplay);
+        }
+
+        public void ReviveToReady()
+        {
+            gameStateMachine.Enter(GameState.Ready);
         }
 
         public void OpenMainMenu()
@@ -169,6 +190,11 @@ namespace JumpRing.Game.Gameplay
             SceneManager.LoadScene(activeScene.buildIndex, LoadSceneMode.Single);
         }
 
+        /// <summary>
+        /// Score multiplier per tap. Set by BonusEffectManager for ScoreBoost (x2).
+        /// </summary>
+        public int ScorePerTap { get; set; } = 1;
+
         public int RegisterTap()
         {
             if (!CanControlPlayer)
@@ -176,7 +202,7 @@ namespace JumpRing.Game.Gameplay
                 return scoreService.CurrentScore;
             }
 
-            scoreService.Add(1);
+            scoreService.Add(ScorePerTap);
             return scoreService.CurrentScore;
         }
     }

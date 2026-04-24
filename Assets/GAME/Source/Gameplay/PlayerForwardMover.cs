@@ -20,6 +20,9 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(0.01f)]
         private float speedPerStep = 0.4f;
 
+        [SerializeField, Min(0)]
+        private int tutorialEndScore = 30;
+
         [SerializeField, Min(1)]
         private int scorePerSpeedStep = 30;
 
@@ -33,6 +36,11 @@ namespace JumpRing.Game.Gameplay
         private float smoothVelocity;
 
         public float CurrentSpeed { get; private set; }
+
+        /// <summary>
+        /// External speed modifier (0-1). Used by BonusEffectManager for SlowMotion.
+        /// </summary>
+        public float SpeedModifier { get; set; } = 1f;
 
         private void FixedUpdate()
         {
@@ -48,13 +56,14 @@ namespace JumpRing.Game.Gameplay
             }
 
             var score = difficultyManager != null ? difficultyManager.CurrentScore : 0;
-            var steps = score / scorePerSpeedStep;
+            var scoreAfterTutorial = Mathf.Max(0, score - tutorialEndScore);
+            var steps = scoreAfterTutorial / scorePerSpeedStep;
             targetSpeed = Mathf.Min(baseSpeed + steps * speedPerStep, maxSpeed);
 
             CurrentSpeed = Mathf.SmoothDamp(CurrentSpeed, targetSpeed, ref smoothVelocity, speedSmoothTime);
 
             var vel = playerRigidbody.linearVelocity;
-            vel.x = CurrentSpeed;
+            vel.x = CurrentSpeed * SpeedModifier;
             playerRigidbody.linearVelocity = vel;
         }
     }

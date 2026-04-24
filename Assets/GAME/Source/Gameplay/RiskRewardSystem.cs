@@ -43,6 +43,7 @@ namespace JumpRing.Game.Gameplay
         public event Action<int> ComboChanged;
         public event Action GoldenZoneStarted;
         public event Action GoldenZoneEnded;
+        public event Action NearMissDetected;
 
         private int currentCombo;
         private int consecutiveCloseTaps;
@@ -54,8 +55,13 @@ namespace JumpRing.Game.Gameplay
         public float ComboMultiplier => 1f + (currentCombo - 1) * 0.5f;
         public bool IsGoldenZone => isGoldenZone;
 
+        /// <summary>
+        /// External multiplier set by BonusEffectManager (ScoreBoost x2).
+        /// </summary>
+        public float ExternalCoinMultiplier { get; set; } = 1f;
+
         public float CoinValueMultiplier =>
-            isGoldenZone ? goldenZoneCoinMultiplier * ComboMultiplier : ComboMultiplier;
+            (isGoldenZone ? goldenZoneCoinMultiplier * ComboMultiplier : ComboMultiplier) * ExternalCoinMultiplier;
 
         public void OnRunStarted()
         {
@@ -64,6 +70,7 @@ namespace JumpRing.Game.Gameplay
             consecutiveCloseTaps = 0;
             isGoldenZone = false;
             goldenZoneTimer = 0f;
+            ExternalCoinMultiplier = 1f;
             ComboChanged?.Invoke(currentCombo);
         }
 
@@ -113,6 +120,7 @@ namespace JumpRing.Game.Gameplay
 
             if (distance <= closeDistance)
             {
+                NearMissDetected?.Invoke();
                 consecutiveCloseTaps++;
 
                 if (consecutiveCloseTaps >= tapsToIncreaseCombo && currentCombo < maxCombo)

@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="43718062-097b-4ba1-b3ad-9d99ef37b4f1" name="Changes" comment="" />
+    <list default="true" id="43718062-097b-4ba1-b3ad-9d99ef37b4f1" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.JumpRing/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.JumpRing/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mcp.json" beforeDir="false" afterPath="$PROJECT_DIR$/.mcp.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Core/Composition/GameCompositionRoot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Core/Composition/GameCompositionRoot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/CoinCollectible.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/CoinCollectible.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/CoinStepSpawner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/CoinStepSpawner.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/DifficultyManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/DifficultyManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/LinePathGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/LinePathGenerator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/PlayerForwardMover.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/PlayerForwardMover.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/PlayerJumpController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/PlayerJumpController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/RiskRewardSystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/RiskRewardSystem.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/RunSessionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/RunSessionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
@@ -15,14 +34,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/MacOS/Unity" />
@@ -83,11 +108,16 @@
       <option name="presentableId" value="Default" />
       <updated>1776288206024</updated>
       <workItem from="1776288207545" duration="1000" />
+      <workItem from="1776958463636" duration="9250000" />
     </task>
     <servers />
   </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
   <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
   <component name="UnityProjectDiscoverer">
+    <option name="hasUnityReference" value="true" />
     <option name="unityProject" value="true" />
     <option name="unityProjectFolder" value="true" />
   </component>

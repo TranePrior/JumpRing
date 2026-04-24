@@ -40,9 +40,12 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private MicroEventSystem microEventSystem;
 
+        [SerializeField]
+        private BonusEffectManager bonusEffectManager;
+
         [Header("Spawn")]
         [SerializeField, Min(0.1f)]
-        private float spawnStep = 2f;
+        private float spawnStep = 7f;
 
         [SerializeField, Min(0f)]
         private float spawnAheadDistance = 18f;
@@ -157,7 +160,7 @@ namespace JumpRing.Game.Gameplay
             var spawnPosition = new Vector3(xPosition, yPosition, 0f);
             var spawnedCoin = Instantiate(coinPrefab, spawnPosition, Quaternion.identity, spawnedCoinsParent);
             var coinCollectible = spawnedCoin.GetComponent<CoinCollectible>();
-            coinCollectible.Construct(CurrencyService, runSessionController, riskRewardSystem, microEventSystem);
+            coinCollectible.Construct(CurrencyService, runSessionController, riskRewardSystem, microEventSystem, bonusEffectManager);
             spawnedCoins.Enqueue(spawnedCoin);
         }
 

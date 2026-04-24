@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4140b847745b4b549ff4841df5ab45b, type: 3}
+  m_Name: BonusConfig
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.BonusConfig
+  entries:
+  - type: 1
+    prefab: {fileID: 6635800985633573414, guid: a39d1744809b746ff99496ed96766ce3, type: 3}
+    duration: 5
+    weight: 25
+    icon: {fileID: 0}
+  - type: 2
+    prefab: {fileID: 156522665334450423, guid: 1c13bd29e5bd943b0b4df1d60a002eb1, type: 3}
+    duration: 0
+    weight: 15
+    icon: {fileID: 0}
+  - type: 3
+    prefab: {fileID: 8967213904188568011, guid: 764976ef536524b44ac973fd11d1c7ba, type: 3}
+    duration: 10
+    weight: 20
+    icon: {fileID: 0}
+  - type: 4
+    prefab: {fileID: 7976221542901505308, guid: 58d0f60a6ce034c9f89fdbff1635629b, type: 3}
+    duration: 10
+    weight: 20
+    icon: {fileID: 0}
+  - type: 5
+    prefab: {fileID: 6547391494147176627, guid: 59f430cae547340de9fafa318940e5b8, type: 3}
+    duration: 5
+    weight: 20
+    icon: {fileID: 0}

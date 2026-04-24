@@ -27,6 +27,10 @@ namespace JumpRing.Game.Gameplay
         private LinePathGenerator linePathGenerator;
         private DifficultyManager difficultyManager;
         private RiskRewardSystem riskRewardSystem;
+        private BonusEffectManager bonusEffectManager;
+
+        private Vector3 originalHitTopLocalPos;
+        private Vector3 originalHitBottomLocalPos;
 
         [SerializeField]
         private Transform hitTop;
@@ -73,13 +77,26 @@ namespace JumpRing.Game.Gameplay
         private float scaleResponseSpeed = 14f;
 
         private float defaultGravityScale;
+        private Vector2 lastDeathPosition;
+        private float currentSizeScale = 1f;
+
+        /// <summary>
+        /// Scales gravity and jump impulse. Set by BonusEffectManager for SlowMotion.
+        /// 1 = normal, 0.5 = half speed physics (floaty slow-mo feel).
+        /// </summary>
+        public float PhysicsScale { get; set; } = 1f;
+
+        public Vector2 LastDeathPosition => lastDeathPosition;
 
         private void Awake()
         {
             linePathGenerator = Object.FindFirstObjectByType<LinePathGenerator>();
             difficultyManager = Object.FindFirstObjectByType<DifficultyManager>();
             riskRewardSystem = Object.FindFirstObjectByType<RiskRewardSystem>();
+            bonusEffectManager = Object.FindFirstObjectByType<BonusEffectManager>();
             defaultGravityScale = playerRigidbody.gravityScale;
+            originalHitTopLocalPos = hitTop.localPosition;
+            originalHitBottomLocalPos = hitBottom.localPosition;
         }
 
         private void Start()
@@ -133,8 +150,13 @@ namespace JumpRing.Game.Gameplay
                 riskRewardSystem.NotifyTap();
             }
 
+            if (bonusEffectManager != null)
+            {
+                bonusEffectManager.NotifyTap();
+            }
+
             var velocity = playerRigidbody.linearVelocity;
-            velocity.y = jumpImpulse;
+            velocity.y = jumpImpulse * PhysicsScale;
             playerRigidbody.linearVelocity = velocity;
             playerSkinSlot?.Skin?.OnJump();
         }
@@ -153,15 +175,15 @@ namespace JumpRing.Game.Gameplay
             var vy = playerRigidbody.linearVelocity.y;
             if (vy < -peakVelocityThreshold)
             {
-                playerRigidbody.gravityScale = defaultGravityScale * fallGravityMultiplier;
+                playerRigidbody.gravityScale = defaultGravityScale * fallGravityMultiplier * PhysicsScale;
             }
             else if (Mathf.Abs(vy) < peakVelocityThreshold)
             {
-                playerRigidbody.gravityScale = defaultGravityScale * peakGravityMultiplier;
+                playerRigidbody.gravityScale = defaultGravityScale * peakGravityMultiplier * PhysicsScale;
             }
             else
             {
-                playerRigidbody.gravityScale = defaultGravityScale;
+                playerRigidbody.gravityScale = defaultGravityScale * PhysicsScale;
             }
 
             if (!linePathGenerator.IsTouchingLine(hitTopCollider, lineTouchTolerance) &&
@@ -170,11 +192,18 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
-            runSessionController.FinishRun();
-            playerSkinSlot?.Skin?.OnDie();
+            // Skip death during invincibility
+            if (bonusEffectManager != null && bonusEffectManager.IsInvincible)
+            {
+                return;
+            }
+
+            // Stop player and trigger death flow (panel will be shown)
+            lastDeathPosition = playerRigidbody.position;
             playerRigidbody.gravityScale = 0f;
             playerRigidbody.linearVelocity = Vector2.zero;
             playerRigidbody.angularVelocity = 0f;
+            runSessionController.FinishRun();
         }
 
         private void LateUpdate()
@@ -186,7 +215,7 @@ namespace JumpRing.Game.Gameplay
 
             if (!runSessionController.CanControlPlayer)
             {
-                ringVisual.localScale = Vector3.Lerp(ringVisual.localScale, Vector3.one, Time.deltaTime * scaleResponseSpeed);
+                ringVisual.localScale = Vector3.Lerp(ringVisual.localScale, Vector3.one * currentSizeScale, Time.deltaTime * scaleResponseSpeed);
                 return;
             }
 
@@ -213,8 +242,33 @@ namespace JumpRing.Game.Gameplay
                 sy = 1f;
             }
 
-            var target = new Vector3(sx, sy, 1f);
+            var target = new Vector3(sx * currentSizeScale, sy * currentSizeScale, currentSizeScale);
             ringVisual.localScale = Vector3.Lerp(ringVisual.localScale, target, Time.deltaTime * scaleResponseSpeed);
+        }
+
+        /// <summary>
+        /// Expands or resets the playable gap between hitTop and hitBottom.
+        /// amount > 0 expands each side by that amount; 0 resets to original.
+        /// </summary>
+        public void ApplySizeModifier(float amount)
+        {
+            currentSizeScale = amount <= 0f ? 1f : 1f + amount;
+        }
+
+        /// <summary>
+        /// Revives the player at the given X position with line centered.
+        /// Y is set to the center of the playable window automatically.
+        /// </summary>
+        public void RevivePlayer(float reviveX)
+        {
+            var lineY = linePathGenerator.EvaluateHeightAtX(reviveX);
+            var localCenterOffset = (originalHitTopLocalPos.y + originalHitBottomLocalPos.y) * 0.5f;
+            playerRigidbody.position = new Vector2(reviveX, lineY - localCenterOffset);
+            playerRigidbody.linearVelocity = Vector2.zero;
+            playerRigidbody.angularVelocity = 0f;
+            playerRigidbody.gravityScale = defaultGravityScale;
+
+            linePathGenerator.ForceFlatAhead(reviveX - 3f, 10);
         }
 
         public bool CanStartRun()

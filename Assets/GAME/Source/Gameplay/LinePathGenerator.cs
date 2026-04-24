@@ -93,8 +93,8 @@ namespace JumpRing.Game.Gameplay
         private const float Tan30 = 0.5774f;
         private const float Tan45 = 1f;
 
-        // Score thresholds for difficulty levels 0–4
-        private static readonly int[] LevelThresholds = { 0, 10, 20, 35, 70 };
+        // Score thresholds for difficulty levels 0–4 (shifted by tutorial zone of 30)
+        private static readonly int[] LevelThresholds = { 0, 40, 50, 65, 100 };
 
         // Pattern pools per difficulty level
         // Level 0 (0-9): mostly flat, rare gentle 30° angles
@@ -302,6 +302,47 @@ namespace JumpRing.Game.Gameplay
             var seg = ActiveSegmentLength;
             var step = Mathf.RoundToInt(x / seg);
             return BakeOrGetHeight(step, seg);
+        }
+
+        /// <summary>
+        /// Forces the line to be flat for a number of segments ahead of the given X position.
+        /// Used by the CalmLine bonus.
+        /// </summary>
+        public void ForceFlatAhead(float fromX, int segmentCount)
+        {
+            var seg = ActiveSegmentLength;
+            var startStep = Mathf.RoundToInt(fromX / seg) + 1;
+            var currentY = EvaluateHeightAtX(fromX);
+
+            for (var i = 0; i < segmentCount; i++)
+            {
+                bakedHeights[startStep + i] = currentY;
+            }
+
+            // Remove cached points beyond the flat zone so they regenerate from the flat height
+            var lastFlatStep = startStep + segmentCount - 1;
+            var toRemove = new List<int>();
+
+            foreach (var key in bakedHeights.Keys)
+            {
+                if (key > lastFlatStep)
+                {
+                    toRemove.Add(key);
+                }
+            }
+
+            for (var i = 0; i < toRemove.Count; i++)
+            {
+                bakedHeights.Remove(toRemove[i]);
+            }
+
+            // Update forward frontier so future generation continues from flat
+            frontierStepForward = lastFlatStep;
+            frontierYForward = currentY;
+            patternForward = null;
+            patternPosForward = 0;
+
+            UpdateWindow(force: true);
         }
 
         public bool IsTouchingLine(Collider2D collider, float tolerance)

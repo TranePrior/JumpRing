@@ -159,6 +159,13 @@ MonoBehaviour:
   alignmentTolerance: 0.001
   lineBoundsPadding: 0.001
   lineTouchTolerance: 0.001
+  fallGravityMultiplier: 2.2
+  peakGravityMultiplier: 1.6
+  peakVelocityThreshold: 1.5
+  ringVisual: {fileID: 2094155033869774277}
+  stretchAmount: 0.18
+  squashAmount: 0.12
+  scaleResponseSpeed: 14
 --- !u!114 &992563737597288226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,6 +199,7 @@ MonoBehaviour:
   difficultyManager: {fileID: 0}
   baseSpeed: 4
   speedPerStep: 0.4
+  tutorialEndScore: 30
   scorePerSpeedStep: 40
   maxSpeed: 8
   speedSmoothTime: 0.5

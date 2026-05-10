@@ -34,29 +34,14 @@ namespace JumpRing.Game.UI
         private Image actionButtonImage;
 
         [SerializeField]
-        private Image actionButtonShadow;
-
-        [SerializeField]
         private Image coinIcon;
 
-        [Header("Colors")]
+        [Header("Button Sprites")]
         [SerializeField]
-        private Color buyButtonColor = new Color(0.392f, 0.584f, 0.973f);
+        private Sprite buyButtonSprite;
 
         [SerializeField]
-        private Color buyButtonShadowColor = new Color(0.122f, 0.278f, 0.675f);
-
-        [SerializeField]
-        private Color activeButtonColor = new Color(0.675f, 0.82f, 0.235f);
-
-        [SerializeField]
-        private Color activeButtonShadowColor = new Color(0.294f, 0.424f, 0.078f);
-
-        [SerializeField]
-        private Color disabledButtonColor = new Color(0.5f, 0.5f, 0.5f);
-
-        [SerializeField]
-        private Color disabledButtonShadowColor = new Color(0.3f, 0.3f, 0.3f);
+        private Sprite activeButtonSprite;
 
         public event Action<SkinItem> Clicked;
         public event Action<SkinItem> ActionClicked;
@@ -105,12 +90,8 @@ namespace JumpRing.Game.UI
 
                 if (actionButtonImage != null)
                 {
-                    actionButtonImage.color = canAfford ? buyButtonColor : disabledButtonColor;
-                }
-
-                if (actionButtonShadow != null)
-                {
-                    actionButtonShadow.color = canAfford ? buyButtonShadowColor : disabledButtonShadowColor;
+                    actionButtonImage.sprite = buyButtonSprite;
+                    actionButtonImage.color = canAfford ? Color.white : new Color(0.5f, 0.5f, 0.5f);
                 }
 
                 if (actionButton != null)
@@ -138,12 +119,8 @@ namespace JumpRing.Game.UI
 
                 if (actionButtonImage != null)
                 {
-                    actionButtonImage.color = activeButtonColor;
-                }
-
-                if (actionButtonShadow != null)
-                {
-                    actionButtonShadow.color = activeButtonShadowColor;
+                    actionButtonImage.sprite = activeButtonSprite;
+                    actionButtonImage.color = Color.white;
                 }
 
                 if (actionButton != null)
@@ -171,12 +148,8 @@ namespace JumpRing.Game.UI
 
                 if (actionButtonImage != null)
                 {
-                    actionButtonImage.color = buyButtonColor;
-                }
-
-                if (actionButtonShadow != null)
-                {
-                    actionButtonShadow.color = buyButtonShadowColor;
+                    actionButtonImage.sprite = buyButtonSprite;
+                    actionButtonImage.color = Color.white;
                 }
 
                 if (actionButton != null)

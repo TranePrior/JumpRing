@@ -87,26 +87,18 @@ namespace JumpRing.Game.Editor
             selFrame.raycastTarget = false;
             selFrame.enabled = false;
 
-            // --- Action Button Shadow ---
-            var shadowGO = UI("ActionButtonShadow", root.transform);
-            var shadowRT = shadowGO.GetComponent<RectTransform>();
-            shadowRT.anchorMin = new Vector2(0.04f, 0.01f);
-            shadowRT.anchorMax = new Vector2(0.96f, 0.25f);
-            shadowRT.offsetMin = Vector2.zero;
-            shadowRT.offsetMax = Vector2.zero;
-            var shadowImg = shadowGO.AddComponent<Image>();
-            shadowImg.color = new Color(0.122f, 0.278f, 0.675f); // #1F47AC
-            shadowImg.raycastTarget = false;
-
             // --- Action Button ---
             var actionGO = UI("ActionButton", root.transform);
             var actionRT = actionGO.GetComponent<RectTransform>();
-            actionRT.anchorMin = new Vector2(0.04f, 0.03f);
+            actionRT.anchorMin = new Vector2(0.04f, 0.01f);
             actionRT.anchorMax = new Vector2(0.96f, 0.25f);
             actionRT.offsetMin = Vector2.zero;
             actionRT.offsetMax = Vector2.zero;
             var actionBg = actionGO.AddComponent<Image>();
-            actionBg.color = new Color(0.392f, 0.584f, 0.973f); // #6495F8
+            var buyBtnSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GAME/Art/Sprite/Sp_Purchase_Button_no_activ.png");
+            if (buyBtnSpr) actionBg.sprite = buyBtnSpr;
+            actionBg.type = Image.Type.Sliced;
+            actionBg.color = Color.white;
             var actionBtn = actionGO.AddComponent<Button>();
             actionBtn.targetGraphic = actionBg;
             var bnav = actionBtn.navigation;
@@ -168,8 +160,11 @@ namespace JumpRing.Game.Editor
             so.FindProperty("actionButton").objectReferenceValue = actionBtn;
             so.FindProperty("actionButtonLabel").objectReferenceValue = actLabel;
             so.FindProperty("actionButtonImage").objectReferenceValue = actionBg;
-            so.FindProperty("actionButtonShadow").objectReferenceValue = shadowImg;
             so.FindProperty("coinIcon").objectReferenceValue = coinImg;
+
+            var activeBtnSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GAME/Art/Sprite/Sp_Purchase_Button_activ.png");
+            so.FindProperty("buyButtonSprite").objectReferenceValue = buyBtnSpr;
+            so.FindProperty("activeButtonSprite").objectReferenceValue = activeBtnSpr;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             PrefabUtility.SaveAsPrefabAsset(root, path);
@@ -221,7 +216,7 @@ namespace JumpRing.Game.Editor
             tRT.offsetMin = Vector2.zero;
             tRT.offsetMax = Vector2.zero;
             var titleTMP = title.AddComponent<TextMeshProUGUI>();
-            titleTMP.text = "SHOP";
+            titleTMP.text = "\u041C\u0430\u0433\u0430\u0437\u0438\u043D";
             titleTMP.fontSize = 52;
             titleTMP.fontStyle = FontStyles.Bold;
             titleTMP.color = new Color(0.263f, 0.337f, 0.471f); // #435678

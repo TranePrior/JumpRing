@@ -14,5 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinPackCatalog
   packs:
   - {fileID: 11400000, guid: 3124f4b11de87430480d10ca4939afd3, type: 2}
-  - {fileID: 11400000, guid: a7980d6719b764795bfdbef2cd9d315b, type: 2}
   defaultSkin: {fileID: 11400000, guid: 9cfabb51e6d7248969f9b6aa3eb9fb2a, type: 2}

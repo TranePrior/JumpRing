@@ -6,9 +6,9 @@ namespace JumpRing.Game.UI
 {
     public sealed class HudPresenter : MonoBehaviour
     {
-        private const string ScoreFormat = "{0}";
-        private const string BestScoreFormat = "BEST: {0}";
-        private const string CoinsFormat = "{0}";
+        private const string ScoreFormat = "SCORE: {0}";
+        private const string BestScoreFormat = "BEST SCORE: {0}";
+        private const string CoinsFormat = "COIN: {0}";
 
         [SerializeField]
         private TMP_Text scoreLabel;

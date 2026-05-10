@@ -43,6 +43,16 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private Sprite activeButtonSprite;
 
+        [Header("Button Colors")]
+        [SerializeField]
+        private Color buyButtonColor = Color.white;
+
+        [SerializeField]
+        private Color activeButtonColor = Color.white;
+
+        [SerializeField]
+        private Color disabledButtonColor = new Color(0.6f, 0.6f, 0.6f, 1f);
+
         public event Action<SkinItem> Clicked;
         public event Action<SkinItem> ActionClicked;
 
@@ -88,11 +98,7 @@ namespace JumpRing.Game.UI
                     actionButtonLabel.gameObject.SetActive(false);
                 }
 
-                if (actionButtonImage != null)
-                {
-                    actionButtonImage.sprite = buyButtonSprite;
-                    actionButtonImage.color = canAfford ? Color.white : new Color(0.5f, 0.5f, 0.5f);
-                }
+                SetButtonState(buyButtonSprite, canAfford ? buyButtonColor : disabledButtonColor);
 
                 if (actionButton != null)
                 {
@@ -117,15 +123,11 @@ namespace JumpRing.Game.UI
                     actionButtonLabel.gameObject.SetActive(true);
                 }
 
-                if (actionButtonImage != null)
-                {
-                    actionButtonImage.sprite = activeButtonSprite;
-                    actionButtonImage.color = Color.white;
-                }
+                SetButtonState(activeButtonSprite, activeButtonColor);
 
                 if (actionButton != null)
                 {
-                    actionButton.interactable = false;
+                    actionButton.interactable = true;
                 }
             }
             else
@@ -146,11 +148,7 @@ namespace JumpRing.Game.UI
                     actionButtonLabel.gameObject.SetActive(true);
                 }
 
-                if (actionButtonImage != null)
-                {
-                    actionButtonImage.sprite = buyButtonSprite;
-                    actionButtonImage.color = Color.white;
-                }
+                SetButtonState(buyButtonSprite, buyButtonColor);
 
                 if (actionButton != null)
                 {
@@ -160,7 +158,17 @@ namespace JumpRing.Game.UI
 
             if (selectionFrame != null)
             {
-                selectionFrame.enabled = isActive;
+                selectionFrame.enabled = false;
+            }
+        }
+
+        private void SetButtonState(Sprite sprite, Color buttonColor)
+        {
+            if (actionButtonImage != null)
+            {
+                if (sprite != null)
+                    actionButtonImage.sprite = sprite;
+                actionButtonImage.color = buttonColor;
             }
         }
 

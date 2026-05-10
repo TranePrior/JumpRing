@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
 using TMPro;
+using System.IO;
 
 namespace JumpRing.Game.Editor
 {
@@ -10,10 +11,66 @@ namespace JumpRing.Game.Editor
         [MenuItem("Tools/Rebuild Shop (Full)")]
         public static void RebuildAll()
         {
+            EnsureRoundedRectSprite();
             RebuildSkinCard();
             RebuildShopPanel();
             AssetDatabase.SaveAssets();
             Debug.Log("[ShopRebuilder] Done! Now re-open the scene to update prefab instances.");
+        }
+
+        static readonly string FontPath = "Assets/TextMesh Pro/Examples & Extras/Resources/Fonts & Materials/Bangers SDF.asset";
+        static readonly string BuyBtnPath = "Assets/GAME/Art/Sprite/Sp_Purchase_Button_no_activ.png";
+        static readonly string ActiveBtnPath = "Assets/GAME/Art/Sprite/Sp_Purchase_Button_activ.png";
+        static readonly string CoinIconPath = "Assets/GAME/Art/UI/Icon_Coin.png";
+        static readonly string ExitIconPath = "Assets/GAME/Art/UI/Icon_Exit.png";
+        static readonly string RoundedRectPath = "Assets/GAME/Art/Sprite/Sp_RoundedRect.png";
+
+        static readonly Color DarkText = new Color(0.176f, 0.216f, 0.282f); // #2D3748
+        static readonly Color PanelBg = new Color(0.706f, 0.82f, 0.976f);   // #B4D1F9
+        static readonly Color CardBg = new Color(0.91f, 0.93f, 0.98f);      // #E8EDFA
+        static readonly Color HeaderBg = new Color(0.875f, 0.914f, 0.961f);  // #DFE9F5
+
+        static void EnsureRoundedRectSprite()
+        {
+            string fullPath = Path.Combine(Application.dataPath, "..", RoundedRectPath);
+            if (File.Exists(fullPath)) return;
+
+            int w = 64, h = 64, r = 20;
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+            var pixels = new Color32[w * h];
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    float dx = 0, dy = 0;
+                    if (x < r && y < r) { dx = r - x - 0.5f; dy = r - y - 0.5f; }
+                    else if (x >= w - r && y < r) { dx = x - (w - r) + 0.5f; dy = r - y - 0.5f; }
+                    else if (x < r && y >= h - r) { dx = r - x - 0.5f; dy = y - (h - r) + 0.5f; }
+                    else if (x >= w - r && y >= h - r) { dx = x - (w - r) + 0.5f; dy = y - (h - r) + 0.5f; }
+
+                    float dist = Mathf.Sqrt(dx * dx + dy * dy);
+                    byte a = dist > r ? (byte)0 : (dist > r - 1.5f ? (byte)(255 * (r - dist) / 1.5f) : (byte)255);
+                    pixels[y * w + x] = new Color32(255, 255, 255, a);
+                }
+            }
+            tex.SetPixels32(pixels);
+            tex.Apply();
+            File.WriteAllBytes(fullPath, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            AssetDatabase.Refresh();
+
+            // Set meta: sprite mode Single, 9-slice borders
+            var importer = AssetImporter.GetAtPath(RoundedRectPath) as TextureImporter;
+            if (importer != null)
+            {
+                importer.textureType = TextureImporterType.Sprite;
+                importer.spriteImportMode = SpriteImportMode.Single;
+                importer.spriteBorder = new Vector4(r, r, r, r); // 9-slice
+                importer.filterMode = FilterMode.Bilinear;
+                importer.mipmapEnabled = false;
+                importer.alphaIsTransparency = true;
+                importer.SaveAndReimport();
+            }
         }
 
         static GameObject UI(string name, Transform parent)
@@ -21,6 +78,16 @@ namespace JumpRing.Game.Editor
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
             return go;
+        }
+
+        static void SetFont(TMP_Text tmp)
+        {
+            var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
+            if (font != null)
+            {
+                tmp.font = font;
+                tmp.material = font.material;
+            }
         }
 
         static void RebuildSkinCard()
@@ -40,9 +107,13 @@ namespace JumpRing.Game.Editor
             var rt = root.GetComponent<RectTransform>();
             rt.sizeDelta = new Vector2(428, 518);
 
-            // Background
+            // Background (rounded via white 9-slice sprite, tinted to card color)
+            var roundedSpr = AssetDatabase.LoadAssetAtPath<Sprite>(RoundedRectPath);
+            var buyBtnSpr = AssetDatabase.LoadAssetAtPath<Sprite>(BuyBtnPath);
             var bg = root.AddComponent<Image>();
-            bg.color = new Color(0.875f, 0.914f, 0.961f); // #DFE9F5
+            if (roundedSpr) bg.sprite = roundedSpr;
+            bg.type = Image.Type.Sliced;
+            bg.color = CardBg;
             var cardBtn = root.AddComponent<Button>();
             cardBtn.targetGraphic = bg;
             var nav = cardBtn.navigation;
@@ -52,23 +123,24 @@ namespace JumpRing.Game.Editor
             // --- Name Label (top) ---
             var nameGO = UI("NameLabel", root.transform);
             var nameRT = nameGO.GetComponent<RectTransform>();
-            nameRT.anchorMin = new Vector2(0, 0.75f);
-            nameRT.anchorMax = new Vector2(1, 0.95f);
+            nameRT.anchorMin = new Vector2(0, 0.78f);
+            nameRT.anchorMax = new Vector2(1, 0.98f);
             nameRT.offsetMin = new Vector2(8, 0);
             nameRT.offsetMax = new Vector2(-8, 0);
             var nameLabel = nameGO.AddComponent<TextMeshProUGUI>();
             nameLabel.text = "Skin";
-            nameLabel.fontSize = 40;
+            nameLabel.fontSize = 50;
             nameLabel.fontStyle = FontStyles.Bold;
-            nameLabel.color = new Color(0.478f, 0.537f, 0.639f); // #7A89A3
+            nameLabel.color = DarkText;
             nameLabel.alignment = TextAlignmentOptions.Center;
             nameLabel.raycastTarget = false;
+            SetFont(nameLabel);
 
-            // --- Icon (center) ---
+            // --- Icon (center, larger area) ---
             var iconGO = UI("IconImage", root.transform);
             var iconRT = iconGO.GetComponent<RectTransform>();
-            iconRT.anchorMin = new Vector2(0.15f, 0.28f);
-            iconRT.anchorMax = new Vector2(0.85f, 0.75f);
+            iconRT.anchorMin = new Vector2(0.05f, 0.18f);
+            iconRT.anchorMax = new Vector2(0.95f, 0.82f);
             iconRT.offsetMin = Vector2.zero;
             iconRT.offsetMax = Vector2.zero;
             var iconImg = iconGO.AddComponent<Image>();
@@ -90,12 +162,11 @@ namespace JumpRing.Game.Editor
             // --- Action Button ---
             var actionGO = UI("ActionButton", root.transform);
             var actionRT = actionGO.GetComponent<RectTransform>();
-            actionRT.anchorMin = new Vector2(0.04f, 0.01f);
-            actionRT.anchorMax = new Vector2(0.96f, 0.25f);
+            actionRT.anchorMin = new Vector2(0.04f, 0.02f);
+            actionRT.anchorMax = new Vector2(0.96f, 0.22f);
             actionRT.offsetMin = Vector2.zero;
             actionRT.offsetMax = Vector2.zero;
             var actionBg = actionGO.AddComponent<Image>();
-            var buyBtnSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GAME/Art/Sprite/Sp_Purchase_Button_no_activ.png");
             if (buyBtnSpr) actionBg.sprite = buyBtnSpr;
             actionBg.type = Image.Type.Sliced;
             actionBg.color = Color.white;
@@ -113,7 +184,7 @@ namespace JumpRing.Game.Editor
             coinRT.sizeDelta = new Vector2(55, 0);
             coinRT.anchoredPosition = new Vector2(40, 0);
             var coinImg = coinGO.AddComponent<Image>();
-            var coinSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GAME/Art/UI/Icon_Coin.png");
+            var coinSpr = AssetDatabase.LoadAssetAtPath<Sprite>(CoinIconPath);
             if (coinSpr) coinImg.sprite = coinSpr;
             coinImg.preserveAspect = true;
             coinImg.raycastTarget = false;
@@ -127,13 +198,14 @@ namespace JumpRing.Game.Editor
             priceRT.offsetMax = Vector2.zero;
             var priceLabel = priceGO.AddComponent<TextMeshProUGUI>();
             priceLabel.text = "500";
-            priceLabel.fontSize = 36;
+            priceLabel.fontSize = 40;
             priceLabel.fontStyle = FontStyles.Bold;
             priceLabel.color = Color.white;
             priceLabel.alignment = TextAlignmentOptions.Center;
             priceLabel.raycastTarget = false;
+            SetFont(priceLabel);
 
-            // Action label (Активен/Выбрать)
+            // Action label
             var actLabelGO = UI("ActionLabel", actionGO.transform);
             var actLabelRT = actLabelGO.GetComponent<RectTransform>();
             actLabelRT.anchorMin = Vector2.zero;
@@ -142,12 +214,13 @@ namespace JumpRing.Game.Editor
             actLabelRT.offsetMax = Vector2.zero;
             var actLabel = actLabelGO.AddComponent<TextMeshProUGUI>();
             actLabel.text = "\u0410\u043a\u0442\u0438\u0432\u0435\u043d";
-            actLabel.fontSize = 36;
+            actLabel.fontSize = 40;
             actLabel.fontStyle = FontStyles.Bold;
             actLabel.color = Color.white;
             actLabel.alignment = TextAlignmentOptions.Center;
             actLabel.raycastTarget = false;
             actLabel.gameObject.SetActive(false);
+            SetFont(actLabel);
 
             // --- Wire ShopSkinCardView ---
             var view = root.AddComponent<UI.ShopSkinCardView>();
@@ -162,9 +235,15 @@ namespace JumpRing.Game.Editor
             so.FindProperty("actionButtonImage").objectReferenceValue = actionBg;
             so.FindProperty("coinIcon").objectReferenceValue = coinImg;
 
-            var activeBtnSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GAME/Art/Sprite/Sp_Purchase_Button_activ.png");
+            // Button sprites
+            var activeBtnSpr = AssetDatabase.LoadAssetAtPath<Sprite>(ActiveBtnPath);
             so.FindProperty("buyButtonSprite").objectReferenceValue = buyBtnSpr;
             so.FindProperty("activeButtonSprite").objectReferenceValue = activeBtnSpr;
+
+            // Button colors (white = use sprite color as-is)
+            so.FindProperty("buyButtonColor").colorValue = Color.white;
+            so.FindProperty("activeButtonColor").colorValue = Color.white;
+            so.FindProperty("disabledButtonColor").colorValue = new Color(0.6f, 0.6f, 0.6f, 1f);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             PrefabUtility.SaveAsPrefabAsset(root, path);
@@ -174,7 +253,7 @@ namespace JumpRing.Game.Editor
 
         static void RebuildShopPanel()
         {
-            string path = "Assets/GAME/Prefab/ShopPanel.prefab";
+            string path = "Assets/GAME/Prefab/Shop.prefab";
             var root = PrefabUtility.LoadPrefabContents(path);
 
             // Clear
@@ -186,6 +265,8 @@ namespace JumpRing.Game.Editor
             foreach (var c in root.GetComponents<CanvasRenderer>())
                 Object.DestroyImmediate(c);
 
+            var roundedSpr = AssetDatabase.LoadAssetAtPath<Sprite>(RoundedRectPath);
+
             // Root = full screen
             var rt = root.GetComponent<RectTransform>();
             rt.anchorMin = Vector2.zero;
@@ -195,7 +276,7 @@ namespace JumpRing.Game.Editor
 
             var cg = root.AddComponent<CanvasGroup>();
             var rootBg = root.AddComponent<Image>();
-            rootBg.color = new Color(0.706f, 0.82f, 0.976f); // #B4D1F9
+            rootBg.color = PanelBg;
 
             // === HEADER ===
             var header = UI("Header", root.transform);
@@ -205,7 +286,9 @@ namespace JumpRing.Game.Editor
             hRT.offsetMin = new Vector2(8, 0);
             hRT.offsetMax = new Vector2(-8, -8);
             var hBg = header.AddComponent<Image>();
-            hBg.color = new Color(0.875f, 0.914f, 0.961f); // #DFE9F5
+            if (roundedSpr) hBg.sprite = roundedSpr;
+            hBg.type = Image.Type.Sliced;
+            hBg.color = HeaderBg;
             hBg.raycastTarget = false;
 
             // Title
@@ -219,45 +302,38 @@ namespace JumpRing.Game.Editor
             titleTMP.text = "\u041C\u0430\u0433\u0430\u0437\u0438\u043D";
             titleTMP.fontSize = 52;
             titleTMP.fontStyle = FontStyles.Bold;
-            titleTMP.color = new Color(0.263f, 0.337f, 0.471f); // #435678
+            titleTMP.color = DarkText;
             titleTMP.alignment = TextAlignmentOptions.Center;
             titleTMP.raycastTarget = false;
+            SetFont(titleTMP);
 
-            // Close button
+            // Close button (rounded square)
             var closeGO = UI("CloseButton", header.transform);
             var clRT = closeGO.GetComponent<RectTransform>();
             clRT.anchorMin = new Vector2(1, 0.5f);
             clRT.anchorMax = new Vector2(1, 0.5f);
             clRT.sizeDelta = new Vector2(100, 100);
             clRT.anchoredPosition = new Vector2(-60, 0);
-            var clShadow = closeGO.AddComponent<Image>();
-            clShadow.color = new Color(0.349f, 0.392f, 0.463f); // #596476
+            var clBg = closeGO.AddComponent<Image>();
+            if (roundedSpr) clBg.sprite = roundedSpr;
+            clBg.type = Image.Type.Sliced;
+            clBg.color = new Color(0.75f, 0.80f, 0.88f); // slightly darker than header
 
-            var clFace = UI("Face", closeGO.transform);
-            var cfRT = clFace.GetComponent<RectTransform>();
-            cfRT.anchorMin = Vector2.zero;
-            cfRT.anchorMax = Vector2.one;
-            cfRT.offsetMin = Vector2.zero;
-            cfRT.offsetMax = new Vector2(0, -9);
-            var cfImg = clFace.AddComponent<Image>();
-            cfImg.color = new Color(0.875f, 0.914f, 0.961f);
-            cfImg.raycastTarget = false;
-
-            var clIcon = UI("Icon", clFace.transform);
+            var clIcon = UI("Icon", closeGO.transform);
             var ciRT = clIcon.GetComponent<RectTransform>();
-            ciRT.anchorMin = new Vector2(0.18f, 0.18f);
-            ciRT.anchorMax = new Vector2(0.82f, 0.82f);
+            ciRT.anchorMin = new Vector2(0.2f, 0.2f);
+            ciRT.anchorMax = new Vector2(0.8f, 0.8f);
             ciRT.offsetMin = Vector2.zero;
             ciRT.offsetMax = Vector2.zero;
             var ciImg = clIcon.AddComponent<Image>();
-            var exitSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GAME/Art/UI/Icon_Exit.png");
+            var exitSpr = AssetDatabase.LoadAssetAtPath<Sprite>(ExitIconPath);
             if (exitSpr) ciImg.sprite = exitSpr;
             ciImg.preserveAspect = true;
-            ciImg.color = new Color(0.263f, 0.337f, 0.471f);
+            ciImg.color = DarkText;
             ciImg.raycastTarget = false;
 
             var closeBtn = closeGO.AddComponent<Button>();
-            closeBtn.targetGraphic = clShadow;
+            closeBtn.targetGraphic = clBg;
             var cnav = closeBtn.navigation;
             cnav.mode = Navigation.Mode.None;
             closeBtn.navigation = cnav;
@@ -296,7 +372,7 @@ namespace JumpRing.Game.Editor
             csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             sr.content = gRT;
 
-            // === BALANCE BAR ===
+            // === BALANCE BAR (rounded, pill-shaped) ===
             var balBar = UI("BalanceBar", root.transform);
             var bRT = balBar.GetComponent<RectTransform>();
             bRT.anchorMin = new Vector2(0.3f, 0.015f);
@@ -304,7 +380,9 @@ namespace JumpRing.Game.Editor
             bRT.offsetMin = Vector2.zero;
             bRT.offsetMax = Vector2.zero;
             var bBg = balBar.AddComponent<Image>();
-            bBg.color = new Color(0.875f, 0.914f, 0.961f);
+            if (roundedSpr) bBg.sprite = roundedSpr;
+            bBg.type = Image.Type.Sliced;
+            bBg.color = HeaderBg;
             bBg.raycastTarget = false;
 
             var bCoin = UI("CoinIcon", balBar.transform);
@@ -314,7 +392,7 @@ namespace JumpRing.Game.Editor
             bcRT.sizeDelta = new Vector2(55, 0);
             bcRT.anchoredPosition = new Vector2(40, 0);
             var bcImg = bCoin.AddComponent<Image>();
-            var coinSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GAME/Art/UI/Icon_Coin.png");
+            var coinSpr = AssetDatabase.LoadAssetAtPath<Sprite>(CoinIconPath);
             if (coinSpr) bcImg.sprite = coinSpr;
             bcImg.preserveAspect = true;
             bcImg.raycastTarget = false;
@@ -327,11 +405,12 @@ namespace JumpRing.Game.Editor
             btRT.offsetMax = Vector2.zero;
             var balLabel = bText.AddComponent<TextMeshProUGUI>();
             balLabel.text = "0";
-            balLabel.fontSize = 40;
+            balLabel.fontSize = 44;
             balLabel.fontStyle = FontStyles.Bold;
-            balLabel.color = new Color(0.263f, 0.337f, 0.471f);
+            balLabel.color = DarkText;
             balLabel.alignment = TextAlignmentOptions.Center;
             balLabel.raycastTarget = false;
+            SetFont(balLabel);
 
             // === WIRE ShopPresenter ===
             var presenter = root.AddComponent<UI.ShopPresenter>();
@@ -351,7 +430,7 @@ namespace JumpRing.Game.Editor
 
             PrefabUtility.SaveAsPrefabAsset(root, path);
             PrefabUtility.UnloadPrefabContents(root);
-            Debug.Log("[ShopRebuilder] ShopPanel rebuilt.");
+            Debug.Log("[ShopRebuilder] Shop rebuilt.");
         }
     }
 }

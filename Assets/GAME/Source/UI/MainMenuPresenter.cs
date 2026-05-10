@@ -23,6 +23,11 @@ namespace JumpRing.Game.UI
 
         private void OnEnable()
         {
+            if (shopPresenter == null)
+            {
+                shopPresenter = GetComponentInChildren<ShopPresenter>(true);
+            }
+
             gameStateMachine.StateChanged += OnStateChanged;
             OnStateChanged(gameStateMachine.CurrentState);
         }

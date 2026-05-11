@@ -15,6 +15,9 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private PlayerJumpController playerJumpController;
 
+        [SerializeField]
+        private CoinStepSpawner coinStepSpawner;
+
         [Header("UI References")]
         [SerializeField]
         private GameObject secondChancePanel;
@@ -89,6 +92,12 @@ namespace JumpRing.Game.UI
 
             var deathPos = playerJumpController.LastDeathPosition;
             playerJumpController.RevivePlayer(deathPos.x - reviveOffset);
+
+            if (coinStepSpawner != null)
+            {
+                coinStepSpawner.RespawnFromCurrentPosition();
+            }
+
             runSessionController.ReviveToReady();
             HidePanel();
         }

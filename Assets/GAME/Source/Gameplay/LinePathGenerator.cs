@@ -299,9 +299,31 @@ namespace JumpRing.Game.Gameplay
 
         public float EvaluateHeightAtX(float x)
         {
-            var seg = ActiveSegmentLength;
-            var step = Mathf.RoundToInt(x / seg);
-            return BakeOrGetHeight(step, seg);
+            var count = lineRenderer.positionCount;
+            if (count < 2)
+            {
+                return 0f;
+            }
+
+            var first = lineRenderer.GetPosition(0);
+            var last = lineRenderer.GetPosition(count - 1);
+
+            if (x <= first.x) return first.y;
+            if (x >= last.x) return last.y;
+
+            for (var i = 0; i < count - 1; i++)
+            {
+                var a = lineRenderer.GetPosition(i);
+                var b = lineRenderer.GetPosition(i + 1);
+
+                if (x >= a.x && x <= b.x)
+                {
+                    var t = (x - a.x) / (b.x - a.x);
+                    return Mathf.Lerp(a.y, b.y, t);
+                }
+            }
+
+            return last.y;
         }
 
         /// <summary>
@@ -385,6 +407,7 @@ namespace JumpRing.Game.Gameplay
             isRunActive = true;
             var t = segmentByDifficulty.Evaluate(0f);
             activeSegmentLength = Mathf.Lerp(baseSegmentLength, minSegmentLength, t);
+            UpdateWindow(force: true);
         }
 
         private void OnRunFinished()

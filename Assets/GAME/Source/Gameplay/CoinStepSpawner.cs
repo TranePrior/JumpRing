@@ -111,7 +111,12 @@ namespace JumpRing.Game.Gameplay
             ClearSpawnedCoins();
             nextSpawnX = CalculateFirstSpawnX();
             isSpawning = true;
-            SpawnAhead();
+        }
+
+        public void RespawnFromCurrentPosition()
+        {
+            ClearSpawnedCoins();
+            nextSpawnX = CalculateFirstSpawnX();
         }
 
         private void OnRunFinished()

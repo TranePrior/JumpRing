@@ -171,10 +171,14 @@ namespace JumpRing.Game.Gameplay
                 playerRigidbody.linearVelocity = Vector2.zero;
                 playerRigidbody.angularVelocity = 0f;
 
-                // Safety net: ensure line is inside the hole when idle (MainMenu/Ready)
+                // Safety net: ensure line is inside the hole when idle
                 if (runSessionController.CanStartRun && !IsLineInsidePlayableWindow())
                 {
                     ResetPlayerToOrigin();
+                    AlignLineToPlayableWindow();
+                }
+                else if (runSessionController.IsInReadyState && !IsLineInsidePlayableWindow())
+                {
                     AlignLineToPlayableWindow();
                 }
 
@@ -271,14 +275,22 @@ namespace JumpRing.Game.Gameplay
         /// </summary>
         public void RevivePlayer(float reviveX)
         {
-            linePathGenerator.ForceFlatAhead(reviveX - 3f, 10);
-
-            var lineY = linePathGenerator.EvaluateHeightAtX(reviveX);
             var localCenterOffset = (originalHitTopLocalPos.y + originalHitBottomLocalPos.y) * 0.5f;
-            playerRigidbody.position = new Vector2(reviveX, lineY - localCenterOffset);
+            var holeCenterY = lastDeathPosition.y + localCenterOffset;
+
+            var revivePos = new Vector2(reviveX, holeCenterY - localCenterOffset);
+            playerRigidbody.transform.SetPositionAndRotation(
+                new Vector3(revivePos.x, revivePos.y, 0f), Quaternion.identity);
+            playerRigidbody.position = revivePos;
+            playerRigidbody.rotation = 0f;
             playerRigidbody.linearVelocity = Vector2.zero;
             playerRigidbody.angularVelocity = 0f;
             playerRigidbody.gravityScale = defaultGravityScale;
+
+            Physics2D.SyncTransforms();
+
+            var lineAnchorPoint = new Vector2(reviveX, holeCenterY);
+            linePathGenerator.AlignAndRebuildToPoint(lineAnchorPoint);
         }
 
         private void OnRunFinished()

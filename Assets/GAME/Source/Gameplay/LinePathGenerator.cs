@@ -390,8 +390,6 @@ namespace JumpRing.Game.Gameplay
         private void OnRunFinished()
         {
             isRunActive = false;
-            bakedHeights.Clear();
-            ResetFrontier();
         }
 
         private void ResetFrontier()

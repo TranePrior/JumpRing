@@ -108,11 +108,13 @@ namespace JumpRing.Game.Gameplay
         private void OnEnable()
         {
             runSessionController.RegisterStartGate(this);
+            runSessionController.RunFinished += OnRunFinished;
         }
 
         private void OnDisable()
         {
             runSessionController.UnregisterStartGate(this);
+            runSessionController.RunFinished -= OnRunFinished;
         }
 
         private void Update()
@@ -168,6 +170,14 @@ namespace JumpRing.Game.Gameplay
                 playerRigidbody.gravityScale = 0f;
                 playerRigidbody.linearVelocity = Vector2.zero;
                 playerRigidbody.angularVelocity = 0f;
+
+                // Safety net: ensure line is inside the hole when idle (MainMenu/Ready)
+                if (runSessionController.CanStartRun && !IsLineInsidePlayableWindow())
+                {
+                    ResetPlayerToOrigin();
+                    AlignLineToPlayableWindow();
+                }
+
                 return;
             }
 
@@ -261,14 +271,20 @@ namespace JumpRing.Game.Gameplay
         /// </summary>
         public void RevivePlayer(float reviveX)
         {
+            linePathGenerator.ForceFlatAhead(reviveX - 3f, 10);
+
             var lineY = linePathGenerator.EvaluateHeightAtX(reviveX);
             var localCenterOffset = (originalHitTopLocalPos.y + originalHitBottomLocalPos.y) * 0.5f;
             playerRigidbody.position = new Vector2(reviveX, lineY - localCenterOffset);
             playerRigidbody.linearVelocity = Vector2.zero;
             playerRigidbody.angularVelocity = 0f;
             playerRigidbody.gravityScale = defaultGravityScale;
+        }
 
-            linePathGenerator.ForceFlatAhead(reviveX - 3f, 10);
+        private void OnRunFinished()
+        {
+            ResetPlayerToOrigin();
+            AlignLineToPlayableWindow();
         }
 
         public bool CanStartRun()

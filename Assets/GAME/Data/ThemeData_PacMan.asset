@@ -19,3 +19,5 @@ MonoBehaviour:
   lineDotSpacing: 1.5
   lineDotSize: 0.5
   coinPrefab: {fileID: 4993492142992724362, guid: 5b4b32ec8e8e643f78be12ed334dd7dd, type: 3}
+  backgroundTexture: {fileID: 2800000, guid: ef846cd62e509466382a061ca55bdaa1, type: 3}
+  backgroundTintColor: {r: 0.08, g: 0.08, b: 0.1, a: 0.35}

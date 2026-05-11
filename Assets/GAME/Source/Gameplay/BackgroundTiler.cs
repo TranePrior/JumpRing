@@ -69,6 +69,20 @@ namespace JumpRing.Game.Gameplay
             }
         }
 
+        public void SetBackground(Texture2D texture, Color color)
+        {
+            if (tileMaterial == null) return;
+
+            if (texture != null)
+            {
+                tileTexture = texture;
+                tileMaterial.SetTexture(BaseMap, texture);
+            }
+
+            tintColor = color;
+            tileMaterial.SetColor(BaseColor, color);
+        }
+
         private void OnDestroy()
         {
             if (tileMaterial != null)

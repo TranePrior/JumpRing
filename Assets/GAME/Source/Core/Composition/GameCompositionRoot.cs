@@ -82,6 +82,11 @@ namespace JumpRing.Game.Core.Composition
                 runSessionController.RunFinished += bonusEffectManager.OnRunFinished;
             }
 
+            if (skinShopService != null)
+            {
+                skinShopService.Initialize();
+            }
+
             if (themeManager != null)
             {
                 if (skinShopService != null && skinShopService.ActiveSkin != null)

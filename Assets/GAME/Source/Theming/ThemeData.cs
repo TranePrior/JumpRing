@@ -31,6 +31,13 @@ namespace JumpRing.Game.Theming
         [SerializeField]
         private GameObject coinPrefab;
 
+        [Header("Background")]
+        [SerializeField]
+        private Texture2D backgroundTexture;
+
+        [SerializeField]
+        private Color backgroundTintColor = new(0.1f, 0.22f, 0.16f, 0.35f);
+
         public string ThemeName => themeName;
         public GameObject PlayerSkinPrefab => playerSkinPrefab;
         public Material LineMaterial => lineMaterial;
@@ -39,5 +46,7 @@ namespace JumpRing.Game.Theming
         public float LineDotSize => lineDotSize;
         public bool UseLineDots => lineDotSprite != null;
         public GameObject CoinPrefab => coinPrefab;
+        public Texture2D BackgroundTexture => backgroundTexture;
+        public Color BackgroundTintColor => backgroundTintColor;
     }
 }

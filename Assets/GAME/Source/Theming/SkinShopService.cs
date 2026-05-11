@@ -28,7 +28,7 @@ namespace JumpRing.Game.Theming
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
         private HashSet<string> ownedSkinIds = new();
 
-        private void Awake()
+        public void Initialize()
         {
             LoadOwnedSkins();
             LoadActiveSkin();

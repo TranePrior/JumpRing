@@ -21,6 +21,9 @@ namespace JumpRing.Game.Theming
         [SerializeField]
         private LineDotsRenderer lineDotsRenderer;
 
+        [SerializeField]
+        private BackgroundTiler backgroundTiler;
+
         public ThemeData ActiveTheme => activeTheme;
 
         public void Initialize()
@@ -63,6 +66,11 @@ namespace JumpRing.Game.Theming
             if (coinStepSpawner != null && theme.CoinPrefab != null)
             {
                 coinStepSpawner.SetCoinPrefab(theme.CoinPrefab);
+            }
+
+            if (backgroundTiler != null && theme.BackgroundTexture != null)
+            {
+                backgroundTiler.SetBackground(theme.BackgroundTexture, theme.BackgroundTintColor);
             }
         }
     }

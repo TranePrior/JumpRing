@@ -17,11 +17,13 @@ namespace JumpRing.Game.Gameplay
         event Action RunStarted;
         event Action RunFinished;
         event Action DeathRequested;
+        event Action<int> TapCountChanged;
 
         bool CanControlPlayer { get; }
         bool CanStartRun { get; }
         bool HasActiveRun { get; }
         bool IsInReadyState { get; }
+        int TapCount { get; }
 
         void StartRun();
         void BeginGameplay();
@@ -40,6 +42,7 @@ namespace JumpRing.Game.Gameplay
         public event Action RunStarted;
         public event Action RunFinished;
         public event Action DeathRequested;
+        public event Action<int> TapCountChanged;
 
         private readonly List<IRunStartGate> runStartGates = new();
         private IGameStateMachine gameStateMachine;
@@ -78,6 +81,8 @@ namespace JumpRing.Game.Gameplay
 
         public bool HasActiveRun => hasActiveRun;
 
+        public int TapCount { get; private set; }
+
         public bool IsInReadyState => gameStateMachine.CurrentState == GameState.Ready;
 
         public void RegisterStartGate(IRunStartGate gate)
@@ -111,6 +116,8 @@ namespace JumpRing.Game.Gameplay
 
             scoreService.Reset();
             ScorePerTap = 1;
+            TapCount = 0;
+            TapCountChanged?.Invoke(TapCount);
             gameStateMachine.Enter(GameState.Ready);
             hasActiveRun = true;
             RunStarted?.Invoke();
@@ -202,6 +209,8 @@ namespace JumpRing.Game.Gameplay
                 return scoreService.CurrentScore;
             }
 
+            TapCount++;
+            TapCountChanged?.Invoke(TapCount);
             scoreService.Add(ScorePerTap);
             return scoreService.CurrentScore;
         }

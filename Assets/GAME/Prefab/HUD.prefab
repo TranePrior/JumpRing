@@ -259,6 +259,7 @@ MonoBehaviour:
   scoreLabel: {fileID: 6210637601165726536}
   bestScoreLabel: {fileID: 7919036337219259543}
   diamondsLabel: {fileID: 5154101434793807245}
+  gameStateMachineComponent: {fileID: 0}
 --- !u!1 &3417898539487703069
 GameObject:
   m_ObjectHideFlags: 0

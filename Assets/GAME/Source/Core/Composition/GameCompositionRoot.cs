@@ -26,6 +26,9 @@ namespace JumpRing.Game.Core.Composition
         [SerializeField]
         private HudPresenter hudPresenter;
 
+        [SerializeField]
+        private WorldTapCounterPresenter worldTapCounterPresenter;
+
         [Header("Theming")]
         [SerializeField]
         private ThemeManager themeManager;
@@ -57,6 +60,11 @@ namespace JumpRing.Game.Core.Composition
         {
             runSessionController.Construct(GameStateMachine, ScoreService);
             hudPresenter.Construct(ScoreService, CurrencyService);
+
+            if (worldTapCounterPresenter != null)
+            {
+                worldTapCounterPresenter.Construct(runSessionController);
+            }
 
             if (difficultyManager != null)
             {

@@ -6,12 +6,6 @@ namespace JumpRing.Game.Gameplay
 {
     public sealed class CoinStepSpawner : MonoBehaviour
     {
-        private enum SpawnYMode
-        {
-            OnLine = 0,
-            CenterLine = 1,
-        }
-
         [Header("Dependencies")]
         [SerializeField]
         private RunSessionController runSessionController;
@@ -24,9 +18,6 @@ namespace JumpRing.Game.Gameplay
 
         [SerializeField]
         private GameObject coinPrefab;
-
-        [SerializeField]
-        private Transform centerLinePoint;
 
         [SerializeField]
         private Transform spawnedCoinsParent;
@@ -55,9 +46,6 @@ namespace JumpRing.Game.Gameplay
 
         [SerializeField, Min(0f)]
         private float despawnBehindDistance = 8f;
-
-        [SerializeField]
-        private SpawnYMode spawnYMode = SpawnYMode.OnLine;
 
         [SerializeField]
         private float spawnYOffset = 0f;
@@ -104,6 +92,7 @@ namespace JumpRing.Game.Gameplay
 
             SpawnAhead();
             DespawnBehind();
+            SnapCoinsToLine();
         }
 
         private void OnRunStarted()
@@ -161,7 +150,7 @@ namespace JumpRing.Game.Gameplay
 
         private void SpawnCoin(float xPosition)
         {
-            var yPosition = ResolveSpawnY(xPosition) + spawnYOffset;
+            var yPosition = linePathGenerator.EvaluateHeightAtX(xPosition) + spawnYOffset;
             var spawnPosition = new Vector3(xPosition, yPosition, 0f);
             var spawnedCoin = Instantiate(coinPrefab, spawnPosition, Quaternion.identity, spawnedCoinsParent);
             var coinCollectible = spawnedCoin.GetComponent<CoinCollectible>();
@@ -169,14 +158,19 @@ namespace JumpRing.Game.Gameplay
             spawnedCoins.Enqueue(spawnedCoin);
         }
 
-        private float ResolveSpawnY(float xPosition)
+        private void SnapCoinsToLine()
         {
-            if (spawnYMode == SpawnYMode.CenterLine)
+            foreach (var coin in spawnedCoins)
             {
-                return centerLinePoint.position.y;
-            }
+                if (coin == null)
+                {
+                    continue;
+                }
 
-            return linePathGenerator.EvaluateHeightAtX(xPosition);
+                var pos = coin.transform.position;
+                pos.y = linePathGenerator.EvaluateHeightAtX(pos.x) + spawnYOffset;
+                coin.transform.position = pos;
+            }
         }
 
         private float CalculateFirstSpawnX()

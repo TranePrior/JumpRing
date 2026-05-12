@@ -299,31 +299,16 @@ namespace JumpRing.Game.Gameplay
 
         public float EvaluateHeightAtX(float x)
         {
-            var count = lineRenderer.positionCount;
-            if (count < 2)
-            {
-                return 0f;
-            }
+            var seg = ActiveSegmentLength;
+            var stepFloat = x / seg;
+            var stepLow = Mathf.FloorToInt(stepFloat);
+            var stepHigh = stepLow + 1;
 
-            var first = lineRenderer.GetPosition(0);
-            var last = lineRenderer.GetPosition(count - 1);
+            var yLow = BakeOrGetHeight(stepLow, seg);
+            var yHigh = BakeOrGetHeight(stepHigh, seg);
 
-            if (x <= first.x) return first.y;
-            if (x >= last.x) return last.y;
-
-            for (var i = 0; i < count - 1; i++)
-            {
-                var a = lineRenderer.GetPosition(i);
-                var b = lineRenderer.GetPosition(i + 1);
-
-                if (x >= a.x && x <= b.x)
-                {
-                    var t = (x - a.x) / (b.x - a.x);
-                    return Mathf.Lerp(a.y, b.y, t);
-                }
-            }
-
-            return last.y;
+            var t = stepFloat - stepLow;
+            return Mathf.Lerp(yLow, yHigh, t);
         }
 
         /// <summary>

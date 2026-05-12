@@ -121,6 +121,7 @@ namespace JumpRing.Game.Gameplay
             }
 
             DespawnBehind();
+            SnapBonusesToLine();
 
             var score = difficultyManager != null ? difficultyManager.CurrentScore : 0;
             var newSegment = score / segmentSize;
@@ -314,6 +315,21 @@ namespace JumpRing.Game.Gameplay
             }
 
             spawnedBonuses.Enqueue(go);
+        }
+
+        private void SnapBonusesToLine()
+        {
+            foreach (var bonus in spawnedBonuses)
+            {
+                if (bonus == null)
+                {
+                    continue;
+                }
+
+                var pos = bonus.transform.position;
+                pos.y = linePathGenerator.EvaluateHeightAtX(pos.x) + spawnYOffset;
+                bonus.transform.position = pos;
+            }
         }
 
         private void DespawnBehind()

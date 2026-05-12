@@ -8,8 +8,8 @@ namespace JumpRing.Game.UI
     public sealed class HudPresenter : MonoBehaviour
     {
         private const string ScoreFormat = "SCORE: {0}";
-        private const string BestScoreFormat = "BEST SCORE: {0}";
-        private const string CoinsFormat = "COIN: {0}";
+        private const string BestScoreFormat = "{0}";
+        private const string CoinsFormat = "{0}";
 
         [SerializeField]
         private TMP_Text scoreLabel;
@@ -82,22 +82,27 @@ namespace JumpRing.Game.UI
             {
                 scoreLabel.gameObject.SetActive(showScores);
             }
-
-            if (bestScoreLabel != null)
-            {
-                bestScoreLabel.gameObject.SetActive(showScores);
-            }
         }
 
         private void OnScoreChanged(int score)
         {
-            scoreLabel.text = string.Format(ScoreFormat, score);
-            bestScoreLabel.text = string.Format(BestScoreFormat, scoreService.BestScore);
+            if (scoreLabel != null)
+            {
+                scoreLabel.text = string.Format(ScoreFormat, score);
+            }
+
+            if (bestScoreLabel != null)
+            {
+                bestScoreLabel.text = string.Format(BestScoreFormat, scoreService.BestScore);
+            }
         }
 
         private void OnBalanceChanged(int balance)
         {
-            diamondsLabel.text = string.Format(CoinsFormat, balance);
+            if (diamondsLabel != null)
+            {
+                diamondsLabel.text = string.Format(CoinsFormat, balance);
+            }
         }
     }
 }

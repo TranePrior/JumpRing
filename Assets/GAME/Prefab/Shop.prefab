@@ -288,6 +288,7 @@ GameObject:
   - component: {fileID: 926207997247818888}
   - component: {fileID: 2723754988000489517}
   - component: {fileID: 6494100068301183773}
+  - component: {fileID: 3813304314404381036}
   m_Layer: 5
   m_Name: Shop
   m_TagString: Untagged
@@ -387,6 +388,23 @@ MonoBehaviour:
   cardPrefab: {fileID: 8316474644666673714, guid: 98b3552aff4214b6295d4d38bff08d48, type: 3}
   balanceLabel: {fileID: 8466786694674439082}
   iconBar: {fileID: 0}
+  shopButton: {fileID: 0}
+  bestScoreBackground: {fileID: 0}
+  coinBackground: {fileID: 0}
+  tapToStartLabel: {fileID: 0}
+--- !u!114 &3813304314404381036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4785329679716494730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97ff4361a838a42a8b65ccbe1cc8339b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.ScreenBlurEffect
+  downsampleFactor: 8
 --- !u!1 &5671010475840121042
 GameObject:
   m_ObjectHideFlags: 0
@@ -605,13 +623,13 @@ MonoBehaviour:
   m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f7665e83a28664733bb7b6b62fa3452a, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: f7665e83a28664733bb7b6b62fa3452a, type: 2}
+  m_sharedMaterial: {fileID: -3867971790857219940, guid: f7665e83a28664733bb7b6b62fa3452a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4282922797
   m_fontColor: {r: 0.176, g: 0.216, b: 0.282, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -624,7 +642,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -742,13 +760,13 @@ MonoBehaviour:
   m_text: "\u041C\u0430\u0433\u0430\u0437\u0438\u043D"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f7665e83a28664733bb7b6b62fa3452a, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: f7665e83a28664733bb7b6b62fa3452a, type: 2}
+  m_sharedMaterial: {fileID: -3867971790857219940, guid: f7665e83a28664733bb7b6b62fa3452a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4282922797
   m_fontColor: {r: 0.176, g: 0.216, b: 0.282, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -761,7 +779,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2

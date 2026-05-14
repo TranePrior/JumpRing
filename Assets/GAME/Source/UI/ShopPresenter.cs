@@ -52,6 +52,7 @@ namespace JumpRing.Game.UI
         private GameObject tapToStartLabel;
 
         private readonly List<ShopSkinCardView> activeCards = new();
+        private ScreenBlurEffect blurEffect;
 
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
 
@@ -90,6 +91,13 @@ namespace JumpRing.Game.UI
                 shopButton = GameObject.Find("ShopButton");
             }
 
+            if (blurEffect == null)
+            {
+                blurEffect = GetComponent<ScreenBlurEffect>();
+                if (blurEffect == null)
+                    blurEffect = gameObject.AddComponent<ScreenBlurEffect>();
+            }
+
             if (closeButton != null)
             {
                 closeButton.onClick.AddListener(Close);
@@ -119,6 +127,9 @@ namespace JumpRing.Game.UI
         public void Open()
         {
             gameObject.SetActive(true);
+
+            if (blurEffect != null) blurEffect.Capture();
+
             shopPanel.alpha = 1f;
             shopPanel.interactable = true;
             shopPanel.blocksRaycasts = true;
@@ -138,6 +149,8 @@ namespace JumpRing.Game.UI
             shopPanel.alpha = 0f;
             shopPanel.interactable = false;
             shopPanel.blocksRaycasts = false;
+
+            if (blurEffect != null) blurEffect.Release();
 
             if (iconBar != null) iconBar.SetActive(true);
             if (shopButton != null) shopButton.SetActive(true);

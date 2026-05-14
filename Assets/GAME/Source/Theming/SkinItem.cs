@@ -18,11 +18,15 @@ namespace JumpRing.Game.Theming
         private int price;
 
         [SerializeField]
+        private Sprite currencyIcon;
+
+        [SerializeField]
         private ThemeData themeData;
 
         public string SkinId => skinId;
         public string DisplayName => displayName;
         public Sprite Icon => icon;
+        public Sprite CurrencyIcon => currencyIcon;
         public int Price => price;
         public ThemeData ThemeData => themeData;
     }

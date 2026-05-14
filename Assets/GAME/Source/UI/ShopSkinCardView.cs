@@ -36,6 +36,9 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private Image coinIcon;
 
+        [SerializeField]
+        private Image currencyIconImage;
+
         [Header("Button Sprites")]
         [SerializeField]
         private Sprite buyButtonSprite;
@@ -73,6 +76,12 @@ namespace JumpRing.Game.UI
             if (nameLabel != null)
             {
                 nameLabel.text = skin.DisplayName;
+            }
+
+            if (currencyIconImage != null)
+            {
+                currencyIconImage.sprite = skin.CurrencyIcon;
+                currencyIconImage.enabled = skin.CurrencyIcon != null;
             }
 
             UpdateState(isOwned, isActive, canAfford);

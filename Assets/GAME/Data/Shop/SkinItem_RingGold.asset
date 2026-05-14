@@ -16,4 +16,5 @@ MonoBehaviour:
   displayName: "\u041B\u044F\u0433\u0443\u0448\u043A\u0430"
   icon: {fileID: 21300000, guid: 1004e7f81575f48fdbbda11197b8f488, type: 3}
   price: 500
+  currencyIcon: {fileID: 21300000, guid: 46e8bd654219941998d811c284564320, type: 3}
   themeData: {fileID: 11400000, guid: d1d2d3d4e5e6f7f8a9a0b1b2c3c4d5e6, type: 2}

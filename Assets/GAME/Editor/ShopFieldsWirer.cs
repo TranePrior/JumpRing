@@ -94,6 +94,21 @@ namespace JumpRing.Game.Editor
             if (iconBar != null)
                 so.FindProperty("iconBar").objectReferenceValue = iconBar;
 
+            // bestScoreBackground
+            var bestScoreBg = FindGameObjectByName("BestScore_Background");
+            if (bestScoreBg != null)
+                so.FindProperty("bestScoreBackground").objectReferenceValue = bestScoreBg;
+
+            // coinBackground
+            var coinBg = FindGameObjectByName("Coin_Background");
+            if (coinBg != null)
+                so.FindProperty("coinBackground").objectReferenceValue = coinBg;
+
+            // tapToStartLabel
+            var tapToStart = FindGameObjectByName("TapToStartLabel");
+            if (tapToStart != null)
+                so.FindProperty("tapToStartLabel").objectReferenceValue = tapToStart;
+
             so.ApplyModifiedProperties();
             EditorUtility.SetDirty(shopPresenter);
             Debug.Log("[ShopFieldsWirer] ShopPresenter fields wired successfully!");
@@ -114,6 +129,20 @@ namespace JumpRing.Game.Editor
             }
 
             Debug.Log("[ShopFieldsWirer] All done! Save the scene (Ctrl+S).");
+        }
+
+        static GameObject FindGameObjectByName(string name)
+        {
+            var go = GameObject.Find(name);
+            if (go != null) return go;
+
+            var allTransforms = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == name)
+                    return t.gameObject;
+            }
+            return null;
         }
 
         static T FindChildByName<T>(Transform root, string name) where T : Component

@@ -11,12 +11,7 @@ namespace JumpRing.Game.Theming
 
         public void ApplySkin(GameObject skinPrefab)
         {
-            if (activeSkinInstance != null)
-            {
-                Destroy(activeSkinInstance);
-                activeSkinInstance = null;
-                activeSkin = null;
-            }
+            DestroyAllSkinChildren();
 
             if (skinPrefab == null)
             {
@@ -29,6 +24,22 @@ namespace JumpRing.Game.Theming
             activeSkinInstance.transform.localScale = Vector3.one;
 
             activeSkin = activeSkinInstance.GetComponent<IPlayerSkin>();
+        }
+
+        private void DestroyAllSkinChildren()
+        {
+            activeSkinInstance = null;
+            activeSkin = null;
+
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                var child = transform.GetChild(i);
+                if (child.GetComponentInChildren<SpriteRenderer>() != null)
+                {
+                    child.gameObject.SetActive(false);
+                    DestroyImmediate(child.gameObject);
+                }
+            }
         }
     }
 }

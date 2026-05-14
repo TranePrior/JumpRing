@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: LineGlow
-  m_Shader: {fileID: 4800000, guid: 650dd9526735d5b46b79224bc6e94025, type: 3}
+  m_Shader: {fileID: 4800000, guid: 3902cbd91b68c4008949bcb0dcf6094a, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -17,8 +17,7 @@ Material:
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: 
@@ -40,10 +39,15 @@ Material:
     - _AlphaToMask: 0
     - _Blend: 0
     - _BlendOp: 0
+    - _CoreWidth: 0.148
     - _Cull: 2
     - _Cutoff: 0.5
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _GlowFalloff: 1.8
+    - _GlowIntensity: 2.5
+    - _GlowPower: 5.94
+    - _InnerGlowWidth: 0.193
     - _QueueOffset: 0
     - _SampleGI: 0
     - _SrcBlend: 1
@@ -54,6 +58,8 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.12, g: 0.12, b: 0.18, a: 1}
     - _Color: {r: 0.11999995, g: 0.11999995, b: 0.17999998, a: 1}
+    - _CoreColor: {r: 2.4031413, g: 1.4744718, b: 0, a: 1}
+    - _GlowColor: {r: 1, g: 0.5947854, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &4584132705305311307

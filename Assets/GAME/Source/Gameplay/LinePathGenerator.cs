@@ -53,7 +53,7 @@ namespace JumpRing.Game.Gameplay
 
         [Header("Line Width")]
         [SerializeField]
-        private float baseLineWidth = 0.38f;
+        private float baseLineWidth = 0.5f;
 
         [Header("Seed")]
         [SerializeField]

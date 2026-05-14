@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.ThemeData
   themeName: Doctor
   playerSkinPrefab: {fileID: 9173337736600875300, guid: b1b2b3b4c5c6d7d8e9e0f1f2a3a4b5c6, type: 3}
-  lineMaterial: {fileID: 2100000, guid: a603f8cafe9f7483a8b5d46cb77662e9, type: 2}
+  lineMaterial: {fileID: 2100000, guid: 49d240bfb12b0433d9a4fca03fe14e92, type: 2}
   lineDotSprite: {fileID: 0}
   lineDotSpacing: 1.5
   lineDotSize: 0.5

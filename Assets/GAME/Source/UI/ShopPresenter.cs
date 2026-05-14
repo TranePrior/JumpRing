@@ -39,6 +39,9 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private GameObject iconBar;
 
+        [SerializeField]
+        private GameObject shopButton;
+
         private readonly List<ShopSkinCardView> activeCards = new();
 
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
@@ -71,6 +74,11 @@ namespace JumpRing.Game.UI
                     candidate = GameObject.Find("IconBar(Clone)");
                 }
                 iconBar = candidate;
+            }
+
+            if (shopButton == null)
+            {
+                shopButton = GameObject.Find("ShopButton");
             }
 
             if (closeButton != null)
@@ -107,6 +115,7 @@ namespace JumpRing.Game.UI
             shopPanel.blocksRaycasts = true;
 
             if (iconBar != null) iconBar.SetActive(false);
+            if (shopButton != null) shopButton.SetActive(false);
 
             UpdateBalance();
             RebuildGrid();
@@ -119,6 +128,7 @@ namespace JumpRing.Game.UI
             shopPanel.blocksRaycasts = false;
 
             if (iconBar != null) iconBar.SetActive(true);
+            if (shopButton != null) shopButton.SetActive(true);
 
             gameObject.SetActive(false);
         }

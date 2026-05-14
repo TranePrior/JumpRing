@@ -179,6 +179,34 @@ namespace JumpRing.Game.Gameplay
             return Mathf.Ceil(firstDesiredX / spawnStep) * spawnStep;
         }
 
+        public void RemoveCoinNear(float x, float tolerance)
+        {
+            var tempQueue = new Queue<GameObject>();
+
+            while (spawnedCoins.Count > 0)
+            {
+                var coin = spawnedCoins.Dequeue();
+
+                if (coin == null)
+                {
+                    continue;
+                }
+
+                if (Mathf.Abs(coin.transform.position.x - x) <= tolerance)
+                {
+                    Destroy(coin);
+                    continue;
+                }
+
+                tempQueue.Enqueue(coin);
+            }
+
+            while (tempQueue.Count > 0)
+            {
+                spawnedCoins.Enqueue(tempQueue.Dequeue());
+            }
+        }
+
         private void ClearSpawnedCoins()
         {
             while (spawnedCoins.Count > 0)

@@ -31,6 +31,9 @@ namespace JumpRing.Game.Gameplay
         private Transform ringTransform;
 
         [SerializeField]
+        private CoinStepSpawner coinStepSpawner;
+
+        [SerializeField]
         private Transform spawnedBonusParent;
 
         [Header("Segment Settings")]
@@ -315,6 +318,11 @@ namespace JumpRing.Game.Gameplay
             }
 
             spawnedBonuses.Enqueue(go);
+
+            if (coinStepSpawner != null)
+            {
+                coinStepSpawner.RemoveCoinNear(spawnX, 3f);
+            }
         }
 
         private void SnapBonusesToLine()

@@ -18,6 +18,6 @@ MonoBehaviour:
   lineDotSprite: {fileID: 0}
   lineDotSpacing: 1.5
   lineDotSize: 0.5
-  coinPrefab: {fileID: 4993492142992724362, guid: 575e5b5fe59ea4f10b464461deec50d8, type: 3}
+  coinPrefab: {fileID: 4993492142992724362, guid: c0ca93e1831e74da0aa030b5a7491ba5, type: 3}
   backgroundTexture: {fileID: 2800000, guid: ef846cd62e509466382a061ca55bdaa1, type: 3}
   backgroundTintColor: {r: 0.18, g: 0.08, b: 0.16, a: 0.35}

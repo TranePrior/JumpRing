@@ -55,6 +55,10 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private float baseLineWidth = 0.5f;
 
+        [Header("Start Flat Zone")]
+        [SerializeField, Min(0), Tooltip("Flat segments at run start (~baseSpeed * seconds / segmentLength)")]
+        private int startFlatSegments = 10;
+
         [Header("Seed")]
         [SerializeField]
         private int randomSeed = 12345;
@@ -70,7 +74,6 @@ namespace JumpRing.Game.Gameplay
         private float lastEndX;
         private bool hasWindow;
         private bool isRunActive;
-        private float runStartX;
         private float yOffset;
 
         private int frontierStepForward;
@@ -97,23 +100,16 @@ namespace JumpRing.Game.Gameplay
         private static readonly int[] LevelThresholds = { 0, 40, 50, 65, 100 };
 
         // Pattern pools per difficulty level
-        // Level 0 (0-9): mostly flat, rare gentle 30° angles
+        // Level 0: perfectly flat (idle / start flat zone)
         private static readonly float[][] PatternsLevel0 =
         {
             new[] { 0f, 0f, 0f },
             new[] { 0f, 0f, 0f, 0f },
-            new[] { Tan30, 0f, 0f },
-            new[] { -Tan30, 0f, 0f },
-            new[] { Tan30, Tan30, 0f, 0f },
-            new[] { -Tan30, -Tan30, 0f, 0f },
-            new[] { Tan30, 0f, -Tan30 },
-            new[] { -Tan30, 0f, Tan30 },
         };
 
         // Level 1 (10-19): shorter flats, 30° and some 45° angles
         private static readonly float[][] PatternsLevel1 =
         {
-            new[] { 0f, 0f },
             new[] { Tan30, Tan30, Tan30, 0f },
             new[] { -Tan30, -Tan30, -Tan30, 0f },
             new[] { Tan45, 0f, 0f, -Tan45 },
@@ -235,7 +231,7 @@ namespace JumpRing.Game.Gameplay
 
             ResetFrontier();
             isRunActive = false;
-            runStartX = 0f;
+            randomSeed = Random.Range(0, int.MaxValue);
             yOffset = 0f;
             activeSegmentLength = baseSegmentLength;
 
@@ -261,40 +257,6 @@ namespace JumpRing.Game.Gameplay
             ResetFrontier();
             hasWindow = false;
             UpdateWindow(force: true);
-        }
-
-        public void AlignAndRebuildToPoint(Vector2 anchorPoint)
-        {
-            runStartX = anchorPoint.x;
-            randomSeed = Random.Range(0, int.MaxValue);
-            yOffset = anchorPoint.y;
-            bakedHeights.Clear();
-
-            // Pin anchor and a few surrounding steps to anchorPoint.y (flat safe zone)
-            var seg = ActiveSegmentLength;
-            var anchorStep = Mathf.RoundToInt(anchorPoint.x / seg);
-            const int safeRadius = 3;
-            for (var s = anchorStep - safeRadius; s <= anchorStep + safeRadius; s++)
-            {
-                bakedHeights[s] = anchorPoint.y;
-            }
-
-            frontierStepForward = anchorStep + safeRadius;
-            frontierYForward = anchorPoint.y;
-            frontierStepBackward = anchorStep - safeRadius;
-            frontierYBackward = anchorPoint.y;
-            patternForward = null;
-            patternPosForward = 0;
-            patternBackward = null;
-            patternPosBackward = 0;
-
-            hasWindow = false;
-            UpdateWindow(force: true);
-        }
-
-        public bool IsAlignedWithPoint(Vector2 point, float tolerance)
-        {
-            return Mathf.Abs(EvaluateHeightAtX(point.x) - point.y) <= tolerance;
         }
 
         public float EvaluateHeightAtX(float x)
@@ -392,6 +354,32 @@ namespace JumpRing.Game.Gameplay
             isRunActive = true;
             var t = segmentByDifficulty.Evaluate(0f);
             activeSegmentLength = Mathf.Lerp(baseSegmentLength, minSegmentLength, t);
+
+            var seg = activeSegmentLength;
+            var playerX = gameplayCamera.transform.position.x;
+            var playerStep = Mathf.RoundToInt(playerX / seg);
+            var flatY = bakedHeights.TryGetValue(playerStep, out var cachedY) ? cachedY : yOffset;
+
+            bakedHeights.Clear();
+
+            var behindSteps = Mathf.CeilToInt(behindCameraDistance / seg) + 2;
+            var flatEnd = playerStep + startFlatSegments;
+
+            for (var s = playerStep - behindSteps; s <= flatEnd; s++)
+            {
+                bakedHeights[s] = flatY;
+            }
+
+            frontierStepForward = flatEnd;
+            frontierYForward = flatY;
+            frontierStepBackward = playerStep - behindSteps;
+            frontierYBackward = flatY;
+            patternForward = null;
+            patternPosForward = 0;
+            patternBackward = null;
+            patternPosBackward = 0;
+
+            hasWindow = false;
             UpdateWindow(force: true);
         }
 
@@ -419,12 +407,15 @@ namespace JumpRing.Game.Gameplay
 
         private int GetDifficultyLevel()
         {
+            if (!isRunActive) return 0;
+
             var score = difficultyManager != null ? difficultyManager.CurrentScore : 0;
             for (var i = LevelThresholds.Length - 1; i >= 0; i--)
             {
-                if (score >= LevelThresholds[i]) return i;
+                if (score >= LevelThresholds[i]) return Mathf.Max(i, 1);
             }
-            return 0;
+
+            return 1;
         }
 
         private float GenerateFromPattern(int step, float seg, float prevY,

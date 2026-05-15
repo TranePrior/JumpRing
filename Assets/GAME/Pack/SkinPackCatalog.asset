@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: SkinPackCatalog
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinPackCatalog
   packs:
+  - {fileID: 11400000, guid: 57bda5b013dd5453eb9c5516af31c704, type: 2}
   - {fileID: 11400000, guid: 4c750be36d3934d70965ec7be0fb2794, type: 2}
-  - {fileID: 11400000, guid: 4c750be36d3934d70965ec7be0fb2794, type: 2}
-  - {fileID: 11400000, guid: 4c750be36d3934d70965ec7be0fb2794, type: 2}
-  defaultSkin: {fileID: 11400000, guid: 0ca618d383ac04c0b8c3fbea3e6b91f6, type: 2}
+  - {fileID: 11400000, guid: d4289419e7a6543aaa9475df8a3723bb, type: 2}
+  - {fileID: 11400000, guid: bfbbfcd162fa9409eb24ed170c74ee84, type: 2}
+  - {fileID: 11400000, guid: 0e87bebf60dfb48eb9ad2a0d3ed985b4, type: 2}
+  - {fileID: 11400000, guid: 7611d8e476bcc4820810d2aea940b915, type: 2}
+  defaultSkin: {fileID: 11400000, guid: 72c195784bafd491cb3cf493c22dcbd9, type: 2}

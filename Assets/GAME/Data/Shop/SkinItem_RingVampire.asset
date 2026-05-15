@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinItem
   skinId: ring_vampire
   displayName: "\u0412\u0430\u043C\u043F\u0438\u0440"
-  icon: {fileID: 21300000, guid: 807d609b940884116956f0ce9a0b8b35, type: 3}
-  price: 500
+  icon: {fileID: -674555569246545714, guid: 131660c56b85340c0ae2d685436160b9, type: 3}
+  price: 100
   currencyIcon: {fileID: 21300000, guid: 39222351aaf514f3b8801a61bca4b8a5, type: 3}
   themeData: {fileID: 11400000, guid: f1f2f3f4a5a6b7b8c9c0d1d2e3e4f5a6, type: 2}

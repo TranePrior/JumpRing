@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b660aa0b57f6480d98a61fec84257df, type: 3}
-  m_Name: SkinItem_RingGold
+  m_Name: SkinItem_RingPinguin
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinItem
-  skinId: ring_frog
-  displayName: "\u041B\u044F\u0433\u0443\u0448\u043A\u0430"
-  icon: {fileID: 21300000, guid: 1004e7f81575f48fdbbda11197b8f488, type: 3}
-  price: 500
-  currencyIcon: {fileID: 21300000, guid: 46e8bd654219941998d811c284564320, type: 3}
-  themeData: {fileID: 11400000, guid: d1d2d3d4e5e6f7f8a9a0b1b2c3c4d5e6, type: 2}
+  skinId: ring_pinguin
+  displayName: "\u041F\u0438\u043D\u0433\u0432\u0438\u043D"
+  icon: {fileID: -4794135956454875951, guid: f3477308af0ef40afa9c50b5c40bf0d9, type: 3}
+  price: 100
+  currencyIcon: {fileID: 21300000, guid: 53a3ac7698c1c42f39ec532ed09a2b01, type: 3}
+  themeData: {fileID: 11400000, guid: 983eafcfe8ab141ddb8bb5664819b8f4, type: 2}

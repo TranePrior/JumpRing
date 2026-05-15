@@ -1,7 +1,19 @@
 fileFormatVersion: 2
-guid: 1a47d5d35a1594d6dac5595476f7b44e
+guid: 3607521551e11421692fcd03c5e0f53f
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 3396288179238330691
+    second: Ring=Doctor
+  - first:
+      213: 4923159571906479061
+    second: Doctor_0
+  - first:
+      213: -6744697270320183608
+    second: Doctor_1
+  - first:
+      213: -1548295738369931509
+    second: Doctor
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -110,7 +122,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Left
+      name: Doctor_0
       rect:
         serializedVersion: 2
         x: 0
@@ -118,21 +130,21 @@ TextureImporter:
         width: 240
         height: 680
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: c24febb165db240478ad5a3760153c14
-      internalID: -1445374169
+      spriteID: 5d3cc00fb83925440800000000000000
+      internalID: 4923159571906479061
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Right
+      name: Doctor_1
       rect:
         serializedVersion: 2
         x: 240
@@ -140,21 +152,21 @@ TextureImporter:
         width: 240
         height: 680
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 82a206ecf02df4a90a913fd447b0f78e
-      internalID: -479793973
+      spriteID: 8c6c40d41950662a0800000000000000
+      internalID: -6744697270320183608
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Full
+      name: Doctor
       rect:
         serializedVersion: 2
         x: 0
@@ -164,34 +176,37 @@ TextureImporter:
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
+      customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8
-      internalID: 21300000
+      spriteID: b07853baa39538ae0800000000000000
+      internalID: -1548295738369931509
       vertices: []
-      indices:
+      indices: 
       edges: []
       weights: []
     outline: []
-    customData:
+    customData: 
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
-    indices:
+    indices: 
     edges: []
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Full: 21300000
-      Left: -1445374169
-      Right: -479793973
+      Doctor: -1548295738369931509
+      Doctor_0: 4923159571906479061
+      Doctor_1: -6744697270320183608
+      Ring=Doctor: 3396288179238330691
+      Ring=Doctor_0: 969819500
+      Ring=Doctor_1: 604216281
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

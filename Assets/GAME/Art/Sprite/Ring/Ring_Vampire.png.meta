@@ -1,7 +1,19 @@
 fileFormatVersion: 2
-guid: ae10ad306845b4223b264b2743a89af0
+guid: 131660c56b85340c0ae2d685436160b9
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 8829725020894740487
+    second: Ring=Vampire
+  - first:
+      213: -2904457877120967500
+    second: Vampire_0
+  - first:
+      213: 2623676403181958527
+    second: Vampire_1
+  - first:
+      213: -674555569246545714
+    second: Vampire
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +61,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 240, y: 0, z: 0, w: 0}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -110,12 +122,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Left
+      name: Vampire_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 247
+        width: 240
         height: 680
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -123,21 +135,21 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 7dcf67f539ca941c88d7553f1a7a4ed8
-      internalID: 1996051313
+      spriteID: 4bc9e1103fa41b7d0800000000000000
+      internalID: -2904457877120967500
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Right
+      name: Vampire_1
       rect:
         serializedVersion: 2
-        x: 247
+        x: 240
         y: 0
-        width: 233
+        width: 240
         height: 680
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -145,16 +157,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: c43cc0a94326045369c7398ed999e591
-      internalID: -70625445
+      spriteID: f753c31b9cb296420800000000000000
+      internalID: 2623676403181958527
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Full
+      name: Vampire
       rect:
         serializedVersion: 2
         x: 0
@@ -164,34 +176,37 @@ TextureImporter:
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
+      customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
-      internalID: 21300000
+      spriteID: ec85cc1a84f73a6f0800000000000000
+      internalID: -674555569246545714
       vertices: []
-      indices:
+      indices: 
       edges: []
       weights: []
     outline: []
-    customData:
+    customData: 
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
-    internalID: 1537655665
+    internalID: 0
     vertices: []
-    indices:
+    indices: 
     edges: []
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Full: 21300000
-      Left: 1996051313
-      Right: -70625445
+      Ring=Vampire: 8829725020894740487
+      Ring=Vampire_0: 674792579
+      Ring=Vampire_1: -1615682661
+      Vampire: -674555569246545714
+      Vampire_0: -2904457877120967500
+      Vampire_1: 2623676403181958527
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd3679dff4edc4776a21cb88be0f97b0, type: 3}
+  m_Name: SkinPack_Pizda
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinPack
+  packId: pack_pizda
+  displayName: "\u0412\u043B\u0430\u0441\u0442\u0435\u043B\u0438\u043D"
+  icon: {fileID: -2984019044671666412, guid: ff55805143367435f83774bf74ee56ef, type: 3}
+  packType: 0
+  skins:
+  - {fileID: 11400000, guid: 935136de04796407596afea28bcdc46d, type: 2}
+  backgroundTexture: {fileID: 0}
+  backgroundTintColor: {r: 0.12, g: 0.08, b: 0.03, a: 1}
+  backgroundTitleSprite: {fileID: 21300000, guid: 73f7bc57f1b0a4dea80c72976bd4cc2d, type: 3}

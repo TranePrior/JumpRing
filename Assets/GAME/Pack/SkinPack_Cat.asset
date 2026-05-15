@@ -10,11 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd3679dff4edc4776a21cb88be0f97b0, type: 3}
-  m_Name: SkinPack
+  m_Name: SkinPack_Cat
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinPack
-  packId: Ring
-  displayName: 
-  icon: {fileID: 0}
+  packId: pack_cat
+  displayName: "\u041A\u043E\u0448\u043A\u0430"
+  icon: {fileID: 5988347158796290056, guid: cb570c46675b24cd9984182b1fbbd671, type: 3}
   packType: 0
   skins:
-  - {fileID: 11400000, guid: 0ca618d383ac04c0b8c3fbea3e6b91f6, type: 2}
+  - {fileID: 11400000, guid: 9cfabb51e6d7248969f9b6aa3eb9fb2a, type: 2}
+  backgroundTexture: {fileID: 0}
+  backgroundTintColor: {r: 0.15, g: 0.15, b: 0.45, a: 1}
+  backgroundTitleSprite: {fileID: 21300000, guid: 31f7b2cf30d4e4256bf29673ff78cc99, type: 3}

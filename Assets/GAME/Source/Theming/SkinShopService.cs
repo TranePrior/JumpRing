@@ -79,7 +79,8 @@ namespace JumpRing.Game.Theming
             PlayerPrefs.SetString(ActiveSkinKey, skin.SkinId);
             PlayerPrefs.Save();
 
-            themeManager.ApplyTheme(skin.ThemeData);
+            var pack = catalog.FindPackForSkin(skin);
+            themeManager.ApplyTheme(skin.ThemeData, pack);
 
             SkinSelected?.Invoke(skin);
         }

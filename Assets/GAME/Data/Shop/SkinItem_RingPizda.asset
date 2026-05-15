@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b660aa0b57f6480d98a61fec84257df, type: 3}
-  m_Name: SkinItem
+  m_Name: SkinItem_RingPizda
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinItem
-  skinId: 
-  displayName: 
-  icon: {fileID: 0}
-  price: 0
-  themeData: {fileID: 11400000, guid: 70edd7039312d4462b0d5f2d8226ceea, type: 2}
+  skinId: ring_pizda
+  displayName: "\u0412\u043B\u0430\u0441\u0442\u0435\u043B\u0438\u043D"
+  icon: {fileID: -2984019044671666412, guid: ff55805143367435f83774bf74ee56ef, type: 3}
+  price: 100
+  currencyIcon: {fileID: 21300000, guid: 53a3ac7698c1c42f39ec532ed09a2b01, type: 3}
+  themeData: {fileID: 11400000, guid: 14972e8896f304ac4a5dcbbc3e38698f, type: 2}

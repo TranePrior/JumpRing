@@ -99,7 +99,8 @@ namespace JumpRing.Game.Core.Composition
             {
                 if (skinShopService != null && skinShopService.ActiveSkin != null)
                 {
-                    themeManager.ApplyTheme(skinShopService.ActiveSkin.ThemeData);
+                    var pack = skinShopService.Catalog.FindPackForSkin(skinShopService.ActiveSkin);
+                    themeManager.ApplyTheme(skinShopService.ActiveSkin.ThemeData, pack);
                 }
                 else
                 {

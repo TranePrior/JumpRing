@@ -30,11 +30,11 @@ namespace JumpRing.Game.Theming
         {
             if (activeTheme != null)
             {
-                ApplyTheme(activeTheme);
+                ApplyTheme(activeTheme, null);
             }
         }
 
-        public void ApplyTheme(ThemeData theme)
+        public void ApplyTheme(ThemeData theme, SkinPack pack)
         {
             activeTheme = theme;
 
@@ -68,9 +68,17 @@ namespace JumpRing.Game.Theming
                 coinStepSpawner.SetCoinPrefab(theme.CoinPrefab);
             }
 
-            if (backgroundTiler != null && theme.BackgroundTexture != null)
+            if (pack != null)
             {
-                backgroundTiler.SetBackground(theme.BackgroundTexture, theme.BackgroundTintColor);
+                ApplyPackBackground(pack);
+            }
+        }
+
+        public void ApplyPackBackground(SkinPack pack)
+        {
+            if (backgroundTiler != null && pack.BackgroundTexture != null)
+            {
+                backgroundTiler.SetBackground(pack.BackgroundTexture, pack.BackgroundTintColor);
             }
         }
     }

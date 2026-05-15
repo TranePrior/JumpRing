@@ -44,9 +44,6 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private CircleCollider2D hitBottomCollider;
 
-        [SerializeField, Min(0.0001f)]
-        private float alignmentTolerance = 0.001f;
-
         [SerializeField, Min(0f)]
         private float lineBoundsPadding = 0.001f;
 
@@ -102,7 +99,7 @@ namespace JumpRing.Game.Gameplay
         private void Start()
         {
             ResetPlayerToOrigin();
-            AlignLineToPlayableWindow();
+            SnapPlayerToLine();
         }
 
         private void OnEnable()
@@ -175,11 +172,11 @@ namespace JumpRing.Game.Gameplay
                 if (runSessionController.CanStartRun && !IsLineInsidePlayableWindow())
                 {
                     ResetPlayerToOrigin();
-                    AlignLineToPlayableWindow();
+                    SnapPlayerToLine();
                 }
                 else if (runSessionController.IsInReadyState && !IsLineInsidePlayableWindow())
                 {
-                    AlignLineToPlayableWindow();
+                    SnapPlayerToLine();
                 }
 
                 return;
@@ -276,9 +273,10 @@ namespace JumpRing.Game.Gameplay
         public void RevivePlayer(float reviveX)
         {
             var localCenterOffset = (originalHitTopLocalPos.y + originalHitBottomLocalPos.y) * 0.5f;
-            var holeCenterY = lastDeathPosition.y + localCenterOffset;
+            var lineY = linePathGenerator.EvaluateHeightAtX(reviveX);
+            var targetY = lineY - localCenterOffset;
 
-            var revivePos = new Vector2(reviveX, holeCenterY - localCenterOffset);
+            var revivePos = new Vector2(reviveX, targetY);
             playerRigidbody.transform.SetPositionAndRotation(
                 new Vector3(revivePos.x, revivePos.y, 0f), Quaternion.identity);
             playerRigidbody.position = revivePos;
@@ -288,21 +286,18 @@ namespace JumpRing.Game.Gameplay
             playerRigidbody.gravityScale = defaultGravityScale;
 
             Physics2D.SyncTransforms();
-
-            var lineAnchorPoint = new Vector2(reviveX, holeCenterY);
-            linePathGenerator.AlignAndRebuildToPoint(lineAnchorPoint);
         }
 
         private void OnRunFinished()
         {
             ResetPlayerToOrigin();
-            AlignLineToPlayableWindow();
+            SnapPlayerToLine();
         }
 
         public bool CanStartRun()
         {
             ResetPlayerToOrigin();
-            AlignLineToPlayableWindow();
+            SnapPlayerToLine();
 
             if (!IsLineInsidePlayableWindow())
             {
@@ -322,30 +317,24 @@ namespace JumpRing.Game.Gameplay
             playerRigidbody.angularVelocity = 0f;
         }
 
-        private void AlignLineToPlayableWindow()
+        private void SnapPlayerToLine()
         {
-            var lineAnchorPoint = new Vector2(playerRigidbody.position.x, GetPlayableWindowCenterY());
-            linePathGenerator.AlignAndRebuildToPoint(lineAnchorPoint);
+            var px = playerRigidbody.position.x;
+            var lineY = linePathGenerator.EvaluateHeightAtX(px);
+            var localCenterOffset = (originalHitTopLocalPos.y + originalHitBottomLocalPos.y) * 0.5f;
+            var targetY = lineY - localCenterOffset;
+
+            playerRigidbody.transform.SetPositionAndRotation(
+                new Vector3(px, targetY, 0f), Quaternion.identity);
+            playerRigidbody.position = new Vector2(px, targetY);
         }
 
         private bool IsLineInsidePlayableWindow()
         {
-            var lineAnchorPoint = new Vector2(playerRigidbody.position.x, GetPlayableWindowCenterY());
-
-            if (!linePathGenerator.IsAlignedWithPoint(lineAnchorPoint, alignmentTolerance))
-            {
-                return false;
-            }
-
             var lineYAtRing = linePathGenerator.EvaluateHeightAtX(playerRigidbody.position.x);
             var minAllowedY = Mathf.Min(hitBottom.position.y, hitTop.position.y) + lineBoundsPadding;
             var maxAllowedY = Mathf.Max(hitBottom.position.y, hitTop.position.y) - lineBoundsPadding;
             return lineYAtRing > minAllowedY && lineYAtRing < maxAllowedY;
-        }
-
-        private float GetPlayableWindowCenterY()
-        {
-            return (hitBottom.position.y + hitTop.position.y) * 0.5f;
         }
 
         private static bool IsPointerOverUI()

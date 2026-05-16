@@ -24,6 +24,12 @@ namespace JumpRing.Game.Theming
         [SerializeField]
         private BackgroundTiler backgroundTiler;
 
+        [SerializeField]
+        private Camera gameplayCamera;
+
+        [SerializeField]
+        private ScoreBackgroundColorCycler scoreBackgroundColorCycler;
+
         public ThemeData ActiveTheme => activeTheme;
 
         public void Initialize()
@@ -68,17 +74,23 @@ namespace JumpRing.Game.Theming
                 coinStepSpawner.SetCoinPrefab(theme.CoinPrefab);
             }
 
-            if (pack != null)
-            {
-                ApplyPackBackground(pack);
-            }
+            ApplyBackground(theme);
         }
 
-        public void ApplyPackBackground(SkinPack pack)
+        public void ApplyBackground(ThemeData theme)
         {
-            if (backgroundTiler != null && pack.BackgroundTexture != null)
+            if (backgroundTiler != null && theme.BackgroundTexture != null)
             {
-                backgroundTiler.SetBackground(pack.BackgroundTexture, pack.BackgroundTintColor);
+                backgroundTiler.SetBackground(theme.BackgroundTexture, theme.TileColor);
+            }
+
+            if (scoreBackgroundColorCycler != null)
+            {
+                scoreBackgroundColorCycler.SetBaseColor(theme.BackgroundColor);
+            }
+            else if (gameplayCamera != null)
+            {
+                gameplayCamera.backgroundColor = theme.BackgroundColor;
             }
         }
     }

@@ -27,6 +27,16 @@ namespace JumpRing.Game.Theming
         [SerializeField, Min(0.01f)]
         private float lineDotSize = 0.5f;
 
+        [Header("Background")]
+        [SerializeField]
+        private Texture2D backgroundTexture;
+
+        [SerializeField]
+        private Color backgroundColor = Color.black;
+
+        [SerializeField]
+        private Color tileColor = new(1f, 1f, 1f, 0.1f);
+
         [Header("Coins")]
         [SerializeField]
         private GameObject coinPrefab;
@@ -38,6 +48,9 @@ namespace JumpRing.Game.Theming
         public float LineDotSpacing => lineDotSpacing;
         public float LineDotSize => lineDotSize;
         public bool UseLineDots => lineDotSprite != null;
+        public Texture2D BackgroundTexture => backgroundTexture;
+        public Color BackgroundColor => backgroundColor;
+        public Color TileColor => tileColor;
         public GameObject CoinPrefab => coinPrefab;
     }
 }

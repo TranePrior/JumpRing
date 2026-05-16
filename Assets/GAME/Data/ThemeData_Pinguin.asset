@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: ThemeData_Pinguin
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.ThemeData
   themeName: Pinguin
-  playerSkinPrefab: {fileID: 9173337736600875290, guid: e0e1b4ef3b56d4d1e95460d4523460a8, type: 3}
+  playerSkinPrefab: {fileID: 2472619757513212083, guid: d5d25995c970c4784b30b431e4f3f357, type: 3}
   lineMaterial: {fileID: 2100000, guid: 49d240bfb12b0433d9a4fca03fe14e92, type: 2}
   lineDotSprite: {fileID: 0}
   lineDotSpacing: 1.5
   lineDotSize: 0.5
-  coinPrefab: {fileID: 4993492142992724362, guid: 3d3c2137de8954a85a9696778bb85fe5, type: 3}
+  backgroundTexture: {fileID: 2800000, guid: af4148042628d4fa6ac4b91233f6937c, type: 3}
+  backgroundColor: {r: 0.55, g: 0.72, b: 0.85, a: 1}
+  tileColor: {r: 1, g: 1, b: 1, a: 0.1}
+  coinPrefab: {fileID: 6497736988391728183, guid: 1d74467e0276e482ab4efc3077eb60ad, type: 3}

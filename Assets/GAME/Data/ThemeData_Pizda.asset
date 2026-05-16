@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df16d498784304bf99a4822d45cf8fbf, type: 3}
   m_Name: ThemeData_Pizda
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.ThemeData
-  themeName: Pizda
-  playerSkinPrefab: {fileID: 9173337736600875290, guid: e0e1b4ef3b56d4d1e95460d4523460a8, type: 3}
+  themeName: King
+  playerSkinPrefab: {fileID: 5116779686372165319, guid: c0dc5d0a3d4c14af3b26dfa26b73179f, type: 3}
   lineMaterial: {fileID: 2100000, guid: 49d240bfb12b0433d9a4fca03fe14e92, type: 2}
   lineDotSprite: {fileID: 0}
   lineDotSpacing: 1.5
   lineDotSize: 0.5
-  coinPrefab: {fileID: 4993492142992724362, guid: 3d3c2137de8954a85a9696778bb85fe5, type: 3}
+  backgroundTexture: {fileID: 2800000, guid: 7312292975f8e4a898b0d59eef79cf9d, type: 3}
+  backgroundColor: {r: 0.08235294, g: 0.003921569, b: 0, a: 1}
+  tileColor: {r: 1, g: 1, b: 1, a: 0.1}
+  coinPrefab: {fileID: 8004871535491012844, guid: 6c9644255cee9405ebff4eb2e6d25fde, type: 3}

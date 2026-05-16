@@ -7,15 +7,10 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private Camera gameplayCamera;
 
-        [SerializeField]
-        private Texture2D tileTexture;
-
         [SerializeField, Range(0.1f, 5f)]
         private float tileScale = 1f;
 
-        [SerializeField]
-        private Color tintColor = new(0.1f, 0.22f, 0.16f, 0.35f);
-
+        private Texture2D tileTexture;
         private MeshRenderer meshRenderer;
         private Material tileMaterial;
 
@@ -24,15 +19,17 @@ namespace JumpRing.Game.Gameplay
 
         private void Awake()
         {
+            EnsureMaterial();
+        }
+
+        private void EnsureMaterial()
+        {
+            if (tileMaterial != null) return;
+
             meshRenderer = GetComponent<MeshRenderer>();
             if (meshRenderer != null)
             {
                 tileMaterial = meshRenderer.material;
-                if (tileTexture != null)
-                {
-                    tileMaterial.SetTexture(BaseMap, tileTexture);
-                }
-                tileMaterial.SetColor(BaseColor, tintColor);
             }
         }
 
@@ -71,6 +68,7 @@ namespace JumpRing.Game.Gameplay
 
         public void SetBackground(Texture2D texture, Color color)
         {
+            EnsureMaterial();
             if (tileMaterial == null) return;
 
             if (texture != null)
@@ -79,7 +77,6 @@ namespace JumpRing.Game.Gameplay
                 tileMaterial.SetTexture(BaseMap, texture);
             }
 
-            tintColor = color;
             tileMaterial.SetColor(BaseColor, color);
         }
 

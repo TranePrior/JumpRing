@@ -17,7 +17,6 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(0.01f)]
         private float transitionDuration = 0.4f;
 
-        [SerializeField]
         private Color baseBackgroundColor = new(0.939f, 0.875f, 0.845f, 1f);
 
         private int appliedColorStep;
@@ -28,6 +27,12 @@ namespace JumpRing.Game.Gameplay
 
         private IScoreService ScoreService => (IScoreService)scoreServiceComponent;
 
+        public void SetBaseColor(Color color)
+        {
+            baseBackgroundColor = color;
+            gameplayCamera.backgroundColor = color;
+        }
+
         private void OnEnable()
         {
             ScoreService.ScoreChanged += OnScoreChanged;
@@ -36,12 +41,6 @@ namespace JumpRing.Game.Gameplay
         private void OnDisable()
         {
             ScoreService.ScoreChanged -= OnScoreChanged;
-        }
-
-        private void Start()
-        {
-            gameplayCamera.backgroundColor = baseBackgroundColor;
-            OnScoreChanged(ScoreService.CurrentScore);
         }
 
         private void Update()

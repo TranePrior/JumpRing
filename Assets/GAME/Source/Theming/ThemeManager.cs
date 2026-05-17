@@ -1,6 +1,7 @@
 using UnityEngine;
 using JumpRing.Game.Gameplay;
 
+
 namespace JumpRing.Game.Theming
 {
     public sealed class ThemeManager : MonoBehaviour
@@ -30,8 +31,6 @@ namespace JumpRing.Game.Theming
         [SerializeField]
         private Camera gameplayCamera;
 
-        [SerializeField]
-        private ScoreBackgroundColorCycler scoreBackgroundColorCycler;
 
         public ThemeData ActiveTheme => activeTheme;
 
@@ -100,11 +99,7 @@ namespace JumpRing.Game.Theming
                 backgroundTiler.SetBackground(theme.BackgroundTexture, theme.TileColor);
             }
 
-            if (scoreBackgroundColorCycler != null)
-            {
-                scoreBackgroundColorCycler.SetBaseColor(theme.BackgroundColor);
-            }
-            else if (gameplayCamera != null)
+            if (gameplayCamera != null)
             {
                 gameplayCamera.backgroundColor = theme.BackgroundColor;
             }

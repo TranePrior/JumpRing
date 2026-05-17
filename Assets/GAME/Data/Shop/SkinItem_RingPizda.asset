@@ -17,4 +17,5 @@ MonoBehaviour:
   icon: {fileID: -2984019044671666412, guid: ff55805143367435f83774bf74ee56ef, type: 3}
   price: 100
   currencyIcon: {fileID: 21300000, guid: 4ca82ac11b4ef488daf07cf885e0a3b0, type: 3}
+  shopSprite: {fileID: 21300000, guid: 3438111b7483e474f998571dcb4e9210, type: 3}
   themeData: {fileID: 11400000, guid: 14972e8896f304ac4a5dcbbc3e38698f, type: 2}

@@ -613,6 +613,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.ShopSkinCardView
   iconImage: {fileID: 7944361641903469297}
+  skinImage: {fileID: 6151667361507521300}
   nameLabel: {fileID: 4349211747604497612}
   priceLabel: {fileID: 794160618561291442}
   selectionFrame: {fileID: 6364713641685834288}

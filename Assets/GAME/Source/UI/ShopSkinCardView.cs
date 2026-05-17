@@ -12,6 +12,9 @@ namespace JumpRing.Game.UI
         private Image iconImage;
 
         [SerializeField]
+        private Image skinImage;
+
+        [SerializeField]
         private TMP_Text nameLabel;
 
         [SerializeField]
@@ -67,10 +70,18 @@ namespace JumpRing.Game.UI
         {
             skinItem = skin;
 
+            bool hasShopSprite = skin.ShopSprite != null;
+
+            if (skinImage != null)
+            {
+                skinImage.sprite = skin.ShopSprite;
+                skinImage.enabled = hasShopSprite;
+            }
+
             if (iconImage != null)
             {
-                iconImage.sprite = skin.Icon;
-                iconImage.enabled = skin.Icon != null;
+                iconImage.sprite = hasShopSprite ? null : skin.Icon;
+                iconImage.enabled = !hasShopSprite && skin.Icon != null;
             }
 
             if (nameLabel != null)

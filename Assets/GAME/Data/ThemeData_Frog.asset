@@ -20,5 +20,5 @@ MonoBehaviour:
   lineDotSize: 0.5
   backgroundTexture: {fileID: 2800000, guid: 6d7fe8e35e96545b28563939e669f7d2, type: 3}
   backgroundColor: {r: 0.011764706, g: 0.30980393, b: 0.42745098, a: 1}
-  tileColor: {r: 1, g: 1, b: 1, a: 0.39215687}
+  tileColor: {r: 1, g: 1, b: 1, a: 0.019607844}
   coinPrefab: {fileID: 4993492142992724362, guid: ae0ea25b7a6354444afe34b616415028, type: 3}

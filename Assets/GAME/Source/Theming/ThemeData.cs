@@ -27,6 +27,10 @@ namespace JumpRing.Game.Theming
         [SerializeField, Min(0.01f)]
         private float lineDotSize = 0.5f;
 
+        [Header("Line Corners")]
+        [SerializeField, Tooltip("Sprite placed at every bend point of the line")]
+        private Sprite cornerSprite;
+
         [Header("Background")]
         [SerializeField]
         private Texture2D backgroundTexture;
@@ -48,6 +52,8 @@ namespace JumpRing.Game.Theming
         public float LineDotSpacing => lineDotSpacing;
         public float LineDotSize => lineDotSize;
         public bool UseLineDots => lineDotSprite != null;
+        public Sprite CornerSprite => cornerSprite;
+        public bool UseCorners => cornerSprite != null;
         public Texture2D BackgroundTexture => backgroundTexture;
         public Color BackgroundColor => backgroundColor;
         public Color TileColor => tileColor;

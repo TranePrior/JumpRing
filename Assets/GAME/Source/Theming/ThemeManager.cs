@@ -22,6 +22,9 @@ namespace JumpRing.Game.Theming
         private LineDotsRenderer lineDotsRenderer;
 
         [SerializeField]
+        private LineCornerRenderer lineCornerRenderer;
+
+        [SerializeField]
         private BackgroundTiler backgroundTiler;
 
         [SerializeField]
@@ -66,6 +69,19 @@ namespace JumpRing.Game.Theming
                 {
                     lineDotsRenderer.Deactivate();
                     linePathGenerator.SetLineVisible(true);
+                }
+            }
+
+            if (lineCornerRenderer != null)
+            {
+                if (theme.UseCorners)
+                {
+                    lineCornerRenderer.Configure(theme.CornerSprite);
+                    lineCornerRenderer.Activate();
+                }
+                else
+                {
+                    lineCornerRenderer.Deactivate();
                 }
             }
 

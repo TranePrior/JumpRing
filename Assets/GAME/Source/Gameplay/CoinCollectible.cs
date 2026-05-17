@@ -1,3 +1,4 @@
+using System;
 using JumpRing.Game.Core.Services;
 using UnityEngine;
 
@@ -5,6 +6,8 @@ namespace JumpRing.Game.Gameplay
 {
     public sealed class CoinCollectible : MonoBehaviour
     {
+        public static event Action<Vector3, int> Collected;
+
         [SerializeField, Min(1)]
         private int amount = 1;
 
@@ -76,6 +79,7 @@ namespace JumpRing.Game.Gameplay
             }
 
             var finalAmount = Mathf.Max(1, Mathf.RoundToInt(amount * coinMultiplier));
+            Collected?.Invoke(transform.position, finalAmount);
             currencyService.Add(finalAmount);
             Destroy(gameObject);
         }

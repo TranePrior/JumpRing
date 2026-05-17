@@ -3074,6 +3074,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 996544105}
   m_CullTransparentMesh: 1
+--- !u!1 &1003937315
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1003937317}
+  - component: {fileID: 1003937316}
+  m_Layer: 0
+  m_Name: FloatingCoinTextManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1003937316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1003937315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5df34f87606342e9b30ba7c72e6f4b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.FloatingCoinText
+  popupPrefab: {fileID: 7547555345420829793, guid: 770d3022f5a8f46ee99c5eeab343babc, type: 3}
+  preWarmCount: 6
+  floatHeight: 1.5
+  duration: 0.8
+  scaleInDuration: 0.1
+  spreadX: 0.3
+  startOffsetY: 0.5
+--- !u!4 &1003937317
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1003937315}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1098832009
 GameObject:
   m_ObjectHideFlags: 0
@@ -6944,3 +6995,4 @@ SceneRoots:
   - {fileID: 1612841224}
   - {fileID: 43628385}
   - {fileID: 764658473}
+  - {fileID: 1003937317}

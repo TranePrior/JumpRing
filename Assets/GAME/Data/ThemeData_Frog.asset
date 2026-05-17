@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.ThemeData
   themeName: Frog
   playerSkinPrefab: {fileID: 9173337736600875200, guid: a1a2a3a4b5b6c7c8d9d0e1e2f3f4a5b6, type: 3}
-  lineMaterial: {fileID: 2100000, guid: 49d240bfb12b0433d9a4fca03fe14e92, type: 2}
+  lineMaterial: {fileID: 2100000, guid: 9abe060e0798a4f1089cdbacbb2ab300, type: 2}
   lineDotSprite: {fileID: 0}
-  lineDotSpacing: 1.5
-  lineDotSize: 0.5
+  lineDotSpacing: 0.25
+  lineDotSize: 2
   backgroundTexture: {fileID: 2800000, guid: 6d7fe8e35e96545b28563939e669f7d2, type: 3}
   backgroundColor: {r: 0.011764706, g: 0.30980393, b: 0.42745098, a: 1}
   tileColor: {r: 1, g: 1, b: 1, a: 0.019607844}

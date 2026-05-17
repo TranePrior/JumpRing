@@ -43,12 +43,6 @@ namespace JumpRing.Game.UI
         private GameObject shopButton;
 
         [SerializeField]
-        private GameObject bestScoreBackground;
-
-        [SerializeField]
-        private GameObject coinBackground;
-
-        [SerializeField]
         private GameObject tapToStartLabel;
 
         private readonly List<ShopSkinCardView> activeCards = new();
@@ -136,8 +130,6 @@ namespace JumpRing.Game.UI
 
             if (iconBar != null) iconBar.SetActive(false);
             if (shopButton != null) shopButton.SetActive(false);
-            if (bestScoreBackground != null) bestScoreBackground.SetActive(false);
-            if (coinBackground != null) coinBackground.SetActive(false);
             if (tapToStartLabel != null) tapToStartLabel.SetActive(false);
 
             UpdateBalance();
@@ -154,8 +146,6 @@ namespace JumpRing.Game.UI
 
             if (iconBar != null) iconBar.SetActive(true);
             if (shopButton != null) shopButton.SetActive(true);
-            if (bestScoreBackground != null) bestScoreBackground.SetActive(true);
-            if (coinBackground != null) coinBackground.SetActive(true);
             if (tapToStartLabel != null) tapToStartLabel.SetActive(true);
 
             gameObject.SetActive(false);

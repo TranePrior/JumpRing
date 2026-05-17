@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.ThemeData
   themeName: King
   playerSkinPrefab: {fileID: 5116779686372165319, guid: c0dc5d0a3d4c14af3b26dfa26b73179f, type: 3}
-  lineMaterial: {fileID: 2100000, guid: 49d240bfb12b0433d9a4fca03fe14e92, type: 2}
+  lineMaterial: {fileID: 2100000, guid: 8f9de18ad8ff04fb6acee0468ef3280c, type: 2}
   lineDotSprite: {fileID: 0}
-  lineDotSpacing: 1.5
-  lineDotSize: 0.5
+  lineDotSpacing: 0.25
+  lineDotSize: 2
   backgroundTexture: {fileID: 2800000, guid: 7312292975f8e4a898b0d59eef79cf9d, type: 3}
   backgroundColor: {r: 0.08235294, g: 0.003921569, b: 0, a: 1}
   tileColor: {r: 1, g: 1, b: 1, a: 0.019607844}

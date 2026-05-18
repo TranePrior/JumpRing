@@ -8,6 +8,9 @@ namespace JumpRing.Game.Gameplay
         private RunSessionController runSessionController;
 
         [SerializeField]
+        private BonusEffectManager bonusEffectManager;
+
+        [SerializeField]
         private LayerMask obstacleLayers;
 
         private void OnCollisionEnter2D(Collision2D collision)
@@ -28,6 +31,11 @@ namespace JumpRing.Game.Gameplay
             }
 
             if (!IsObstacle(target.layer))
+            {
+                return;
+            }
+
+            if (bonusEffectManager != null && bonusEffectManager.IsInvincible)
             {
                 return;
             }

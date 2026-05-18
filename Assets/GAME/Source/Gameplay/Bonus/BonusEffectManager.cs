@@ -27,8 +27,8 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Range(0.2f, 0.8f)]
         private float slowMotionSpeedScale = 0.6f;
 
-        [SerializeField, Range(0.1f, 0.5f), Tooltip("Gravity scale during SlowMotion (lower = more floaty)")]
-        private float slowMotionGravityScale = 0.5f;
+        [SerializeField, Range(0.3f, 0.9f), Tooltip("Gravity scale during SlowMotion (lower = more floaty)")]
+        private float slowMotionGravityScale = 0.75f;
 
         [SerializeField, Range(0.1f, 1f), Tooltip("Duration of smooth transition back to normal speed")]
         private float slowMotionFadeDuration = 0.5f;
@@ -130,6 +130,7 @@ namespace JumpRing.Game.Gameplay
                 case BonusType.SlowMotion:
                     remainingTime = entry.duration;
                     playerJumpController.PhysicsScale = slowMotionGravityScale;
+                    playerForwardMover.SpeedModifier = slowMotionSpeedScale;
                     break;
 
                 case BonusType.ScoreBoost:
@@ -269,6 +270,7 @@ namespace JumpRing.Game.Gameplay
 
             var t = Mathf.SmoothStep(0f, 1f, slowMotionFadeProgress);
             playerJumpController.PhysicsScale = Mathf.Lerp(slowMotionGravityScale, 1f, t);
+            playerForwardMover.SpeedModifier = Mathf.Lerp(slowMotionSpeedScale, 1f, t);
         }
 
         private void CancelSlowMotionFade()
@@ -281,6 +283,7 @@ namespace JumpRing.Game.Gameplay
             isFadingSlowMotion = false;
             slowMotionFadeProgress = 0f;
             playerJumpController.PhysicsScale = 1f;
+            playerForwardMover.SpeedModifier = 1f;
         }
     }
 }

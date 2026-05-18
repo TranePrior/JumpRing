@@ -155,7 +155,7 @@ namespace JumpRing.Game.Gameplay
             }
 
             var velocity = playerRigidbody.linearVelocity;
-            velocity.y = jumpImpulse * PhysicsScale;
+            velocity.y = jumpImpulse * Mathf.Sqrt(PhysicsScale);
             playerRigidbody.linearVelocity = velocity;
             playerSkinSlot?.Skin?.OnJump();
         }

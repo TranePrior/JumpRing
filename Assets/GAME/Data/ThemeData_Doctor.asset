@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.ThemeData
   themeName: Doctor
   playerSkinPrefab: {fileID: 9173337736600875300, guid: b1b2b3b4c5c6d7d8e9e0f1f2a3a4b5c6, type: 3}
-  lineMaterial: {fileID: 2100000, guid: d5eba9fd3657c4102b5dcf5baa16ef35, type: 2}
+  lineMaterial: {fileID: 2100000, guid: 9000748bb9e61437faccf142dba038b9, type: 2}
   lineDotSprite: {fileID: 0}
   lineDotSpacing: 0.25
   lineDotSize: 2
-  cornerSprite: {fileID: 21300000, guid: fb5f9341663f34a21afca564aa04eebb, type: 3}
+  cornerSprite: {fileID: 21300000, guid: cd778340c906448ed9e6b6390b9d48a9, type: 3}
   cornerSize: 0.6
   backgroundTexture: {fileID: 2800000, guid: 36e276c086d6d4034b3bff60a5d6d5a6, type: 3}
   backgroundColor: {r: 0.07058824, g: 0.09411765, b: 0.15294118, a: 1}

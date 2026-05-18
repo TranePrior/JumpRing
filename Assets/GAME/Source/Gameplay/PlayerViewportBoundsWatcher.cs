@@ -10,12 +10,20 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private RunSessionController runSessionController;
 
+        [SerializeField]
+        private BonusEffectManager bonusEffectManager;
+
         [SerializeField, Min(0f)]
         private float viewportPadding = 0.05f;
 
         private void Update()
         {
             if (!runSessionController.CanControlPlayer)
+            {
+                return;
+            }
+
+            if (bonusEffectManager != null && bonusEffectManager.IsInvincible)
             {
                 return;
             }

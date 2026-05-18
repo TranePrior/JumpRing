@@ -15,7 +15,7 @@ namespace JumpRing.Game.Gameplay
 
         [Header("Spawn")]
         [SerializeField]
-        private int sortingOrder = 1;
+        private int sortingOrder;
 
         [SerializeField]
         private string sortingLayerName = "Line";

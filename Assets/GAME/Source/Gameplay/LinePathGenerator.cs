@@ -51,6 +51,12 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private float maxY = 2.5f;
 
+        [SerializeField, Min(0.1f), Tooltip("Max slope delta at lowest difficulty")]
+        private float minSlopeDelta = 0.6f;
+
+        [SerializeField, Min(0.1f), Tooltip("Max slope delta at highest difficulty")]
+        private float maxSlopeDelta = 2.0f;
+
         [Header("Line Width")]
         [SerializeField]
         private float baseLineWidth = 0.5f;
@@ -84,8 +90,10 @@ namespace JumpRing.Game.Gameplay
         // Pattern state (separate for forward/backward generation)
         private float[] patternForward;
         private int patternPosForward;
+        private float prevSlopeForward;
         private float[] patternBackward;
         private int patternPosBackward;
+        private float prevSlopeBackward;
 
         // Baking system: once a point is generated, it never changes
         private readonly Dictionary<int, float> bakedHeights = new(256);
@@ -93,22 +101,42 @@ namespace JumpRing.Game.Gameplay
         private bool lineHiddenByTheme;
 
         // tan values for angle types
+        private const float Tan15 = 0.2679f;
         private const float Tan30 = 0.5774f;
         private const float Tan45 = 1f;
 
-        // Score thresholds for difficulty levels 0–4 (shifted by tutorial zone of 30)
-        private static readonly int[] LevelThresholds = { 0, 40, 50, 65, 100 };
+        // Score thresholds aligned with DifficultyManager phases
+        // Tutorial=0, Calm=30, Rhythm=60, Chaos=105, Mastery=180
+        private static readonly int[] LevelThresholds = { 0, 30, 60, 105, 180 };
 
-        // Pattern pools per difficulty level
-        // Level 0: perfectly flat (idle / start flat zone)
+        // Level 0 — Tutorial (score 0–29): very gentle, learning the mechanic
         private static readonly float[][] PatternsLevel0 =
         {
             new[] { 0f, 0f, 0f },
             new[] { 0f, 0f, 0f, 0f },
+            new[] { Tan15, Tan15, 0f, 0f },
+            new[] { -Tan15, -Tan15, 0f, 0f },
+            new[] { Tan15, 0f, -Tan15, 0f },
+            new[] { -Tan15, 0f, Tan15, 0f },
         };
 
-        // Level 1 (10-19): shorter flats, 30° and some 45° angles
+        // Level 1 — Calm (score 30–59): Tan15 + gentle Tan30, flat transitions
         private static readonly float[][] PatternsLevel1 =
+        {
+            new[] { Tan15, Tan15, Tan15, 0f },
+            new[] { -Tan15, -Tan15, -Tan15, 0f },
+            new[] { Tan30, 0f, 0f, -Tan30 },
+            new[] { -Tan30, 0f, 0f, Tan30 },
+            new[] { Tan30, Tan30, 0f, -Tan30, -Tan30, 0f },
+            new[] { -Tan30, -Tan30, 0f, Tan30, Tan30, 0f },
+            new[] { Tan15, Tan15, -Tan15, -Tan15 },
+            new[] { -Tan15, -Tan15, Tan15, Tan15 },
+            new[] { Tan30, 0f, -Tan15, -Tan15 },
+            new[] { -Tan30, 0f, Tan15, Tan15 },
+        };
+
+        // Level 2 — Rhythm (score 60–104): full Tan30, Tan45 with flat transitions
+        private static readonly float[][] PatternsLevel2 =
         {
             new[] { Tan30, Tan30, Tan30, 0f },
             new[] { -Tan30, -Tan30, -Tan30, 0f },
@@ -116,45 +144,30 @@ namespace JumpRing.Game.Gameplay
             new[] { -Tan45, 0f, 0f, Tan45 },
             new[] { Tan30, Tan30, -Tan30, -Tan30 },
             new[] { -Tan30, -Tan30, Tan30, Tan30 },
-            new[] { Tan45, -Tan45 },
-            new[] { Tan30, Tan30, Tan30, Tan30, Tan30 },
-            new[] { -Tan30, -Tan30, -Tan30, -Tan30, -Tan30 },
-        };
-
-        // Level 2 (20-34): balanced mix, all angles up to 45°
-        private static readonly float[][] PatternsLevel2 =
-        {
-            new[] { 0f, 0f },
-            new[] { Tan45, Tan45, Tan45 },
-            new[] { -Tan45, -Tan45, -Tan45 },
-            new[] { Tan45, Tan45, -Tan45, -Tan45 },
-            new[] { -Tan45, -Tan45, Tan45, Tan45 },
-            new[] { Tan45, Tan45, 0f, 0f, -Tan45 },
-            new[] { -Tan45, -Tan45, 0f, 0f, Tan45 },
-            new[] { Tan30, Tan30, Tan30, Tan30, -Tan45, -Tan45 },
-            new[] { -Tan30, -Tan30, -Tan30, -Tan30, Tan45, Tan45 },
-            new[] { Tan45, 0f, -Tan45 },
-            new[] { -Tan45, 0f, Tan45 },
-        };
-
-        // Level 3 (35-69): mostly angles, few flats, aggressive 45°
-        private static readonly float[][] PatternsLevel3 =
-        {
-            new[] { Tan45, -Tan45, Tan45, -Tan45 },
-            new[] { -Tan45, Tan45, -Tan45, Tan45 },
-            new[] { Tan45, Tan45, Tan45, -Tan45, -Tan45 },
-            new[] { -Tan45, -Tan45, -Tan45, Tan45, Tan45 },
-            new[] { Tan45, -Tan45, Tan45 },
-            new[] { -Tan45, Tan45, -Tan45 },
-            new[] { Tan45, Tan45, -Tan30, -Tan30, -Tan30 },
-            new[] { -Tan45, -Tan45, Tan30, Tan30, Tan30 },
-            new[] { -Tan45, -Tan45, -Tan45, 0f, Tan45, Tan45 },
-            new[] { Tan45, Tan45, Tan45, 0f, -Tan45, -Tan45 },
+            new[] { Tan45, 0f, -Tan30, -Tan30 },
+            new[] { -Tan45, 0f, Tan30, Tan30 },
             new[] { Tan30, Tan30, Tan30, -Tan45, 0f },
             new[] { -Tan30, -Tan30, -Tan30, Tan45, 0f },
         };
 
-        // Level 4 (70+): hardcore, no flats, rapid 45° direction changes
+        // Level 3 — Chaos (score 105–179): Tan45 zigzags, rare flat breathers
+        private static readonly float[][] PatternsLevel3 =
+        {
+            new[] { Tan45, -Tan45, Tan45, -Tan45 },
+            new[] { -Tan45, Tan45, -Tan45, Tan45 },
+            new[] { Tan45, Tan45, -Tan45, -Tan45 },
+            new[] { -Tan45, -Tan45, Tan45, Tan45 },
+            new[] { Tan45, -Tan45, Tan45 },
+            new[] { -Tan45, Tan45, -Tan45 },
+            new[] { Tan45, Tan45, -Tan30, -Tan30, -Tan30 },
+            new[] { -Tan45, -Tan45, Tan30, Tan30, Tan30 },
+            new[] { Tan45, 0f, -Tan45, 0f },
+            new[] { -Tan45, 0f, Tan45, 0f },
+            new[] { Tan30, Tan30, Tan30, -Tan45, 0f },
+            new[] { -Tan30, -Tan30, -Tan30, Tan45, 0f },
+        };
+
+        // Level 4 — Mastery (score 180+): hardcore, rapid 45° direction changes
         private static readonly float[][] PatternsLevel4 =
         {
             new[] { Tan45, -Tan45, Tan45, -Tan45 },
@@ -310,6 +323,7 @@ namespace JumpRing.Game.Gameplay
             frontierYForward = currentY;
             patternForward = null;
             patternPosForward = 0;
+            prevSlopeForward = 0f;
 
             UpdateWindow(force: true);
         }
@@ -376,8 +390,10 @@ namespace JumpRing.Game.Gameplay
             frontierYBackward = flatY;
             patternForward = null;
             patternPosForward = 0;
+            prevSlopeForward = 0f;
             patternBackward = null;
             patternPosBackward = 0;
+            prevSlopeBackward = 0f;
 
             hasWindow = false;
             UpdateWindow(force: true);
@@ -396,8 +412,10 @@ namespace JumpRing.Game.Gameplay
             frontierYBackward = yOffset;
             patternForward = null;
             patternPosForward = 0;
+            prevSlopeForward = 0f;
             patternBackward = null;
             patternPosBackward = 0;
+            prevSlopeBackward = 0f;
         }
 
         private int StepHash(int step)
@@ -412,14 +430,14 @@ namespace JumpRing.Game.Gameplay
             var score = difficultyManager != null ? difficultyManager.CurrentScore : 0;
             for (var i = LevelThresholds.Length - 1; i >= 0; i--)
             {
-                if (score >= LevelThresholds[i]) return Mathf.Max(i, 1);
+                if (score >= LevelThresholds[i]) return i;
             }
 
-            return 1;
+            return 0;
         }
 
         private float GenerateFromPattern(int step, float seg, float prevY,
-            ref float[] pattern, ref int patternPos)
+            ref float[] pattern, ref int patternPos, ref float prevSlope)
         {
             // Pick new pattern if current is exhausted
             if (pattern == null || patternPos >= pattern.Length)
@@ -427,24 +445,75 @@ namespace JumpRing.Game.Gameplay
                 var level = GetDifficultyLevel();
                 var pool = PatternsByLevel[level];
                 var hash = StepHash(step);
-                pattern = pool[hash % pool.Length];
+
+                // Fix #2: near bounds — pick pattern starting in the safe direction
+                var headroom = maxY - prevY;
+                var footroom = prevY - minY;
+                var maxStep = Tan45 * seg;
+
+                if (headroom < maxStep || footroom < maxStep)
+                {
+                    var needDescending = headroom < maxStep;
+                    pattern = PickBoundSafePattern(pool, hash, needDescending);
+                }
+                else
+                {
+                    pattern = pool[hash % pool.Length];
+                }
+
                 patternPos = 0;
             }
 
-            var dy = pattern[patternPos] * seg;
+            var slope = pattern[patternPos];
             patternPos++;
 
-            // If result goes out of bounds, flip direction
-            if (prevY + dy > maxY || prevY + dy < minY)
+            // Fix #1: limit slope change — scales with difficulty
+            var currentMaxDelta = Mathf.Lerp(minSlopeDelta, maxSlopeDelta, CurrentDifficulty);
+            var slopeDelta = slope - prevSlope;
+            if (Mathf.Abs(slopeDelta) > currentMaxDelta)
             {
-                dy = -dy;
+                slope = prevSlope + Mathf.Sign(slopeDelta) * currentMaxDelta;
             }
 
-            return Mathf.Clamp(prevY + dy, minY, maxY);
+            var dy = slope * seg;
+
+            // Soft boundary: clamp if still out of bounds after delta limiting
+            if (prevY + dy > maxY || prevY + dy < minY)
+            {
+                dy = Mathf.Clamp(prevY + dy, minY, maxY) - prevY;
+                slope = seg > 0.001f ? dy / seg : 0f;
+            }
+
+            prevSlope = slope;
+            return prevY + dy;
+        }
+
+        private static float[] PickBoundSafePattern(float[][] pool, int hash, bool needDescending)
+        {
+            var startIndex = hash % pool.Length;
+
+            for (var i = 0; i < pool.Length; i++)
+            {
+                var candidate = pool[(startIndex + i) % pool.Length];
+                var firstSlope = candidate[0];
+
+                if (needDescending ? firstSlope <= 0f : firstSlope >= 0f)
+                {
+                    return candidate;
+                }
+            }
+
+            return pool[startIndex];
         }
 
         private float BakeOrGetHeight(int step, float seg)
         {
+            if (!isRunActive)
+            {
+                bakedHeights[step] = yOffset;
+                return yOffset;
+            }
+
             if (bakedHeights.TryGetValue(step, out var cachedY))
             {
                 return cachedY;
@@ -467,7 +536,7 @@ namespace JumpRing.Game.Gameplay
                     if (!bakedHeights.TryGetValue(s, out var y))
                     {
                         y = GenerateFromPattern(s, seg, frontierYForward,
-                            ref patternForward, ref patternPosForward);
+                            ref patternForward, ref patternPosForward, ref prevSlopeForward);
                         bakedHeights[s] = y;
                     }
 
@@ -484,7 +553,7 @@ namespace JumpRing.Game.Gameplay
                     if (!bakedHeights.TryGetValue(s, out var y))
                     {
                         y = GenerateFromPattern(s, seg, frontierYBackward,
-                            ref patternBackward, ref patternPosBackward);
+                            ref patternBackward, ref patternPosBackward, ref prevSlopeBackward);
                         bakedHeights[s] = y;
                     }
 
@@ -497,7 +566,7 @@ namespace JumpRing.Game.Gameplay
             if (!bakedHeights.TryGetValue(step, out var result))
             {
                 result = GenerateFromPattern(step, seg, frontierYForward,
-                    ref patternForward, ref patternPosForward);
+                    ref patternForward, ref patternPosForward, ref prevSlopeForward);
                 bakedHeights[step] = result;
             }
 

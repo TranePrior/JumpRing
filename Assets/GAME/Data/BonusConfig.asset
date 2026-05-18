@@ -15,7 +15,7 @@ MonoBehaviour:
   entries:
   - type: 1
     prefab: {fileID: 6635800985633573414, guid: a39d1744809b746ff99496ed96766ce3, type: 3}
-    duration: 5
+    duration: 8
     weight: 25
     icon: {fileID: 0}
   - type: 2

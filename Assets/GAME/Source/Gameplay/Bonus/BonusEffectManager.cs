@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace JumpRing.Game.Gameplay
 {
@@ -23,15 +24,21 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private RiskRewardSystem riskRewardSystem;
 
-        [Header("SlowMotion")]
-        [SerializeField, Range(0.2f, 0.8f)]
-        private float slowMotionSpeedScale = 0.6f;
+        [Header("TimeWarp")]
+        [FormerlySerializedAs("slowMotionSpeedScale")]
+        [SerializeField, Range(0.3f, 1f), Tooltip("Forward speed multiplier during SlowMotion (lower = slower)")]
+        private float timeWarpSpeedScale = 0.7f;
 
-        [SerializeField, Range(0.3f, 0.9f), Tooltip("Gravity scale during SlowMotion (lower = more floaty)")]
-        private float slowMotionGravityScale = 0.75f;
+        [SerializeField, Range(0.2f, 1f), Tooltip("Jump impulse multiplier during SlowMotion (lower = tiny hops)")]
+        private float timeWarpJumpScale = 0.45f;
 
-        [SerializeField, Range(0.1f, 1f), Tooltip("Duration of smooth transition back to normal speed")]
-        private float slowMotionFadeDuration = 0.5f;
+        [FormerlySerializedAs("slowMotionGravityScale")]
+        [SerializeField, Range(0.3f, 1.5f), Tooltip("Gravity scale during TimeWarp (lower = floatier landings)")]
+        private float timeWarpGravityScale = 0.55f;
+
+        [FormerlySerializedAs("slowMotionFadeDuration")]
+        [SerializeField, Range(0.1f, 1f), Tooltip("Duration of smooth transition back to normal")]
+        private float timeWarpFadeDuration = 0.5f;
 
         [Header("SizeUp")]
         [SerializeField, Min(0.1f)]
@@ -71,8 +78,8 @@ namespace JumpRing.Game.Gameplay
         private float remainingTime;
         private int secondChanceCount;
         private bool isRunActive;
-        private bool isFadingSlowMotion;
-        private float slowMotionFadeProgress;
+        private bool isFadingTimeWarp;
+        private float timeWarpFadeProgress;
         private float invincibilityRemaining;
         private float safeZoneRemaining;
 
@@ -100,7 +107,7 @@ namespace JumpRing.Game.Gameplay
         {
             isRunActive = false;
             safeZoneRemaining = 0f;
-            CancelSlowMotionFade();
+            CancelTimeWarpFade();
             DeactivateBonus();
         }
 
@@ -115,7 +122,7 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
-            CancelSlowMotionFade();
+            CancelTimeWarpFade();
 
             if (HasActiveBonus)
             {
@@ -129,8 +136,9 @@ namespace JumpRing.Game.Gameplay
             {
                 case BonusType.SlowMotion:
                     remainingTime = entry.duration;
-                    playerJumpController.PhysicsScale = slowMotionGravityScale;
-                    playerForwardMover.SpeedModifier = slowMotionSpeedScale;
+                    playerJumpController.GravityScale = timeWarpGravityScale;
+                    playerJumpController.JumpScale = timeWarpJumpScale;
+                    playerForwardMover.SpeedModifier = timeWarpSpeedScale;
                     break;
 
                 case BonusType.ScoreBoost:
@@ -163,8 +171,8 @@ namespace JumpRing.Game.Gameplay
             switch (activeBonus)
             {
                 case BonusType.SlowMotion:
-                    isFadingSlowMotion = true;
-                    slowMotionFadeProgress = 0f;
+                    isFadingTimeWarp = true;
+                    timeWarpFadeProgress = 0f;
                     break;
 
                 case BonusType.ScoreBoost:
@@ -212,7 +220,7 @@ namespace JumpRing.Game.Gameplay
 
         private void Update()
         {
-            UpdateSlowMotionFade();
+            UpdateTimeWarpFade();
 
             if (invincibilityRemaining > 0f)
             {
@@ -253,36 +261,38 @@ namespace JumpRing.Game.Gameplay
             linePathGenerator.ForceFlatAhead(playerX, calmLineSegments);
         }
 
-        private void UpdateSlowMotionFade()
+        private void UpdateTimeWarpFade()
         {
-            if (!isFadingSlowMotion)
+            if (!isFadingTimeWarp)
             {
                 return;
             }
 
-            slowMotionFadeProgress += Time.deltaTime / slowMotionFadeDuration;
+            timeWarpFadeProgress += Time.deltaTime / timeWarpFadeDuration;
 
-            if (slowMotionFadeProgress >= 1f)
+            if (timeWarpFadeProgress >= 1f)
             {
-                CancelSlowMotionFade();
+                CancelTimeWarpFade();
                 return;
             }
 
-            var t = Mathf.SmoothStep(0f, 1f, slowMotionFadeProgress);
-            playerJumpController.PhysicsScale = Mathf.Lerp(slowMotionGravityScale, 1f, t);
-            playerForwardMover.SpeedModifier = Mathf.Lerp(slowMotionSpeedScale, 1f, t);
+            var t = Mathf.SmoothStep(0f, 1f, timeWarpFadeProgress);
+            playerJumpController.GravityScale = Mathf.Lerp(timeWarpGravityScale, 1f, t);
+            playerJumpController.JumpScale = Mathf.Lerp(timeWarpJumpScale, 1f, t);
+            playerForwardMover.SpeedModifier = Mathf.Lerp(timeWarpSpeedScale, 1f, t);
         }
 
-        private void CancelSlowMotionFade()
+        private void CancelTimeWarpFade()
         {
-            if (!isFadingSlowMotion)
+            if (!isFadingTimeWarp)
             {
                 return;
             }
 
-            isFadingSlowMotion = false;
-            slowMotionFadeProgress = 0f;
-            playerJumpController.PhysicsScale = 1f;
+            isFadingTimeWarp = false;
+            timeWarpFadeProgress = 0f;
+            playerJumpController.GravityScale = 1f;
+            playerJumpController.JumpScale = 1f;
             playerForwardMover.SpeedModifier = 1f;
         }
     }

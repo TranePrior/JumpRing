@@ -194,11 +194,21 @@ namespace JumpRing.Game.UI
                 if (skinShopService.TryPurchase(skin))
                 {
                     skinShopService.SelectSkin(skin);
+                    RecaptureBlur();
                 }
             }
             else
             {
                 skinShopService.SelectSkin(skin);
+                RecaptureBlur();
+            }
+        }
+
+        private void RecaptureBlur()
+        {
+            if (blurEffect != null)
+            {
+                blurEffect.Capture();
             }
         }
 

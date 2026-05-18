@@ -52,9 +52,9 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private int masteryPhaseScore = 180;
 
-        [Header("Comfort Zones")]
-        [SerializeField, Min(1)]
-        private int comfortZoneInterval = 20;
+        [Header("Comfort Zones (tied to tension wave)")]
+        [SerializeField, Range(0f, 1f), Tooltip("Triggers when raw wave drops below this negative threshold")]
+        private float comfortZoneWaveThreshold = 0.7f;
 
         [SerializeField, Min(0.1f)]
         private float comfortZoneDuration = 4f;
@@ -98,7 +98,7 @@ namespace JumpRing.Game.Gameplay
 
         private bool isInComfortZone;
         private float comfortZoneTimer;
-        private int lastComfortZoneStep;
+        private int lastComfortCycle;
         private float comfortZoneTarget = 1f;
         private float comfortZoneSmoothed = 1f;
 
@@ -130,7 +130,7 @@ namespace JumpRing.Game.Gameplay
             comfortZoneSmoothed = 1f;
             isInComfortZone = false;
             comfortZoneTimer = 0f;
-            lastComfortZoneStep = 0;
+            lastComfortCycle = -1;
             SetPhase(DifficultyPhase.Tutorial);
         }
 
@@ -240,16 +240,24 @@ namespace JumpRing.Game.Gameplay
 
         private void CheckComfortZoneTrigger()
         {
-            if (currentScore <= 0)
+            if (currentScore < tutorialEndScore || isInComfortZone)
             {
                 return;
             }
 
-            var comfortStep = currentScore / comfortZoneInterval;
+            var currentCycle = currentScore / tensionCycleTaps;
 
-            if (comfortStep > lastComfortZoneStep && !isInComfortZone)
+            if (currentCycle <= lastComfortCycle)
             {
-                lastComfortZoneStep = comfortStep;
+                return;
+            }
+
+            var cycleProgress = (currentScore % tensionCycleTaps) / (float)tensionCycleTaps;
+            var wave = Mathf.Sin(cycleProgress * Mathf.PI * 2f);
+
+            if (wave <= -comfortZoneWaveThreshold)
+            {
+                lastComfortCycle = currentCycle;
                 isInComfortZone = true;
                 comfortZoneTimer = comfortZoneDuration;
                 comfortZoneTarget = comfortZoneScale;

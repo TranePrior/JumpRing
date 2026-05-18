@@ -78,10 +78,14 @@ namespace JumpRing.Game.Gameplay
         private float currentSizeScale = 1f;
 
         /// <summary>
-        /// Scales gravity and jump impulse. Set by BonusEffectManager for SlowMotion.
-        /// 1 = normal, 0.5 = half speed physics (floaty slow-mo feel).
+        /// Scales gravity independently. 1 = normal, lower = floaty, higher = snappy.
         /// </summary>
-        public float PhysicsScale { get; set; } = 1f;
+        public float GravityScale { get; set; } = 1f;
+
+        /// <summary>
+        /// Scales jump impulse independently. 1 = normal, lower = tiny hops.
+        /// </summary>
+        public float JumpScale { get; set; } = 1f;
 
         public Vector2 LastDeathPosition => lastDeathPosition;
 
@@ -155,7 +159,7 @@ namespace JumpRing.Game.Gameplay
             }
 
             var velocity = playerRigidbody.linearVelocity;
-            velocity.y = jumpImpulse * Mathf.Sqrt(PhysicsScale);
+            velocity.y = jumpImpulse * JumpScale;
             playerRigidbody.linearVelocity = velocity;
             playerSkinSlot?.Skin?.OnJump();
         }
@@ -186,15 +190,15 @@ namespace JumpRing.Game.Gameplay
             var vy = playerRigidbody.linearVelocity.y;
             if (vy < -peakVelocityThreshold)
             {
-                playerRigidbody.gravityScale = defaultGravityScale * fallGravityMultiplier * PhysicsScale;
+                playerRigidbody.gravityScale = defaultGravityScale * fallGravityMultiplier * GravityScale;
             }
             else if (Mathf.Abs(vy) < peakVelocityThreshold)
             {
-                playerRigidbody.gravityScale = defaultGravityScale * peakGravityMultiplier * PhysicsScale;
+                playerRigidbody.gravityScale = defaultGravityScale * peakGravityMultiplier * GravityScale;
             }
             else
             {
-                playerRigidbody.gravityScale = defaultGravityScale * PhysicsScale;
+                playerRigidbody.gravityScale = defaultGravityScale * GravityScale;
             }
 
             if (!linePathGenerator.IsTouchingLine(hitTopCollider, lineTouchTolerance) &&

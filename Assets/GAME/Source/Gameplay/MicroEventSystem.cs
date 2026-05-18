@@ -51,6 +51,16 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Tooltip("Seconds to fade event effects out"), Min(0.05f)]
         private float fadeOutDuration = 0.5f;
 
+        [Header("Escalation")]
+        [SerializeField, Range(1f, 2f), Tooltip("Event duration multiplier at max difficulty")]
+        private float durationEscalation = 1.5f;
+
+        [SerializeField, Range(1f, 2f), Tooltip("Amplitude multiplier escalation at max difficulty")]
+        private float amplitudeEscalation = 1.4f;
+
+        [SerializeField, Range(1f, 2f), Tooltip("Coin multiplier escalation at max difficulty")]
+        private float coinEscalation = 1.3f;
+
         [Header("Events")]
         [SerializeField]
         private EventConfig[] events =
@@ -263,8 +273,11 @@ namespace JumpRing.Game.Gameplay
 
             var chosen = eligible[UnityEngine.Random.Range(0, eligible.Count)];
             activeConfig = chosen;
-            activeEventType = chosen.type;
-            eventTimer = chosen.duration;
+            activeConfig.duration *= Mathf.Lerp(1f, durationEscalation, difficulty);
+            activeConfig.amplitudeMultiplier *= Mathf.Lerp(1f, amplitudeEscalation, difficulty);
+            activeConfig.coinMultiplier *= Mathf.Lerp(1f, coinEscalation, difficulty);
+            activeEventType = activeConfig.type;
+            eventTimer = activeConfig.duration;
             fadeProgress = 0f;
             eventState = EventState.FadingIn;
             EventStarted?.Invoke(activeEventType);

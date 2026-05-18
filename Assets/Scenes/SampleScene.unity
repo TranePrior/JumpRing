@@ -189,9 +189,10 @@ MonoBehaviour:
   linePathGenerator: {fileID: 987682183}
   runSessionController: {fileID: 1632676868}
   riskRewardSystem: {fileID: 1632676883}
-  slowMotionSpeedScale: 0.5
-  slowMotionGravityScale: 0.3
-  slowMotionFadeDuration: 0.5
+  timeWarpSpeedScale: 0.7
+  timeWarpJumpScale: 0.45
+  timeWarpGravityScale: 0.55
+  timeWarpFadeDuration: 0.5
   sizeUpAmount: 1
   calmLineSegments: 8
   startSafeZoneDuration: 7

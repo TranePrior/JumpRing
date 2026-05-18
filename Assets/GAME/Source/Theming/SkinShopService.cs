@@ -28,6 +28,24 @@ namespace JumpRing.Game.Theming
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
         private HashSet<string> ownedSkinIds = new();
 
+        public bool AllSkinsOwned()
+        {
+            foreach (var pack in catalog.Packs)
+            {
+                foreach (var skin in pack.Skins)
+                {
+                    if (!IsOwned(skin))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public bool UpgradesUnlocked => AllSkinsOwned();
+
         public void Initialize()
         {
             LoadOwnedSkins();

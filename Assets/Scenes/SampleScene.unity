@@ -4401,7 +4401,7 @@ MonoBehaviour:
   rhythmPhaseScore: 30
   chaosPhaseScore: 75
   masteryPhaseScore: 150
-  comfortZoneInterval: 20
+  comfortZoneWaveThreshold: 0.7
   comfortZoneDuration: 4
   comfortZoneScale: 0.5
   comfortZoneFadeIn: 0.5
@@ -4552,6 +4552,9 @@ MonoBehaviour:
   activationDifficulty: 0.3
   fadeInDuration: 0.5
   fadeOutDuration: 0.5
+  durationEscalation: 1.5
+  amplitudeEscalation: 1.4
+  coinEscalation: 1.3
   events:
   - type: 1
     duration: 2.5
@@ -4608,6 +4611,22 @@ MonoBehaviour:
   lineCornerRenderer: {fileID: 1857768529}
   backgroundTiler: {fileID: 764658470}
   gameplayCamera: {fileID: 330585545}
+--- !u!114 &1632676886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632676867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 381c5fb8f84b94ab8956ccfbdafe7303, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.RingSizeUpgradeService
+  scaleStep: 0.1
+  maxLevel: 10
+  priceMultiplier: 1.5
+  currencyServiceComponent: {fileID: 1632676876}
 --- !u!1 &1665512770
 GameObject:
   m_ObjectHideFlags: 0
@@ -5343,6 +5362,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2028520152}
   m_CullTransparentMesh: 1
+--- !u!1 &2034539713 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4471234567890123456, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+  m_PrefabInstance: {fileID: 8136499206885469059}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &2035181532 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3892077102271542307, guid: d340cdaa631d04a3c930a1fb02a995e3, type: 3}
@@ -5527,6 +5551,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 43628384}
     - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      propertyPath: playerJumpController
+      value: 
+      objectReference: {fileID: 7174431161555079072}
+    - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      propertyPath: ringSizeUpgradeService
+      value: 
+      objectReference: {fileID: 1632676886}
+    - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       propertyPath: worldTapCounterPresenter
       value: 
       objectReference: {fileID: 177262267}
@@ -5552,6 +5584,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1632676885}
+    - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1632676886}
   m_SourcePrefab: {fileID: 100100000, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
 --- !u!1001 &3530500232422484129
 PrefabInstance:
@@ -6820,6 +6855,18 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 127165960}
     - target: {fileID: 5421697809370257937, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: tapHand
+      value: 
+      objectReference: {fileID: 2034539713}
+    - target: {fileID: 5421697809370257937, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: coinLabel
+      value: 
+      objectReference: {fileID: 652012731}
+    - target: {fileID: 5421697809370257937, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: bestScoreLabel
+      value: 
+      objectReference: {fileID: 1806480850}
+    - target: {fileID: 5421697809370257937, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: coinBackground
       value: 
       objectReference: {fileID: 996544105}
@@ -6835,6 +6882,10 @@ PrefabInstance:
       propertyPath: bestScoreBackground
       value: 
       objectReference: {fileID: 1322237621}
+    - target: {fileID: 5421697809370257937, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: ringSizeUpgradeService
+      value: 
+      objectReference: {fileID: 1632676886}
     - target: {fileID: 5421697809370257937, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: currencyServiceComponent
       value: 

@@ -50,6 +50,13 @@ namespace JumpRing.Game.Core.Composition
         [SerializeField]
         private BonusEffectManager bonusEffectManager;
 
+        [Header("Ring Upgrade")]
+        [SerializeField]
+        private RingSizeUpgradeService ringSizeUpgradeService;
+
+        [SerializeField]
+        private PlayerJumpController playerJumpController;
+
         private IGameStateMachine GameStateMachine => (IGameStateMachine)gameStateMachineComponent;
 
         private IScoreService ScoreService => (IScoreService)scoreServiceComponent;
@@ -95,6 +102,11 @@ namespace JumpRing.Game.Core.Composition
                 skinShopService.Initialize();
             }
 
+            if (ringSizeUpgradeService != null)
+            {
+                ringSizeUpgradeService.Initialize();
+            }
+
             if (themeManager != null)
             {
                 if (skinShopService != null && skinShopService.ActiveSkin != null)
@@ -106,6 +118,18 @@ namespace JumpRing.Game.Core.Composition
                 {
                     themeManager.Initialize();
                 }
+            }
+
+            ApplyRingSizeBonus();
+
+            if (skinShopService != null)
+            {
+                skinShopService.SkinSelected += OnSkinSelectedForSizeBonus;
+            }
+
+            if (ringSizeUpgradeService != null)
+            {
+                ringSizeUpgradeService.SkinUpgraded += OnSkinUpgradedForSizeBonus;
             }
 
             GameStateMachine.Enter(GameState.MainMenu);
@@ -136,6 +160,43 @@ namespace JumpRing.Game.Core.Composition
                 runSessionController.RunStarted -= bonusEffectManager.OnRunStarted;
                 runSessionController.RunFinished -= bonusEffectManager.OnRunFinished;
             }
+
+            if (skinShopService != null)
+            {
+                skinShopService.SkinSelected -= OnSkinSelectedForSizeBonus;
+            }
+
+            if (ringSizeUpgradeService != null)
+            {
+                ringSizeUpgradeService.SkinUpgraded -= OnSkinUpgradedForSizeBonus;
+            }
+        }
+
+        private void OnSkinSelectedForSizeBonus(SkinItem skin)
+        {
+            ApplyRingSizeBonus();
+        }
+
+        private void OnSkinUpgradedForSizeBonus(SkinItem skin, int level)
+        {
+            ApplyRingSizeBonus();
+        }
+
+        private void ApplyRingSizeBonus()
+        {
+            if (playerJumpController == null || ringSizeUpgradeService == null || skinShopService == null)
+            {
+                return;
+            }
+
+            var activeSkin = skinShopService.ActiveSkin;
+            if (activeSkin == null)
+            {
+                return;
+            }
+
+            float bonus = ringSizeUpgradeService.GetBonusScale(activeSkin.SkinId);
+            playerJumpController.SetPermanentSizeBonus(bonus);
         }
     }
 }

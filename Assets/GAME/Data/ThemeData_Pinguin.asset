@@ -19,8 +19,7 @@ MonoBehaviour:
   lineDotSpacing: 0.25
   lineDotSize: 2
   cornerSprite: {fileID: 21300000, guid: fb5f9341663f34a21afca564aa04eebb, type: 3}
-  cornerSize: 0.6
   backgroundTexture: {fileID: 2800000, guid: af4148042628d4fa6ac4b91233f6937c, type: 3}
   backgroundColor: {r: 0.33333334, g: 0.73333335, b: 0.98039216, a: 1}
-  tileColor: {r: 1, g: 1, b: 1, a: 0.019607844}
+  tileColor: {r: 1, g: 1, b: 1, a: 0.15}
   coinPrefab: {fileID: 6497736988391728183, guid: 1d74467e0276e482ab4efc3077eb60ad, type: 3}

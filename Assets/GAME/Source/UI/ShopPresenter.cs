@@ -14,6 +14,9 @@ namespace JumpRing.Game.UI
         private SkinShopService skinShopService;
 
         [SerializeField]
+        private RingSizeUpgradeService ringSizeUpgradeService;
+
+        [SerializeField]
         private MonoBehaviour currencyServiceComponent;
 
         [Header("Panels")]
@@ -44,6 +47,15 @@ namespace JumpRing.Game.UI
 
         [SerializeField]
         private GameObject tapToStartLabel;
+
+        [SerializeField]
+        private GameObject coinLabel;
+
+        [SerializeField]
+        private GameObject bestScoreLabel;
+
+        [SerializeField]
+        private GameObject tapHand;
 
         private readonly List<ShopSkinCardView> activeCards = new();
         private ScreenBlurEffect blurEffect;
@@ -102,6 +114,11 @@ namespace JumpRing.Game.UI
                 skinShopService.SkinPurchased += OnSkinPurchased;
                 skinShopService.SkinSelected += OnSkinSelectionChanged;
             }
+
+            if (ringSizeUpgradeService != null)
+            {
+                ringSizeUpgradeService.SkinUpgraded += OnSkinUpgraded;
+            }
         }
 
         private void OnDisable()
@@ -115,6 +132,11 @@ namespace JumpRing.Game.UI
             {
                 skinShopService.SkinPurchased -= OnSkinPurchased;
                 skinShopService.SkinSelected -= OnSkinSelectionChanged;
+            }
+
+            if (ringSizeUpgradeService != null)
+            {
+                ringSizeUpgradeService.SkinUpgraded -= OnSkinUpgraded;
             }
         }
 
@@ -131,6 +153,9 @@ namespace JumpRing.Game.UI
             if (iconBar != null) iconBar.SetActive(false);
             if (shopButton != null) shopButton.SetActive(false);
             if (tapToStartLabel != null) tapToStartLabel.SetActive(false);
+            if (coinLabel != null) coinLabel.SetActive(false);
+            if (bestScoreLabel != null) bestScoreLabel.SetActive(false);
+            if (tapHand != null) tapHand.SetActive(false);
 
             UpdateBalance();
             RebuildGrid();
@@ -147,6 +172,9 @@ namespace JumpRing.Game.UI
             if (iconBar != null) iconBar.SetActive(true);
             if (shopButton != null) shopButton.SetActive(true);
             if (tapToStartLabel != null) tapToStartLabel.SetActive(true);
+            if (coinLabel != null) coinLabel.SetActive(true);
+            if (bestScoreLabel != null) bestScoreLabel.SetActive(true);
+            if (tapHand != null) tapHand.SetActive(true);
 
             gameObject.SetActive(false);
         }
@@ -161,15 +189,38 @@ namespace JumpRing.Game.UI
                 return;
             }
 
+            bool upgradesUnlocked = skinShopService.UpgradesUnlocked;
+
             foreach (var pack in catalog.Packs)
             {
                 foreach (var skin in pack.Skins)
                 {
                     var card = Instantiate(cardPrefab, gridContent);
-                    var isOwned = skinShopService.IsOwned(skin);
-                    var isActive = skinShopService.ActiveSkin == skin;
-                    var canAfford = skinShopService.CanAfford(skin);
-                    card.Setup(skin, isOwned, isActive, canAfford);
+                    card.Setup(skin);
+
+                    if (upgradesUnlocked && ringSizeUpgradeService != null)
+                    {
+                        card.UpdateState(
+                            skinShopService.IsOwned(skin),
+                            skinShopService.ActiveSkin == skin,
+                            skinShopService.CanAfford(skin),
+                            true,
+                            ringSizeUpgradeService.GetLevel(skin.SkinId),
+                            ringSizeUpgradeService.MaxLevel,
+                            ringSizeUpgradeService.GetUpgradePrice(skin),
+                            ringSizeUpgradeService.CanAffordUpgrade(skin)
+                        );
+                    }
+                    else
+                    {
+                        card.UpdateState(
+                            skinShopService.IsOwned(skin),
+                            skinShopService.ActiveSkin == skin,
+                            skinShopService.CanAfford(skin)
+                        );
+                    }
+
+                    card.Clicked += OnCardClicked;
                     card.ActionClicked += OnCardActionClicked;
                     activeCards.Add(card);
                 }
@@ -180,6 +231,7 @@ namespace JumpRing.Game.UI
         {
             foreach (var card in activeCards)
             {
+                card.Clicked -= OnCardClicked;
                 card.ActionClicked -= OnCardActionClicked;
                 Destroy(card.gameObject);
             }
@@ -187,11 +239,30 @@ namespace JumpRing.Game.UI
             activeCards.Clear();
         }
 
+        private void OnCardClicked(SkinItem skin)
+        {
+            if (skinShopService.IsOwned(skin))
+            {
+                skinShopService.SelectSkin(skin);
+                RecaptureBlur();
+            }
+        }
+
         private void OnCardActionClicked(SkinItem skin)
         {
             if (!skinShopService.IsOwned(skin))
             {
                 if (skinShopService.TryPurchase(skin))
+                {
+                    skinShopService.SelectSkin(skin);
+                    RecaptureBlur();
+                }
+            }
+            else if (skinShopService.UpgradesUnlocked
+                     && ringSizeUpgradeService != null
+                     && !ringSizeUpgradeService.IsMaxed(skin.SkinId))
+            {
+                if (ringSizeUpgradeService.TryUpgrade(skin))
                 {
                     skinShopService.SelectSkin(skin);
                     RecaptureBlur();
@@ -223,15 +294,40 @@ namespace JumpRing.Game.UI
             RefreshCards();
         }
 
+        private void OnSkinUpgraded(SkinItem skin, int level)
+        {
+            UpdateBalance();
+            RefreshCards();
+        }
+
         private void RefreshCards()
         {
+            bool upgradesUnlocked = skinShopService.UpgradesUnlocked;
+
             foreach (var card in activeCards)
             {
-                card.UpdateState(
-                    skinShopService.IsOwned(card.SkinItem),
-                    skinShopService.ActiveSkin == card.SkinItem,
-                    skinShopService.CanAfford(card.SkinItem)
-                );
+                var skinItem = card.SkinItem;
+                if (upgradesUnlocked && ringSizeUpgradeService != null)
+                {
+                    card.UpdateState(
+                        skinShopService.IsOwned(skinItem),
+                        skinShopService.ActiveSkin == skinItem,
+                        skinShopService.CanAfford(skinItem),
+                        true,
+                        ringSizeUpgradeService.GetLevel(skinItem.SkinId),
+                        ringSizeUpgradeService.MaxLevel,
+                        ringSizeUpgradeService.GetUpgradePrice(skinItem),
+                        ringSizeUpgradeService.CanAffordUpgrade(skinItem)
+                    );
+                }
+                else
+                {
+                    card.UpdateState(
+                        skinShopService.IsOwned(skinItem),
+                        skinShopService.ActiveSkin == skinItem,
+                        skinShopService.CanAfford(skinItem)
+                    );
+                }
             }
         }
 

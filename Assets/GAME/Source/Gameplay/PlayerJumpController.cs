@@ -76,6 +76,7 @@ namespace JumpRing.Game.Gameplay
         private float defaultGravityScale;
         private Vector2 lastDeathPosition;
         private float currentSizeScale = 1f;
+        private float permanentSizeBonus;
 
         /// <summary>
         /// Scales gravity independently. 1 = normal, lower = floaty, higher = snappy.
@@ -261,13 +262,20 @@ namespace JumpRing.Game.Gameplay
             ringVisual.localScale = Vector3.Lerp(ringVisual.localScale, target, Time.deltaTime * scaleResponseSpeed);
         }
 
+        public void SetPermanentSizeBonus(float bonus)
+        {
+            permanentSizeBonus = Mathf.Max(0f, bonus);
+            ApplySizeModifier(0f);
+        }
+
         /// <summary>
         /// Expands or resets the playable gap between hitTop and hitBottom.
         /// amount > 0 expands each side by that amount; 0 resets to original.
         /// </summary>
         public void ApplySizeModifier(float amount)
         {
-            currentSizeScale = amount <= 0f ? 1f : 1f + amount;
+            float baseScale = amount <= 0f ? 1f : 1f + amount;
+            currentSizeScale = Mathf.Min(baseScale + permanentSizeBonus, 2f);
         }
 
         /// <summary>

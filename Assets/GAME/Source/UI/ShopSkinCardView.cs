@@ -42,6 +42,10 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private Image currencyIconImage;
 
+        [Header("Upgrade")]
+        [SerializeField]
+        private TMP_Text upgradeLevelLabel;
+
         [Header("Button Sprites")]
         [SerializeField]
         private Sprite buyButtonSprite;
@@ -66,7 +70,7 @@ namespace JumpRing.Game.UI
 
         public SkinItem SkinItem => skinItem;
 
-        public void Setup(SkinItem skin, bool isOwned, bool isActive, bool canAfford)
+        public void Setup(SkinItem skin)
         {
             skinItem = skin;
 
@@ -94,12 +98,25 @@ namespace JumpRing.Game.UI
                 currencyIconImage.sprite = skin.CurrencyIcon;
                 currencyIconImage.enabled = skin.CurrencyIcon != null;
             }
-
-            UpdateState(isOwned, isActive, canAfford);
         }
 
         public void UpdateState(bool isOwned, bool isActive, bool canAfford)
         {
+            UpdateState(isOwned, isActive, canAfford, false, 0, 0, 0, false);
+        }
+
+        public void UpdateState(
+            bool isOwned,
+            bool isActive,
+            bool canAfford,
+            bool upgradesUnlocked,
+            int upgradeLevel,
+            int maxLevel,
+            int upgradePrice,
+            bool canAffordUpgrade)
+        {
+            SetUpgradeLevelVisible(false);
+
             if (!isOwned)
             {
                 if (priceLabel != null)
@@ -125,60 +142,81 @@ namespace JumpRing.Game.UI
                     actionButton.interactable = canAfford;
                 }
             }
-            else if (isActive)
+            else if (upgradesUnlocked)
             {
-                if (priceLabel != null)
+                bool isMaxed = upgradeLevel >= maxLevel;
+
+                SetUpgradeLevelVisible(true, upgradeLevel, maxLevel);
+
+                if (isMaxed)
                 {
-                    priceLabel.gameObject.SetActive(false);
+                    if (priceLabel != null) priceLabel.gameObject.SetActive(false);
+                    if (coinIcon != null) coinIcon.gameObject.SetActive(false);
+
+                    if (actionButtonLabel != null)
+                    {
+                        actionButtonLabel.text = isActive ? "Активен" : "Выбрать";
+                        actionButtonLabel.gameObject.SetActive(true);
+                    }
+
+                    SetButtonState(
+                        isActive ? activeButtonSprite : buyButtonSprite,
+                        isActive ? activeButtonColor : buyButtonColor);
+                    if (actionButton != null) actionButton.interactable = true;
                 }
-
-                if (coinIcon != null)
+                else
                 {
-                    coinIcon.gameObject.SetActive(false);
-                }
+                    if (priceLabel != null)
+                    {
+                        priceLabel.text = upgradePrice.ToString();
+                        priceLabel.gameObject.SetActive(true);
+                    }
 
-                if (actionButtonLabel != null)
-                {
-                    actionButtonLabel.text = "\u0410\u043a\u0442\u0438\u0432\u0435\u043d";
-                    actionButtonLabel.gameObject.SetActive(true);
-                }
+                    if (coinIcon != null) coinIcon.gameObject.SetActive(true);
+                    if (actionButtonLabel != null) actionButtonLabel.gameObject.SetActive(false);
 
-                SetButtonState(activeButtonSprite, activeButtonColor);
-
-                if (actionButton != null)
-                {
-                    actionButton.interactable = true;
+                    SetButtonState(
+                        isActive ? activeButtonSprite : buyButtonSprite,
+                        canAffordUpgrade
+                            ? (isActive ? activeButtonColor : buyButtonColor)
+                            : disabledButtonColor);
+                    if (actionButton != null) actionButton.interactable = canAffordUpgrade;
                 }
             }
             else
             {
-                if (priceLabel != null)
-                {
-                    priceLabel.gameObject.SetActive(false);
-                }
-
-                if (coinIcon != null)
-                {
-                    coinIcon.gameObject.SetActive(false);
-                }
+                if (priceLabel != null) priceLabel.gameObject.SetActive(false);
+                if (coinIcon != null) coinIcon.gameObject.SetActive(false);
 
                 if (actionButtonLabel != null)
                 {
-                    actionButtonLabel.text = "\u0412\u044b\u0431\u0440\u0430\u0442\u044c";
+                    actionButtonLabel.text = isActive ? "Активен" : "Выбрать";
                     actionButtonLabel.gameObject.SetActive(true);
                 }
 
-                SetButtonState(buyButtonSprite, buyButtonColor);
-
-                if (actionButton != null)
-                {
-                    actionButton.interactable = true;
-                }
+                SetButtonState(
+                    isActive ? activeButtonSprite : buyButtonSprite,
+                    isActive ? activeButtonColor : buyButtonColor);
+                if (actionButton != null) actionButton.interactable = true;
             }
 
             if (selectionFrame != null)
             {
                 selectionFrame.enabled = false;
+            }
+        }
+
+        private void SetUpgradeLevelVisible(bool visible, int level = 0, int max = 0)
+        {
+            if (upgradeLevelLabel == null)
+            {
+                return;
+            }
+
+            upgradeLevelLabel.gameObject.SetActive(visible);
+            if (visible)
+            {
+                upgradeLevelLabel.text = $"Ур. {level}/{max}";
             }
         }
 

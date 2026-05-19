@@ -19,6 +19,13 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(0.01f)]
         private float dotSize = 0.5f;
 
+        [Header("Sorting")]
+        [SerializeField]
+        private string sortingLayerName = "Line";
+
+        [SerializeField]
+        private int sortingOrder = 1;
+
         [SerializeField]
         private float behindCameraDistance = 15f;
 
@@ -177,7 +184,8 @@ namespace JumpRing.Game.Gameplay
                 var go = new GameObject("LineDot");
                 go.transform.SetParent(transform);
                 sr = go.AddComponent<SpriteRenderer>();
-                sr.sortingOrder = 0;
+                sr.sortingLayerName = sortingLayerName;
+                sr.sortingOrder = sortingOrder;
             }
 
             sr.sprite = dotSprite;

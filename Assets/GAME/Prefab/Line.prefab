@@ -1340,6 +1340,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.LineDotsRenderer
   linePathGenerator: {fileID: 1911056463560980422}
   gameplayCamera: {fileID: 0}
+  sortingLayerName: Line
+  sortingOrder: 1
   spacing: 1.5
   dotSize: 0.5
   behindCameraDistance: 15

@@ -147,6 +147,10 @@ namespace JumpRing.Game.Gameplay
             if (difficultyManager != null)
             {
                 difficultyManager.NotifyTap(currentScore);
+
+                var playerY = playerRigidbody.position.y;
+                var lineY = linePathGenerator.EvaluateHeightAtX(playerRigidbody.position.x);
+                difficultyManager.NotifyTapDistance(Mathf.Abs(playerY - lineY));
             }
 
             if (riskRewardSystem != null)

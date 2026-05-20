@@ -406,17 +406,29 @@ namespace JumpRing.Game.Gameplay
             return ((step * 73856093) ^ (randomSeed * 19349663)) & 0x7FFFFFFF;
         }
 
-        private int GetDifficultyLevel()
+        private float GetDifficultyLevelFloat()
         {
-            if (!isRunActive) return 0;
+            if (!isRunActive) return 0f;
 
             var score = difficultyManager != null ? difficultyManager.CurrentScore : 0;
-            for (var i = LevelThresholds.Length - 1; i >= 0; i--)
+
+            for (var i = LevelThresholds.Length - 1; i >= 1; i--)
             {
-                if (score >= LevelThresholds[i]) return i;
+                if (score >= LevelThresholds[i])
+                {
+                    return i;
+                }
+
+                if (score >= LevelThresholds[i - 1])
+                {
+                    var rangeStart = LevelThresholds[i - 1];
+                    var rangeEnd = LevelThresholds[i];
+                    var t = (float)(score - rangeStart) / (rangeEnd - rangeStart);
+                    return (i - 1) + t;
+                }
             }
 
-            return 0;
+            return 0f;
         }
 
         private float GenerateFromPattern(int step, float seg, float prevY,
@@ -425,8 +437,8 @@ namespace JumpRing.Game.Gameplay
             // Pick new pattern if current is exhausted
             if (pattern == null || patternPos >= pattern.Length)
             {
-                var level = GetDifficultyLevel();
-                var pool = PatternsByLevel[level];
+                var levelFloat = GetDifficultyLevelFloat();
+                var pool = PickBlendedPool(levelFloat, step);
                 var hash = StepHash(step);
 
                 // Fix #2: near bounds — pick pattern starting in the safe direction
@@ -469,6 +481,23 @@ namespace JumpRing.Game.Gameplay
 
             prevSlope = slope;
             return prevY + dy;
+        }
+
+        private float[][] PickBlendedPool(float levelFloat, int step)
+        {
+            var levelLow = Mathf.FloorToInt(levelFloat);
+            var levelHigh = Mathf.Min(levelLow + 1, PatternsByLevel.Length - 1);
+            var blend = levelFloat - levelLow;
+
+            if (blend < 0.01f || levelLow == levelHigh)
+            {
+                return PatternsByLevel[levelLow];
+            }
+
+            // Use step hash to deterministically pick which pool
+            var hash = StepHash(step + 7919);
+            var roll = (hash % 1000) / 1000f;
+            return roll < blend ? PatternsByLevel[levelHigh] : PatternsByLevel[levelLow];
         }
 
         private static float[] PickBoundSafePattern(float[][] pool, int hash, bool needDescending)

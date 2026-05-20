@@ -17,17 +17,17 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(0.1f)]
         private float baseSpeed = 3f;
 
-        [SerializeField, Min(0.01f)]
-        private float speedPerStep = 0.4f;
-
         [SerializeField, Min(0)]
-        private int tutorialEndScore = 30;
+        private int speedGrowthStartScore = 120;
+
+        [SerializeField, Min(0.01f)]
+        private float speedPerStep = 0.1f;
 
         [SerializeField, Min(1)]
-        private int scorePerSpeedStep = 30;
+        private int speedGrowthInterval = 10;
 
         [SerializeField, Min(0.1f)]
-        private float maxSpeed = 6f;
+        private float maxSpeedBonus = 1.6f;
 
         [SerializeField, Min(0.1f)]
         private float speedSmoothTime = 0.5f;
@@ -56,9 +56,10 @@ namespace JumpRing.Game.Gameplay
             }
 
             var score = difficultyManager != null ? difficultyManager.CurrentScore : 0;
-            var scoreAfterTutorial = Mathf.Max(0, score - tutorialEndScore);
-            var steps = scoreAfterTutorial / scorePerSpeedStep;
-            targetSpeed = Mathf.Min(baseSpeed + steps * speedPerStep, maxSpeed);
+            var comfortSpeed = difficultyManager != null ? difficultyManager.ComfortSpeedScale : 1f;
+            var scoreAboveThreshold = Mathf.Max(0, score - speedGrowthStartScore);
+            var speedBonus = Mathf.Min((scoreAboveThreshold / speedGrowthInterval) * speedPerStep, maxSpeedBonus);
+            targetSpeed = (baseSpeed + speedBonus) * comfortSpeed;
 
             CurrentSpeed = Mathf.SmoothDamp(CurrentSpeed, targetSpeed, ref smoothVelocity, speedSmoothTime);
 

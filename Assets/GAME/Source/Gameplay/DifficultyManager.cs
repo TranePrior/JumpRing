@@ -30,14 +30,20 @@ namespace JumpRing.Game.Gameplay
         private float smoothSpeed = 4f;
 
         [Header("Tension Curve")]
-        [SerializeField, Tooltip("Taps per full tension cycle"), Min(1)]
-        private int tensionCycleTaps = 25;
+        [SerializeField, Min(1), Tooltip("Min taps per tension cycle")]
+        private int tensionCycleMin = 20;
+
+        [SerializeField, Min(1), Tooltip("Max taps per tension cycle")]
+        private int tensionCycleMax = 30;
 
         [SerializeField, Range(0f, 0.5f)]
         private float tensionAmplitude = 0.25f;
 
         [SerializeField, Tooltip("Baseline rise per completed cycle")]
         private float tensionBaselineRise = 0.05f;
+
+        [SerializeField, Range(0f, 1f), Tooltip("Chance to skip comfort zone each cycle")]
+        private float comfortZoneSkipChance = 0.3f;
 
         [Header("Phase Thresholds")]
         [SerializeField]
@@ -51,6 +57,25 @@ namespace JumpRing.Game.Gameplay
 
         [SerializeField]
         private int masteryPhaseScore = 180;
+
+        [Header("Dynamic Difficulty Adjustment")]
+        [SerializeField, Min(3), Tooltip("Sliding window size for distance tracking")]
+        private int ddaWindowSize = 15;
+
+        [SerializeField, Min(0.01f), Tooltip("Distance considered 'close' — player is skilled")]
+        private float ddaCloseThreshold = 0.5f;
+
+        [SerializeField, Min(0.01f), Tooltip("Distance considered 'far' — player is struggling")]
+        private float ddaFarThreshold = 1.5f;
+
+        [SerializeField, Range(0f, 0.5f), Tooltip("Max difficulty boost for skilled players")]
+        private float ddaMaxBoost = 0.25f;
+
+        [SerializeField, Range(0f, 0.5f), Tooltip("Max difficulty brake for struggling players")]
+        private float ddaMaxBrake = 0.2f;
+
+        [SerializeField, Range(1f, 20f)]
+        private float ddaSmoothSpeed = 3f;
 
         [Header("Comfort Zones (tied to tension wave)")]
         [SerializeField, Range(0f, 1f), Tooltip("Triggers when raw wave drops below this negative threshold")]
@@ -67,6 +92,9 @@ namespace JumpRing.Game.Gameplay
 
         [SerializeField, Tooltip("Seconds to fade out of comfort zone"), Min(0.1f)]
         private float comfortZoneFadeOut = 1f;
+
+        [SerializeField, Range(0.5f, 1f), Tooltip("Speed scale during comfort zone (softer than pattern scale)")]
+        private float comfortZoneSpeedScale = 0.85f;
 
         [Header("Dimension Curves")]
         [SerializeField]
@@ -96,23 +124,41 @@ namespace JumpRing.Game.Gameplay
         private bool isRunActive;
         private DifficultyPhase currentPhase;
 
+        // Variable tension cycle tracking
+        private int currentCycleLength;
+        private int cycleStartTap;
+        private int completedCycles;
+
         private bool isInComfortZone;
         private float comfortZoneTimer;
         private int lastComfortCycle;
         private float comfortZoneTarget = 1f;
         private float comfortZoneSmoothed = 1f;
 
+        // Comfort speed (separate from pattern comfort)
+        private float comfortSpeedTarget = 1f;
+        private float smoothedComfortSpeedScale = 1f;
+
+        // DDA state
+        private float[] ddaDistances;
+        private int ddaWriteIndex;
+        private int ddaSampleCount;
+        private float targetSkillMultiplier = 1f;
+        private float smoothedSkillMultiplier = 1f;
+
         public float BaseDifficulty => targetDifficulty;
         public float SmoothedDifficulty => smoothedDifficulty;
 
         public float EffectiveDifficulty =>
-            Mathf.Clamp01(smoothedDifficulty * comfortZoneSmoothed);
+            Mathf.Clamp01(smoothedDifficulty * comfortZoneSmoothed * smoothedSkillMultiplier);
 
         public float TensionValue => tensionValue;
         public DifficultyPhase CurrentPhase => currentPhase;
         public bool IsComfortZone => isInComfortZone;
         public int CurrentScore => currentScore;
         public bool IsRunActive => isRunActive;
+
+        public float ComfortSpeedScale => smoothedComfortSpeedScale;
 
         public float FrequencyMultiplier => frequencyScaling.Evaluate(EffectiveDifficulty);
         public float AmplitudeMultiplier => amplitudeScaling.Evaluate(EffectiveDifficulty);
@@ -131,12 +177,51 @@ namespace JumpRing.Game.Gameplay
             isInComfortZone = false;
             comfortZoneTimer = 0f;
             lastComfortCycle = -1;
+
+            // Comfort speed reset
+            comfortSpeedTarget = 1f;
+            smoothedComfortSpeedScale = 1f;
+
+            // Tension cycle reset
+            currentCycleLength = UnityEngine.Random.Range(tensionCycleMin, tensionCycleMax + 1);
+            cycleStartTap = 0;
+            completedCycles = 0;
+
+            // DDA reset
+            ddaDistances ??= new float[ddaWindowSize];
+            for (var i = 0; i < ddaDistances.Length; i++)
+            {
+                ddaDistances[i] = 0f;
+            }
+            ddaWriteIndex = 0;
+            ddaSampleCount = 0;
+            targetSkillMultiplier = 1f;
+            smoothedSkillMultiplier = 1f;
+
             SetPhase(DifficultyPhase.Tutorial);
         }
 
         public void OnRunFinished()
         {
             isRunActive = false;
+        }
+
+        public void NotifyTapDistance(float distanceToLine)
+        {
+            if (!isRunActive || currentScore < tutorialEndScore)
+            {
+                return;
+            }
+
+            ddaDistances ??= new float[ddaWindowSize];
+            ddaDistances[ddaWriteIndex] = distanceToLine;
+            ddaWriteIndex = (ddaWriteIndex + 1) % ddaWindowSize;
+            if (ddaSampleCount < ddaWindowSize)
+            {
+                ddaSampleCount++;
+            }
+
+            UpdateSkillMultiplier();
         }
 
         public void NotifyTap(int score)
@@ -174,6 +259,49 @@ namespace JumpRing.Game.Gameplay
                 comfortZoneTarget,
                 Time.deltaTime / (comfortZoneTarget < comfortZoneSmoothed ? comfortZoneFadeIn : comfortZoneFadeOut)
             );
+            smoothedSkillMultiplier = Mathf.Lerp(
+                smoothedSkillMultiplier,
+                targetSkillMultiplier,
+                Time.deltaTime * ddaSmoothSpeed
+            );
+            smoothedComfortSpeedScale = Mathf.Lerp(
+                smoothedComfortSpeedScale,
+                comfortSpeedTarget,
+                Time.deltaTime / (comfortSpeedTarget < smoothedComfortSpeedScale ? comfortZoneFadeIn : comfortZoneFadeOut)
+            );
+        }
+
+        private void UpdateSkillMultiplier()
+        {
+            if (ddaSampleCount == 0)
+            {
+                targetSkillMultiplier = 1f;
+                return;
+            }
+
+            var sum = 0f;
+            var count = Mathf.Min(ddaSampleCount, ddaWindowSize);
+            for (var i = 0; i < count; i++)
+            {
+                sum += ddaDistances[i];
+            }
+            var avgDistance = sum / count;
+
+            // Close to line → boost, far from line → brake
+            if (avgDistance <= ddaCloseThreshold)
+            {
+                var t = 1f - avgDistance / ddaCloseThreshold;
+                targetSkillMultiplier = 1f + t * ddaMaxBoost;
+            }
+            else if (avgDistance >= ddaFarThreshold)
+            {
+                targetSkillMultiplier = 1f - ddaMaxBrake;
+            }
+            else
+            {
+                var t = (avgDistance - ddaCloseThreshold) / (ddaFarThreshold - ddaCloseThreshold);
+                targetSkillMultiplier = Mathf.Lerp(1f, 1f - ddaMaxBrake, t);
+            }
         }
 
         private void UpdateTargetDifficulty()
@@ -192,10 +320,19 @@ namespace JumpRing.Game.Gameplay
 
         private void UpdateTensionCurve()
         {
-            var cycleProgress = (currentScore % tensionCycleTaps) / (float)tensionCycleTaps;
-            var wave = Mathf.Sin(cycleProgress * Mathf.PI * 2f);
+            var tapsIntoCycle = currentScore - cycleStartTap;
 
-            var completedCycles = currentScore / tensionCycleTaps;
+            // Cycle boundary — start new cycle with random length
+            if (tapsIntoCycle >= currentCycleLength)
+            {
+                completedCycles++;
+                cycleStartTap = currentScore;
+                tapsIntoCycle = 0;
+                currentCycleLength = UnityEngine.Random.Range(tensionCycleMin, tensionCycleMax + 1);
+            }
+
+            var cycleProgress = tapsIntoCycle / (float)currentCycleLength;
+            var wave = Mathf.Sin(cycleProgress * Mathf.PI * 2f);
             var baselineBoost = completedCycles * tensionBaselineRise;
 
             tensionValue = wave * tensionAmplitude + baselineBoost;
@@ -245,22 +382,29 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
-            var currentCycle = currentScore / tensionCycleTaps;
-
-            if (currentCycle <= lastComfortCycle)
+            if (completedCycles <= lastComfortCycle)
             {
                 return;
             }
 
-            var cycleProgress = (currentScore % tensionCycleTaps) / (float)tensionCycleTaps;
+            var tapsIntoCycle = currentScore - cycleStartTap;
+            var cycleProgress = tapsIntoCycle / (float)currentCycleLength;
             var wave = Mathf.Sin(cycleProgress * Mathf.PI * 2f);
 
             if (wave <= -comfortZoneWaveThreshold)
             {
-                lastComfortCycle = currentCycle;
+                lastComfortCycle = completedCycles;
+
+                // Random skip — not every cycle gives a comfort zone
+                if (UnityEngine.Random.value < comfortZoneSkipChance)
+                {
+                    return;
+                }
+
                 isInComfortZone = true;
                 comfortZoneTimer = comfortZoneDuration;
                 comfortZoneTarget = comfortZoneScale;
+                comfortSpeedTarget = comfortZoneSpeedScale;
                 ComfortZoneStarted?.Invoke();
             }
         }
@@ -278,6 +422,7 @@ namespace JumpRing.Game.Gameplay
             {
                 isInComfortZone = false;
                 comfortZoneTarget = 1f;
+                comfortSpeedTarget = 1f;
                 ComfortZoneEnded?.Invoke();
             }
         }

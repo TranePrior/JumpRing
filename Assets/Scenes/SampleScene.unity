@@ -991,7 +991,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2.17, y: 7.32}
+  m_AnchoredPosition: {x: 2.17, y: 6.6}
   m_SizeDelta: {x: 4.5919, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!28 &294154299
@@ -4571,18 +4571,27 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   smoothSpeed: 4
-  tensionCycleTaps: 25
+  tensionCycleMin: 20
+  tensionCycleMax: 30
   tensionAmplitude: 0.25
   tensionBaselineRise: 0.05
+  comfortZoneSkipChance: 0.3
   tutorialEndScore: 30
   rhythmPhaseScore: 30
   chaosPhaseScore: 75
   masteryPhaseScore: 150
+  ddaWindowSize: 15
+  ddaCloseThreshold: 0.5
+  ddaFarThreshold: 1.5
+  ddaMaxBoost: 0.25
+  ddaMaxBrake: 0.2
+  ddaSmoothSpeed: 3
   comfortZoneWaveThreshold: 0.7
   comfortZoneDuration: 4
   comfortZoneScale: 0.5
   comfortZoneFadeIn: 0.5
   comfortZoneFadeOut: 1
+  comfortZoneSpeedScale: 0.85
   frequencyScaling:
     serializedVersion: 2
     m_Curve:

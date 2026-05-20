@@ -18,9 +18,6 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private DifficultyManager difficultyManager;
 
-        [SerializeField]
-        private MicroEventSystem microEventSystem;
-
         [Header("Window")]
         [SerializeField]
         private Camera gameplayCamera;
@@ -237,11 +234,6 @@ namespace JumpRing.Game.Gameplay
                 difficultyManager = Object.FindFirstObjectByType<DifficultyManager>();
             }
 
-            if (microEventSystem == null)
-            {
-                microEventSystem = Object.FindFirstObjectByType<MicroEventSystem>();
-            }
-
             ResetFrontier();
             isRunActive = false;
             randomSeed = Random.Range(0, int.MaxValue);
@@ -343,16 +335,7 @@ namespace JumpRing.Game.Gameplay
 
         private void UpdateLineVisibility()
         {
-            if (lineHiddenByTheme)
-            {
-                lineRenderer.enabled = false;
-                return;
-            }
-
-            if (microEventSystem != null)
-            {
-                lineRenderer.enabled = !microEventSystem.IsLineHidden;
-            }
+            lineRenderer.enabled = !lineHiddenByTheme;
         }
 
         private void UpdateLineWidth()

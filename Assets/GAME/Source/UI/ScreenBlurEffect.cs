@@ -63,7 +63,7 @@ namespace JumpRing.Game.UI
             rect.offsetMax = Vector2.zero;
 
             rawImage = blurObject.AddComponent<RawImage>();
-            rawImage.raycastTarget = true;
+            rawImage.raycastTarget = false;
 
             blurObject.SetActive(false);
         }

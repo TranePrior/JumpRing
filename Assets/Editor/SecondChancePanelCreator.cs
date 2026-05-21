@@ -5,103 +5,331 @@ using UnityEngine.UI;
 
 public static class SecondChancePanelCreator
 {
+    // Figma source dimensions
+    private const float PopupWidth = 820f;
+    private const float PopupHeight = 1124f;
+    private const float BorderThickness = 7f;
+    private const float HeaderWidth = 806f;
+    private const float HeaderHeight = 180f;
+    private const float HeaderTopMargin = 7f;
+    private const float CardMargin = 30f;
+    private const float CardTopOffset = 218f;
+    private const float TimerSize = 440f;
+    private const float TimerInnerRatio = 0.77f; // 340/440
+    private const float HeartBgSize = 329f;
+    private const float HeartIconSize = 262f;
+    private const float CloseBtnWidth = 128f;
+    private const float CloseBtnHeight = 136f;
+    private const float ButtonWidth = 720f;
+    private const float ButtonHeight = 182f;
+    private const float ButtonBottomMargin = 20f;
+    private const float CoinSize = 125f;
+    private const float ChanceTitleTopOffset = 47f;
+    private const float ChanceTitleHeight = 76f;
+
     [MenuItem("Tools/Create SecondChance Panel")]
     public static void CreatePanel()
     {
-        var canvas = Object.FindFirstObjectByType<Canvas>();
-        if (canvas == null)
+        var hudRoot = GameObject.Find("HUD");
+        if (hudRoot == null)
         {
-            EditorUtility.DisplayDialog("Error", "No Canvas found in the scene.", "OK");
+            EditorUtility.DisplayDialog("Error", "No HUD GameObject found in the scene.", "OK");
             return;
         }
 
-        // Remove old panel if exists
-        var oldPanel = canvas.transform.Find("SecondChancePanel");
-        if (oldPanel != null)
+        var canvas = hudRoot.GetComponent<Canvas>();
+        if (canvas == null)
+            canvas = hudRoot.GetComponentInParent<Canvas>();
+        if (canvas == null)
         {
-            Undo.DestroyObjectImmediate(oldPanel.gameObject);
+            EditorUtility.DisplayDialog("Error", "No Canvas found on HUD.", "OK");
+            return;
         }
 
-        // Panel root (full screen overlay)
-        var panel = CreateUI("SecondChancePanel", canvas.transform);
-        var panelRect = panel.GetComponent<RectTransform>();
-        StretchFull(panelRect);
+        var roundedRectSprite = AssetDatabase.LoadAssetAtPath<Sprite>(
+            "Assets/GAME/Art/Sprite/Rect/Sp_RoundedRect.png");
+        var heartSprite = AssetDatabase.LoadAssetAtPath<Sprite>(
+            "Assets/GAME/Art/Sprite/Bonus/Sp_Booster_AddHeart.png");
+        var close3dSprite = AssetDatabase.LoadAssetAtPath<Sprite>(
+            "Assets/GAME/Art/Sprite/Button/Close/Sp_Close_3d.png");
+        var closeDawnSprite = AssetDatabase.LoadAssetAtPath<Sprite>(
+            "Assets/GAME/Art/Sprite/Button/Close/Sp_Close_button_dawn.png");
+        var shopButtonSprite = AssetDatabase.LoadAssetAtPath<Sprite>(
+            "Assets/GAME/Art/Sprite/Button/Sp_Button_Shop.png");
+        var coinSprite = AssetDatabase.LoadAssetAtPath<Sprite>(
+            "Assets/GAME/Art/Sprite/Coin/Sp_coin.png");
+        var circleSprite = AssetDatabase.LoadAssetAtPath<Sprite>(
+            "Assets/GAME/Art/Sprite/Rect/Circle.png");
+        var font = AssetDatabase.LoadAssetAtPath<TMPro.TMP_FontAsset>(
+            "Assets/GAME/Fonts/Rubik-Bold SDF.asset");
 
-        // Override sorting to render on top of everything
+        var oldPanel = hudRoot.transform.Find("SecondChancePanel");
+        if (oldPanel != null)
+            Undo.DestroyObjectImmediate(oldPanel.gameObject);
+
+        // ── Full-screen overlay ──
+        var panel = CreateUI("SecondChancePanel", hudRoot.transform);
+        StretchFull(panel.GetComponent<RectTransform>());
+
         var panelCanvas = panel.AddComponent<Canvas>();
         panelCanvas.overrideSorting = true;
         panelCanvas.sortingOrder = 100;
         panel.AddComponent<GraphicRaycaster>();
 
-        // Dimmed background
-        var bg = panel.AddComponent<Image>();
-        bg.color = new Color(0f, 0f, 0f, 0.6f);
-        bg.raycastTarget = true;
+        var dimBg = panel.AddComponent<Image>();
+        dimBg.color = new Color(0f, 0f, 0f, 0.6f);
+        dimBg.raycastTarget = true;
 
-        // Timer fill bar at top
-        var timerBg = CreateUI("TimerBackground", panel.transform);
-        var timerBgRect = timerBg.GetComponent<RectTransform>();
-        timerBgRect.anchorMin = new Vector2(0.2f, 0.72f);
-        timerBgRect.anchorMax = new Vector2(0.8f, 0.75f);
-        timerBgRect.offsetMin = Vector2.zero;
-        timerBgRect.offsetMax = Vector2.zero;
-        var timerBgImg = timerBg.AddComponent<Image>();
-        timerBgImg.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+        // ── Popup container (border layer) ──
+        var popup = CreateUI("Popup", panel.transform);
+        var popupRect = popup.GetComponent<RectTransform>();
+        popupRect.anchorMin = new Vector2(0.5f, 0.5f);
+        popupRect.anchorMax = new Vector2(0.5f, 0.5f);
+        popupRect.sizeDelta = new Vector2(PopupWidth, PopupHeight);
 
-        var timerFill = CreateUI("TimerFill", timerBg.transform);
-        var timerFillRect = timerFill.GetComponent<RectTransform>();
-        StretchFull(timerFillRect);
-        var timerFillImg = timerFill.AddComponent<Image>();
-        timerFillImg.color = new Color(0.9f, 0.3f, 0.3f, 1f);
+        var popupBorderImg = popup.AddComponent<Image>();
+        popupBorderImg.sprite = roundedRectSprite;
+        popupBorderImg.type = Image.Type.Sliced;
+        popupBorderImg.color = new Color(0.596f, 0.667f, 0.796f, 1f); // border ~#98AACB
+
+        // ── Popup fill ──
+        var popupFill = CreateUI("PopupFill", popup.transform);
+        var popupFillRect = popupFill.GetComponent<RectTransform>();
+        popupFillRect.anchorMin = Vector2.zero;
+        popupFillRect.anchorMax = Vector2.one;
+        popupFillRect.offsetMin = new Vector2(BorderThickness, BorderThickness);
+        popupFillRect.offsetMax = new Vector2(-BorderThickness, -BorderThickness);
+
+        var popupFillImg = popupFill.AddComponent<Image>();
+        popupFillImg.sprite = roundedRectSprite;
+        popupFillImg.type = Image.Type.Sliced;
+        popupFillImg.color = new Color(0.71f, 0.82f, 1f, 1f); // ~#B5D1FF
+
+        // ── Header bar ──
+        var header = CreateUI("Header", popup.transform);
+        var headerRect = header.GetComponent<RectTransform>();
+        headerRect.anchorMin = new Vector2(0f, 1f);
+        headerRect.anchorMax = new Vector2(1f, 1f);
+        headerRect.pivot = new Vector2(0.5f, 1f);
+        headerRect.anchoredPosition = new Vector2(0f, -HeaderTopMargin);
+        headerRect.sizeDelta = new Vector2(-(PopupWidth - HeaderWidth), HeaderHeight);
+
+        var headerImg = header.AddComponent<Image>();
+        headerImg.sprite = roundedRectSprite;
+        headerImg.type = Image.Type.Sliced;
+        headerImg.color = new Color(0.875f, 0.914f, 0.961f, 1f); // #DFE9F5
+
+        var headerShadow = header.AddComponent<Shadow>();
+        headerShadow.effectColor = new Color(0f, 0f, 0f, 0.25f);
+        headerShadow.effectDistance = new Vector2(0f, -6f);
+
+        // "YOU LOSE"
+        var titleGo = CreateUI("TitleLabel", header.transform);
+        var titleRect = titleGo.GetComponent<RectTransform>();
+        StretchFull(titleRect);
+        titleRect.offsetMax = new Vector2(-CloseBtnWidth - 20f, 0f);
+
+        var titleText = titleGo.AddComponent<TMPro.TextMeshProUGUI>();
+        titleText.text = "YOU LOSE";
+        titleText.fontSize = 64;
+        titleText.fontStyle = TMPro.FontStyles.Bold;
+        titleText.alignment = TMPro.TextAlignmentOptions.Center;
+        titleText.color = new Color(0.263f, 0.337f, 0.471f, 0.8f); // #435678 @ 80%
+        if (font != null) titleText.font = font;
+
+        // Close (X) button — 3D style from Figma
+        var closeBtnGo = CreateUI("QuitButton", header.transform);
+        var closeBtnRect = closeBtnGo.GetComponent<RectTransform>();
+        closeBtnRect.anchorMin = new Vector2(1f, 0.5f);
+        closeBtnRect.anchorMax = new Vector2(1f, 0.5f);
+        closeBtnRect.pivot = new Vector2(1f, 0.5f);
+        closeBtnRect.sizeDelta = new Vector2(CloseBtnWidth, CloseBtnHeight);
+        closeBtnRect.anchoredPosition = new Vector2(-18f, 0f);
+
+        var closeBtnImg = closeBtnGo.AddComponent<Image>();
+        closeBtnImg.sprite = close3dSprite;
+        closeBtnImg.preserveAspect = true;
+        closeBtnImg.raycastTarget = true;
+
+        var closeBtn = closeBtnGo.AddComponent<Button>();
+        closeBtn.targetGraphic = closeBtnImg;
+        if (closeDawnSprite != null)
+        {
+            closeBtn.transition = Selectable.Transition.SpriteSwap;
+            closeBtn.spriteState = new SpriteState { pressedSprite = closeDawnSprite };
+        }
+
+        // ── Inner card ──
+        var card = CreateUI("Card", popup.transform);
+        var cardRect = card.GetComponent<RectTransform>();
+        cardRect.anchorMin = Vector2.zero;
+        cardRect.anchorMax = Vector2.one;
+        cardRect.offsetMin = new Vector2(CardMargin, CardMargin);
+        cardRect.offsetMax = new Vector2(-CardMargin, -CardTopOffset);
+
+        var cardImg = card.AddComponent<Image>();
+        cardImg.sprite = roundedRectSprite;
+        cardImg.type = Image.Type.Sliced;
+        cardImg.color = new Color(0.875f, 0.914f, 0.961f, 1f); // #DFE9F5
+
+        var cardOutline = card.AddComponent<Outline>();
+        cardOutline.effectColor = Color.white;
+        cardOutline.effectDistance = new Vector2(5f, 5f);
+
+        // ── "ВТОРОЙ ШАНС?" ──
+        var chanceTitleGo = CreateUI("ChanceTitleLabel", card.transform);
+        var chanceTitleRect = chanceTitleGo.GetComponent<RectTransform>();
+        chanceTitleRect.anchorMin = new Vector2(0f, 1f);
+        chanceTitleRect.anchorMax = new Vector2(1f, 1f);
+        chanceTitleRect.pivot = new Vector2(0.5f, 1f);
+        chanceTitleRect.sizeDelta = new Vector2(0f, ChanceTitleHeight);
+        chanceTitleRect.anchoredPosition = new Vector2(0f, -ChanceTitleTopOffset);
+
+        var chanceText = chanceTitleGo.AddComponent<TMPro.TextMeshProUGUI>();
+        chanceText.text = "\u0412\u0422\u041E\u0420\u041E\u0419 \u0428\u0410\u041D\u0421?";
+        chanceText.fontSize = 64;
+        chanceText.fontStyle = TMPro.FontStyles.Bold;
+        chanceText.alignment = TMPro.TextAlignmentOptions.Center;
+        chanceText.color = new Color(0.263f, 0.337f, 0.471f, 1f); // #435678
+        if (font != null) chanceText.font = font;
+
+        // ── Timer ring ──
+        // Timer center is 51px above card center
+        var timerContainer = CreateUI("TimerContainer", card.transform);
+        var timerContainerRect = timerContainer.GetComponent<RectTransform>();
+        timerContainerRect.anchorMin = new Vector2(0.5f, 0.5f);
+        timerContainerRect.anchorMax = new Vector2(0.5f, 0.5f);
+        timerContainerRect.sizeDelta = new Vector2(TimerSize, TimerSize);
+        timerContainerRect.anchoredPosition = new Vector2(0f, 51f);
+
+        // Timer background (gray)
+        var timerBgGo = CreateUI("TimerBackground", timerContainer.transform);
+        StretchFull(timerBgGo.GetComponent<RectTransform>());
+        var timerBgImg = timerBgGo.AddComponent<Image>();
+        timerBgImg.sprite = circleSprite;
+        timerBgImg.color = new Color(0.749f, 0.780f, 0.839f, 1f); // #BFC7D6
+        timerBgImg.type = Image.Type.Filled;
+        timerBgImg.fillMethod = Image.FillMethod.Radial360;
+        timerBgImg.fillOrigin = (int)Image.Origin360.Top;
+        timerBgImg.fillClockwise = true;
+        timerBgImg.fillAmount = 1f;
+
+        // Timer fill (green)
+        var timerFillGo = CreateUI("TimerFill", timerContainer.transform);
+        StretchFull(timerFillGo.GetComponent<RectTransform>());
+        var timerFillImg = timerFillGo.AddComponent<Image>();
+        timerFillImg.sprite = circleSprite;
+        timerFillImg.color = new Color(0.34f, 0.64f, 0.03f, 1f); // green ~#57A408
         timerFillImg.type = Image.Type.Filled;
-        timerFillImg.fillMethod = Image.FillMethod.Horizontal;
+        timerFillImg.fillMethod = Image.FillMethod.Radial360;
+        timerFillImg.fillOrigin = (int)Image.Origin360.Top;
+        timerFillImg.fillClockwise = true;
         timerFillImg.fillAmount = 1f;
 
-        // Heart button (left)
-        var heartBtn = CreateButton("HeartButton", panel.transform,
-            new Vector2(0.25f, 0.5f), new Vector2(160, 160),
-            new Color(0.9f, 0.25f, 0.25f, 1f), "Heart");
+        // Inner circle (ring hole, matches card bg)
+        var innerCircle = CreateUI("InnerCircle", timerContainer.transform);
+        var innerCircleRect = innerCircle.GetComponent<RectTransform>();
+        innerCircleRect.anchorMin = new Vector2(0.5f, 0.5f);
+        innerCircleRect.anchorMax = new Vector2(0.5f, 0.5f);
+        innerCircleRect.sizeDelta = Vector2.one * (TimerSize * TimerInnerRatio);
+        var innerCircleImg = innerCircle.AddComponent<Image>();
+        innerCircleImg.sprite = circleSprite;
+        innerCircleImg.color = new Color(0.875f, 0.914f, 0.961f, 1f); // #DFE9F5
 
-        // Quit button (right)
-        var quitBtn = CreateButton("QuitButton", panel.transform,
-            new Vector2(0.75f, 0.5f), new Vector2(160, 160),
-            new Color(0.4f, 0.4f, 0.4f, 1f), "Quit");
+        // Semi-transparent circle behind heart
+        var heartBg = CreateUI("HeartBackground", timerContainer.transform);
+        var heartBgRect = heartBg.GetComponent<RectTransform>();
+        heartBgRect.anchorMin = new Vector2(0.5f, 0.5f);
+        heartBgRect.anchorMax = new Vector2(0.5f, 0.5f);
+        heartBgRect.sizeDelta = new Vector2(HeartBgSize, HeartBgSize);
+        var heartBgImg = heartBg.AddComponent<Image>();
+        heartBgImg.sprite = circleSprite;
+        heartBgImg.color = new Color(0.384f, 0.451f, 0.569f, 0.15f);
+        heartBgImg.raycastTarget = false;
 
-        // Ad button (bottom center)
-        var adBtn = CreateButton("AdButton", panel.transform,
-            new Vector2(0.5f, 0.3f), new Vector2(200, 80),
-            new Color(0.2f, 0.7f, 0.3f, 1f), "Ad");
+        // Heart icon
+        var heartGo = CreateUI("HeartIcon", timerContainer.transform);
+        var heartRect = heartGo.GetComponent<RectTransform>();
+        heartRect.anchorMin = new Vector2(0.5f, 0.5f);
+        heartRect.anchorMax = new Vector2(0.5f, 0.5f);
+        heartRect.sizeDelta = new Vector2(HeartIconSize, HeartIconSize);
+        var heartImg = heartGo.AddComponent<Image>();
+        heartImg.sprite = heartSprite;
+        heartImg.preserveAspect = true;
+        heartImg.raycastTarget = false;
 
-        // Wire up SecondChancePresenter
-        var presenters = Object.FindObjectsByType<JumpRing.Game.UI.SecondChancePresenter>(FindObjectsSortMode.None);
+        // ── Continue button ──
+        var continueBtnGo = CreateUI("ContinueButton", card.transform);
+        var continueBtnRect = continueBtnGo.GetComponent<RectTransform>();
+        continueBtnRect.anchorMin = new Vector2(0.5f, 0f);
+        continueBtnRect.anchorMax = new Vector2(0.5f, 0f);
+        continueBtnRect.pivot = new Vector2(0.5f, 0f);
+        continueBtnRect.sizeDelta = new Vector2(ButtonWidth, ButtonHeight);
+        continueBtnRect.anchoredPosition = new Vector2(0f, ButtonBottomMargin);
+
+        var continueBtnImg = continueBtnGo.AddComponent<Image>();
+        continueBtnImg.sprite = shopButtonSprite;
+        continueBtnImg.type = Image.Type.Sliced;
+
+        var continueBtn = continueBtnGo.AddComponent<Button>();
+        continueBtn.targetGraphic = continueBtnImg;
+
+        // Coin icon on button
+        var coinGo = CreateUI("CoinIcon", continueBtnGo.transform);
+        var coinRect = coinGo.GetComponent<RectTransform>();
+        coinRect.anchorMin = new Vector2(0f, 0.5f);
+        coinRect.anchorMax = new Vector2(0f, 0.5f);
+        coinRect.pivot = new Vector2(0f, 0.5f);
+        coinRect.sizeDelta = new Vector2(CoinSize, CoinSize);
+        coinRect.anchoredPosition = new Vector2(65f, 5f);
+        var coinImg = coinGo.AddComponent<Image>();
+        coinImg.sprite = coinSprite;
+        coinImg.preserveAspect = true;
+        coinImg.raycastTarget = false;
+
+        // "Получить" label with gradient + outline
+        var labelGo = CreateUI("Label", continueBtnGo.transform);
+        var labelRect = labelGo.GetComponent<RectTransform>();
+        StretchFull(labelRect);
+        labelRect.offsetMin = new Vector2(120f, 9f);
+
+        var labelText = labelGo.AddComponent<TMPro.TextMeshProUGUI>();
+        labelText.text = "\u041F\u043E\u043B\u0443\u0447\u0438\u0442\u044C";
+        labelText.fontSize = 78;
+        labelText.fontStyle = TMPro.FontStyles.Bold;
+        labelText.alignment = TMPro.TextAlignmentOptions.Center;
+        labelText.enableVertexGradient = true;
+        labelText.colorGradient = new TMPro.VertexGradient(
+            new Color(1f, 1f, 0f, 1f),
+            new Color(1f, 1f, 0f, 1f),
+            new Color(1f, 0.5f, 0.21f, 1f),
+            new Color(1f, 0.5f, 0.21f, 1f)
+        );
+        labelText.outlineColor = new Color32(124, 52, 0, 255); // #7C3400
+        labelText.outlineWidth = 0.25f;
+        if (font != null) labelText.font = font;
+
+        // ── Wire up presenter ──
+        var presenters = Object.FindObjectsByType<JumpRing.Game.UI.SecondChancePresenter>(
+            FindObjectsSortMode.None);
         if (presenters.Length > 0)
         {
             var presenter = presenters[0];
             var so = new SerializedObject(presenter);
             so.FindProperty("secondChancePanel").objectReferenceValue = panel;
-            so.FindProperty("heartButton").objectReferenceValue = heartBtn.GetComponent<Button>();
-            so.FindProperty("quitButton").objectReferenceValue = quitBtn.GetComponent<Button>();
-            so.FindProperty("adButton").objectReferenceValue = adBtn.GetComponent<Button>();
+            so.FindProperty("continueButton").objectReferenceValue = continueBtn;
+            so.FindProperty("quitButton").objectReferenceValue = closeBtn;
             so.FindProperty("timerFill").objectReferenceValue = timerFillImg;
-
-            var jumpController = Object.FindFirstObjectByType<JumpRing.Game.Gameplay.PlayerJumpController>();
-            if (jumpController != null)
-            {
-                so.FindProperty("playerJumpController").objectReferenceValue = jumpController;
-            }
-
             so.ApplyModifiedProperties();
             EditorUtility.SetDirty(presenter);
         }
 
-        // Ensure panel renders on top of everything
         panel.transform.SetAsLastSibling();
         panel.SetActive(false);
 
         Undo.RegisterCreatedObjectUndo(panel, "Create SecondChance Panel");
         Selection.activeGameObject = panel;
-
-        Debug.Log("SecondChance Panel created and wired up.");
+        Debug.Log("SecondChance Panel created (Figma v2).");
     }
 
     [MenuItem("Tools/Create Hearts HUD")]
@@ -114,14 +342,10 @@ public static class SecondChancePanelCreator
             return;
         }
 
-        // Remove old hearts container if exists
         var oldHearts = canvas.transform.Find("HeartsContainer");
         if (oldHearts != null)
-        {
             Undo.DestroyObjectImmediate(oldHearts.gameObject);
-        }
 
-        // Container anchored to top-left
         var container = CreateUI("HeartsContainer", canvas.transform);
         var containerRect = container.GetComponent<RectTransform>();
         containerRect.anchorMin = new Vector2(0f, 1f);
@@ -130,7 +354,6 @@ public static class SecondChancePanelCreator
         containerRect.anchoredPosition = new Vector2(20f, -100f);
         containerRect.sizeDelta = new Vector2(150f, 40f);
 
-        // Add HorizontalLayoutGroup
         var layout = container.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = 8f;
         layout.childAlignment = TextAnchor.MiddleLeft;
@@ -139,10 +362,7 @@ public static class SecondChancePanelCreator
         layout.childForceExpandWidth = false;
         layout.childForceExpandHeight = false;
 
-        // Add HeartsHudPresenter
         var heartsPresenter = container.AddComponent<JumpRing.Game.UI.HeartsHudPresenter>();
-
-        // Create 3 heart images
         var heartImages = new Image[3];
         var inactiveColor = new Color(0.3f, 0.3f, 0.3f, 0.4f);
 
@@ -154,35 +374,26 @@ public static class SecondChancePanelCreator
 
             var img = heart.AddComponent<Image>();
             img.color = inactiveColor;
-
-            // Use Unity built-in knob sprite as placeholder heart shape
             img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
-
             heartImages[i] = img;
         }
 
-        // Wire up HeartsHudPresenter
         var so = new SerializedObject(heartsPresenter);
 
         var bonusManager = Object.FindFirstObjectByType<JumpRing.Game.Gameplay.BonusEffectManager>();
         if (bonusManager != null)
-        {
             so.FindProperty("bonusEffectManager").objectReferenceValue = bonusManager;
-        }
 
         var heartsProp = so.FindProperty("heartImages");
         heartsProp.arraySize = 3;
         for (var i = 0; i < 3; i++)
-        {
             heartsProp.GetArrayElementAtIndex(i).objectReferenceValue = heartImages[i];
-        }
 
         so.ApplyModifiedProperties();
         EditorUtility.SetDirty(heartsPresenter);
 
         Undo.RegisterCreatedObjectUndo(container, "Create Hearts HUD");
         Selection.activeGameObject = container;
-
         Debug.Log("Hearts HUD created and wired up.");
     }
 
@@ -191,37 +402,6 @@ public static class SecondChancePanelCreator
         var go = new GameObject(name, typeof(RectTransform));
         go.transform.SetParent(parent, false);
         return go;
-    }
-
-    private static GameObject CreateButton(string name, Transform parent,
-        Vector2 anchorCenter, Vector2 size, Color color, string label)
-    {
-        var btnGo = CreateUI(name, parent);
-        var rect = btnGo.GetComponent<RectTransform>();
-        rect.anchorMin = anchorCenter;
-        rect.anchorMax = anchorCenter;
-        rect.sizeDelta = size;
-        rect.anchoredPosition = Vector2.zero;
-
-        var img = btnGo.AddComponent<Image>();
-        img.color = color;
-
-        var btn = btnGo.AddComponent<Button>();
-        btn.targetGraphic = img;
-
-        // Label
-        var labelGo = new GameObject("Label", typeof(RectTransform));
-        labelGo.transform.SetParent(btnGo.transform, false);
-        var labelRect = labelGo.GetComponent<RectTransform>();
-        StretchFull(labelRect);
-
-        var text = labelGo.AddComponent<TMPro.TextMeshProUGUI>();
-        text.text = label;
-        text.alignment = TMPro.TextAlignmentOptions.Center;
-        text.fontSize = 28;
-        text.color = Color.white;
-
-        return btnGo;
     }
 
     private static void StretchFull(RectTransform rect)

@@ -36,8 +36,8 @@ RectTransform:
   - {fileID: 6043967564203652192}
   m_Father: {fileID: 1400428598358726912}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.04, y: 0.02}
-  m_AnchorMax: {x: 0.96, y: 0.22}
+  m_AnchorMin: {x: 0.037, y: 0.028}
+  m_AnchorMax: {x: 0.963, y: 0.253}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -98,7 +98,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -193,7 +193,7 @@ MonoBehaviour:
 '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f7665e83a28664733bb7b6b62fa3452a, type: 2}
-  m_sharedMaterial: {fileID: -3867971790857219940, guid: f7665e83a28664733bb7b6b62fa3452a, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: c42e9c14d81a44d518187811e583ad3c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -354,7 +354,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40
+  m_fontSize: 48
   m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
@@ -431,10 +431,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 9063578959758925144}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.1}
-  m_AnchorMax: {x: 0, y: 0.9}
-  m_AnchoredPosition: {x: 50, y: 5}
-  m_SizeDelta: {x: 80, y: 10}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 135, y: 0}
+  m_SizeDelta: {x: 72, y: 72}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8534998289609971858
 CanvasRenderer:
@@ -516,7 +516,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 428, y: 518}
+  m_SizeDelta: {x: 428, y: 570}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3486770959812199871
 CanvasRenderer:
@@ -626,9 +626,11 @@ MonoBehaviour:
   upgradeLevelLabel: {fileID: 1229506844684024013}
   buyButtonSprite: {fileID: 21300000, guid: 04af3d269e035406a82fe6e96c69ceee, type: 3}
   activeButtonSprite: {fileID: 21300000, guid: 0fa49b5be1e5f4f0788ac37a014e7cf0, type: 3}
+  activateButtonSprite: {fileID: 0}
   buyButtonColor: {r: 1, g: 1, b: 1, a: 1}
   activeButtonColor: {r: 1, g: 1, b: 1, a: 1}
-  disabledButtonColor: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+  activateButtonColor: {r: 1, g: 1, b: 1, a: 1}
+  disabledContentAlpha: 0.5
 --- !u!114 &1376018133705152840
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -734,7 +736,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8326065912327527002
 RectTransform:
   m_ObjectHideFlags: 0
@@ -887,8 +889,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1400428598358726912}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.78}
-  m_AnchorMax: {x: 1, y: 0.98}
+  m_AnchorMin: {x: 0, y: 0.815}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -16, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -931,8 +933,8 @@ MonoBehaviour:
   - {fileID: 0}
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4282922797
-  m_fontColor: {r: 0.176, g: 0.216, b: 0.282, a: 1}
+    rgba: 4286076483
+  m_fontColor: {r: 0.263, g: 0.337, b: 0.471, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -949,7 +951,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
+  m_fontSize: 64
   m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 0
@@ -1040,8 +1042,8 @@ RectTransform:
   - {fileID: 8326065912327527002}
   m_Father: {fileID: 1400428598358726912}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.05, y: 0.18}
-  m_AnchorMax: {x: 0.95, y: 0.82}
+  m_AnchorMin: {x: 0.014, y: 0.17}
+  m_AnchorMax: {x: 0.986, y: 0.916}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

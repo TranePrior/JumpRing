@@ -53,6 +53,9 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private Sprite activeButtonSprite;
 
+        [SerializeField]
+        private Sprite activateButtonSprite;
+
         [Header("Button Colors")]
         [SerializeField]
         private Color buyButtonColor = Color.white;
@@ -61,7 +64,10 @@ namespace JumpRing.Game.UI
         private Color activeButtonColor = Color.white;
 
         [SerializeField]
-        private Color disabledButtonColor = new Color(0.6f, 0.6f, 0.6f, 1f);
+        private Color activateButtonColor = Color.white;
+
+        [SerializeField]
+        private float disabledContentAlpha = 0.5f;
 
         public event Action<SkinItem> Clicked;
         public event Action<SkinItem> ActionClicked;
@@ -119,91 +125,89 @@ namespace JumpRing.Game.UI
 
             if (!isOwned)
             {
-                if (priceLabel != null)
-                {
-                    priceLabel.text = skinItem.Price.ToString();
-                    priceLabel.gameObject.SetActive(true);
-                }
-
-                if (coinIcon != null)
-                {
-                    coinIcon.gameObject.SetActive(true);
-                }
-
-                if (actionButtonLabel != null)
-                {
-                    actionButtonLabel.gameObject.SetActive(false);
-                }
-
-                SetButtonState(buyButtonSprite, canAfford ? buyButtonColor : disabledButtonColor);
+                ShowPriceContent(skinItem.Price, true);
+                SetButtonState(buyButtonSprite, buyButtonColor);
+                SetContentAlpha(canAfford ? 1f : disabledContentAlpha);
 
                 if (actionButton != null)
-                {
                     actionButton.interactable = canAfford;
-                }
             }
             else if (upgradesUnlocked)
             {
                 bool isMaxed = upgradeLevel >= maxLevel;
 
-                SetUpgradeLevelVisible(true, upgradeLevel, maxLevel);
-
                 if (isMaxed)
                 {
-                    if (priceLabel != null) priceLabel.gameObject.SetActive(false);
-                    if (coinIcon != null) coinIcon.gameObject.SetActive(false);
-
-                    if (actionButtonLabel != null)
-                    {
-                        actionButtonLabel.text = isActive ? "Активен" : "Выбрать";
-                        actionButtonLabel.gameObject.SetActive(true);
-                    }
-
+                    ShowLabelContent(isActive ? "Активен" : "Выбрать");
                     SetButtonState(
-                        isActive ? activeButtonSprite : buyButtonSprite,
-                        isActive ? activeButtonColor : buyButtonColor);
+                        isActive ? activeButtonSprite : GetActivateSprite(),
+                        isActive ? activeButtonColor : activateButtonColor);
+                    SetContentAlpha(1f);
                     if (actionButton != null) actionButton.interactable = true;
                 }
                 else
                 {
-                    if (priceLabel != null)
-                    {
-                        priceLabel.text = upgradePrice.ToString();
-                        priceLabel.gameObject.SetActive(true);
-                    }
-
-                    if (coinIcon != null) coinIcon.gameObject.SetActive(true);
-                    if (actionButtonLabel != null) actionButtonLabel.gameObject.SetActive(false);
-
+                    ShowPriceContent(upgradePrice, true);
                     SetButtonState(
-                        isActive ? activeButtonSprite : buyButtonSprite,
-                        canAffordUpgrade
-                            ? (isActive ? activeButtonColor : buyButtonColor)
-                            : disabledButtonColor);
+                        isActive ? activeButtonSprite : GetActivateSprite(),
+                        isActive ? activeButtonColor : activateButtonColor);
+                    SetContentAlpha(canAffordUpgrade ? 1f : disabledContentAlpha);
                     if (actionButton != null) actionButton.interactable = canAffordUpgrade;
                 }
             }
             else
             {
-                if (priceLabel != null) priceLabel.gameObject.SetActive(false);
-                if (coinIcon != null) coinIcon.gameObject.SetActive(false);
-
-                if (actionButtonLabel != null)
-                {
-                    actionButtonLabel.text = isActive ? "Активен" : "Выбрать";
-                    actionButtonLabel.gameObject.SetActive(true);
-                }
-
+                ShowLabelContent(isActive ? "Активен" : "Выбрать");
                 SetButtonState(
-                    isActive ? activeButtonSprite : buyButtonSprite,
-                    isActive ? activeButtonColor : buyButtonColor);
+                    isActive ? activeButtonSprite : GetActivateSprite(),
+                    isActive ? activeButtonColor : activateButtonColor);
+                SetContentAlpha(1f);
                 if (actionButton != null) actionButton.interactable = true;
             }
 
             if (selectionFrame != null)
-            {
                 selectionFrame.enabled = false;
+        }
+
+        private Sprite GetActivateSprite()
+        {
+            return activateButtonSprite != null ? activateButtonSprite : buyButtonSprite;
+        }
+
+        private void ShowPriceContent(int price, bool showCoin)
+        {
+            if (priceLabel != null)
+            {
+                priceLabel.text = price.ToString();
+                priceLabel.gameObject.SetActive(true);
             }
+
+            if (coinIcon != null)
+                coinIcon.gameObject.SetActive(showCoin);
+
+            if (actionButtonLabel != null)
+                actionButtonLabel.gameObject.SetActive(false);
+        }
+
+        private void ShowLabelContent(string text)
+        {
+            if (priceLabel != null) priceLabel.gameObject.SetActive(false);
+            if (coinIcon != null) coinIcon.gameObject.SetActive(false);
+
+            if (actionButtonLabel != null)
+            {
+                actionButtonLabel.text = text;
+                actionButtonLabel.gameObject.SetActive(true);
+            }
+        }
+
+        private void SetContentAlpha(float alpha)
+        {
+            if (priceLabel != null)
+                priceLabel.alpha = alpha;
+
+            if (coinIcon != null)
+                coinIcon.color = new Color(coinIcon.color.r, coinIcon.color.g, coinIcon.color.b, alpha);
         }
 
         private void SetUpgradeLevelVisible(bool visible, int level = 0, int max = 0)

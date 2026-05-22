@@ -283,8 +283,8 @@ namespace JumpRing.Game.Editor
             var hRT = header.GetComponent<RectTransform>();
             hRT.anchorMin = new Vector2(0, 0.87f);
             hRT.anchorMax = Vector2.one;
-            hRT.offsetMin = new Vector2(8, 0);
-            hRT.offsetMax = new Vector2(-8, -8);
+            hRT.offsetMin = new Vector2(7, 0);
+            hRT.offsetMax = new Vector2(-7, -7);
             var hBg = header.AddComponent<Image>();
             if (roundedSpr) hBg.sprite = roundedSpr;
             hBg.type = Image.Type.Sliced;

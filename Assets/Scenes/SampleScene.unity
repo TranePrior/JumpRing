@@ -1511,6 +1511,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.CameraFollowTarget
   target: {fileID: 771753746}
   verticalSmoothTime: 0.12
+  horizontalOffset: 3
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -6580,7 +6581,7 @@ PrefabInstance:
       objectReference: {fileID: 1632676868}
     - target: {fileID: 2094155033869774277, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2094155033869774277, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
       propertyPath: m_LocalPosition.y
@@ -6618,9 +6619,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3563372341759107908, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.54
+      objectReference: {fileID: 0}
     - target: {fileID: 5121797076482540318, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8350870436996351580, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

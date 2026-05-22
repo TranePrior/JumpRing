@@ -2,7 +2,6 @@ using JumpRing.Game.Core.State;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using JumpRing.Game.Gameplay;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -28,9 +27,6 @@ namespace JumpRing.Game.UI
         [Header("Tap To Start")]
         [SerializeField]
         private TMP_Text tapToStartLabel;
-
-        [SerializeField]
-        private Image tapHandImage;
 
         [Header("Pulse Animation")]
         [SerializeField, Min(0.01f)]
@@ -80,12 +76,6 @@ namespace JumpRing.Game.UI
                 tapToStartLabel.color = c;
             }
 
-            if (tapHandImage != null)
-            {
-                var c = tapHandImage.color;
-                c.a = alpha;
-                tapHandImage.color = c;
-            }
         }
 
         private void DetectTapToStart()

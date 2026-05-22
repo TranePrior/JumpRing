@@ -77,7 +77,7 @@ namespace JumpRing.Game.UI
             isCountingDown = true;
 
             var hasHearts = bonusEffectManager.SecondChanceCount > 0;
-            continueButton.gameObject.SetActive(hasHearts);
+            continueButton.interactable = hasHearts;
             secondChancePanel.SetActive(true);
         }
 

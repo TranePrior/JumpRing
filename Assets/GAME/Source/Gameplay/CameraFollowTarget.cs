@@ -10,6 +10,9 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(0.01f), Tooltip("Smooth time for vertical camera follow")]
         private float verticalSmoothTime = 0.12f;
 
+        [SerializeField, Tooltip("Horizontal offset so the ring appears left of screen center")]
+        private float horizontalOffset = 3f;
+
         private float cameraZ;
         private float yVelocity;
 
@@ -22,7 +25,7 @@ namespace JumpRing.Game.Gameplay
         {
             var targetPosition = target.position;
             var smoothedY = Mathf.SmoothDamp(transform.position.y, targetPosition.y, ref yVelocity, verticalSmoothTime);
-            transform.position = new Vector3(targetPosition.x, smoothedY, cameraZ);
+            transform.position = new Vector3(targetPosition.x + horizontalOffset, smoothedY, cameraZ);
         }
     }
 }

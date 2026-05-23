@@ -42,7 +42,7 @@ namespace JumpRing.Game.Gameplay
 
         [Header("SizeUp")]
         [SerializeField, Min(0.1f)]
-        private float sizeUpAmount = 1f;
+        private float sizeUpAmount = 0.3f;
 
         [Header("CalmLine")]
         [SerializeField, Min(1)]

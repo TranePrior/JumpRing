@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.ivanmurzak.unity.mcp": "0.74.0",
+    "com.ivanmurzak.unity.mcp": "0.75.1",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.collab-proxy": "2.11.3",
     "com.unity.feature.2d": "2.0.2",

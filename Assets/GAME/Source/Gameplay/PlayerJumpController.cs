@@ -278,8 +278,9 @@ namespace JumpRing.Game.Gameplay
         /// </summary>
         public void ApplySizeModifier(float amount)
         {
+            float clampedBonus = Mathf.Min(permanentSizeBonus, 0.3f);
             float baseScale = amount <= 0f ? 1f : 1f + amount;
-            currentSizeScale = Mathf.Min(baseScale + permanentSizeBonus, 2f);
+            currentSizeScale = Mathf.Min(baseScale + clampedBonus, 1.5f);
         }
 
         /// <summary>

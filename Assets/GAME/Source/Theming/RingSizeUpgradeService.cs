@@ -8,14 +8,14 @@ namespace JumpRing.Game.Theming
     public sealed class RingSizeUpgradeService : MonoBehaviour
     {
         private const string UpgradesKey = "SkinUpgrades";
-        private const float MaxScale = 2f;
+        private const float MaxScale = 1.3f;
         private const float BaseScale = 1f;
 
         [SerializeField, Range(0.01f, 0.5f)]
-        private float scaleStep = 0.1f;
+        private float scaleStep = 0.05f;
 
         [SerializeField, Min(1)]
-        private int maxLevel = 10;
+        private int maxLevel = 6;
 
         [SerializeField, Min(1f)]
         private float priceMultiplier = 1.5f;

@@ -58,7 +58,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.12, g: 0.12, b: 0.18, a: 1}
     - _Color: {r: 0.11999995, g: 0.11999995, b: 0.17999998, a: 1}
-    - _CoreColor: {r: 2.5, g: 0.3, b: 1.5, a: 1}
-    - _GlowColor: {r: 1, g: 0.2, b: 0.6, a: 1}
+    - _CoreColor: {r: 3.5, g: 0.191, b: 1.88, a: 1}
+    - _GlowColor: {r: 1.5, g: 0.082, b: 0.806, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

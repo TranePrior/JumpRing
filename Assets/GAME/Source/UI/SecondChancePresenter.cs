@@ -72,12 +72,16 @@ namespace JumpRing.Game.UI
 
         private void OnDeathRequested()
         {
+            if (bonusEffectManager.SecondChanceCount <= 0)
+            {
+                runSessionController.ForceFinishRun();
+                return;
+            }
+
             countdownDuration = bonusEffectManager.SecondChanceTimerDuration;
             countdown = countdownDuration;
             isCountingDown = true;
 
-            var hasHearts = bonusEffectManager.SecondChanceCount > 0;
-            continueButton.interactable = hasHearts;
             secondChancePanel.SetActive(true);
         }
 

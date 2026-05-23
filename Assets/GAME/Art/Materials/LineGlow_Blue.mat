@@ -47,7 +47,7 @@ Material:
     - _GlowFalloff: 1.8
     - _GlowIntensity: 2.5
     - _GlowPower: 5.94
-    - _InnerGlowWidth: 0.193
+    - _InnerGlowWidth: 0.262
     - _QueueOffset: 0
     - _SampleGI: 0
     - _SrcBlend: 1

@@ -14,7 +14,7 @@ namespace JumpRing.Game.UI
 
         [Header("Sprite Switch")]
         [SerializeField, Min(0.1f)]
-        private float switchInterval = 0.6f;
+        private float switchInterval = 0.1f;
 
         [Header("Scale Pulse")]
         [SerializeField]
@@ -26,6 +26,8 @@ namespace JumpRing.Game.UI
         private Image image;
         private float switchTimer;
         private bool showingTapGesture;
+
+        public float PulseT { get; private set; }
 
         private void Awake()
         {
@@ -59,11 +61,13 @@ namespace JumpRing.Game.UI
             {
                 float scale = Mathf.Lerp(scaleMin, scaleMax, t);
                 transform.localScale = new Vector3(scale, scale, 1f);
+                PulseT = t;
             }
             else
             {
                 float scale = Mathf.Lerp(scaleMax, scaleMin, t);
                 transform.localScale = new Vector3(scale, scale, 1f);
+                PulseT = 1f - t;
             }
 
             if (switchTimer >= switchInterval)

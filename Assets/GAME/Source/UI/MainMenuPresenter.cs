@@ -28,15 +28,21 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private TMP_Text tapToStartLabel;
 
-        [Header("Pulse Animation")]
-        [SerializeField, Min(0.01f)]
-        private float pulseSpeed = 1.5f;
+        [SerializeField]
+        private TapHandAnimator tapHandAnimator;
 
+        [Header("Label Pulse")]
         [SerializeField, Range(0f, 1f)]
-        private float alphaMin = 0.4f;
+        private float alphaMin = 0.7f;
 
         [SerializeField, Range(0f, 1f)]
         private float alphaMax = 1f;
+
+        [SerializeField, Min(0.01f)]
+        private float scaleMin = 0.95f;
+
+        [SerializeField, Min(0.01f)]
+        private float scaleMax = 1.05f;
 
         private bool isVisible;
 
@@ -66,16 +72,16 @@ namespace JumpRing.Game.UI
 
         private void AnimateTapToStart()
         {
-            var t = (Mathf.Sin(Time.time * pulseSpeed * Mathf.PI * 2f) + 1f) * 0.5f;
-            var alpha = Mathf.Lerp(alphaMin, alphaMax, t);
+            if (tapToStartLabel == null || tapHandAnimator == null) return;
 
-            if (tapToStartLabel != null)
-            {
-                var c = tapToStartLabel.color;
-                c.a = alpha;
-                tapToStartLabel.color = c;
-            }
+            float t = tapHandAnimator.PulseT;
+            float alpha = Mathf.Lerp(alphaMin, alphaMax, t);
+            float scale = Mathf.Lerp(scaleMin, scaleMax, t);
 
+            var c = tapToStartLabel.color;
+            c.a = alpha;
+            tapToStartLabel.color = c;
+            tapToStartLabel.transform.localScale = new Vector3(scale, scale, 1f);
         }
 
         private void DetectTapToStart()

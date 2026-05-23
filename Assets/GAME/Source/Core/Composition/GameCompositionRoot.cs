@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 using JumpRing.Game.Core.Services;
 using JumpRing.Game.Core.State;
 using JumpRing.Game.Gameplay;
 using JumpRing.Game.Theming;
 using JumpRing.Game.UI;
+using PlatformLink;
 
 namespace JumpRing.Game.Core.Composition
 {
@@ -57,13 +59,48 @@ namespace JumpRing.Game.Core.Composition
         [SerializeField]
         private PlayerJumpController playerJumpController;
 
+        [Header("Platform")]
+        [SerializeField]
+        private PlatformStorageService platformStorageService;
+
         private IGameStateMachine GameStateMachine => (IGameStateMachine)gameStateMachineComponent;
 
         private IScoreService ScoreService => (IScoreService)scoreServiceComponent;
 
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
 
+        private static readonly string[] StorageIntKeys =
+        {
+            "DiamondBalance", "BestScore", "BonusSpawner_ConsecutiveDeaths"
+        };
+
+        private static readonly string[] StorageStringKeys =
+        {
+            "OwnedSkins", "ActiveSkinId", "SkinUpgrades"
+        };
+
         private void Awake()
+        {
+            try
+            {
+                PLink.Initialize(null);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[GameCompositionRoot] PLink init failed: {e.Message}");
+            }
+
+            if (platformStorageService != null)
+            {
+                platformStorageService.Initialize(StorageIntKeys, StorageStringKeys, OnStorageReady);
+            }
+            else
+            {
+                OnStorageReady();
+            }
+        }
+
+        private void OnStorageReady()
         {
             runSessionController.Construct(GameStateMachine, ScoreService);
             hudPresenter.Construct(ScoreService, CurrencyService);
@@ -96,6 +133,8 @@ namespace JumpRing.Game.Core.Composition
                 runSessionController.RunStarted += bonusEffectManager.OnRunStarted;
                 runSessionController.RunFinished += bonusEffectManager.OnRunFinished;
             }
+
+            runSessionController.RunStarted += () => CurrencyService.ResetRunEarnings();
 
             if (skinShopService != null)
             {

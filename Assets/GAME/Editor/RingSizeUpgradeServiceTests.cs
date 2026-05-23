@@ -206,6 +206,10 @@ namespace JumpRing.Tests.EditMode
 
             public int Balance => balance;
 
+            public int RunEarnings => 0;
+
+            public void ResetRunEarnings() { }
+
             public void SetBalance(int value)
             {
                 balance = value;

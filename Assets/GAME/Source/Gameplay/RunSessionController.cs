@@ -62,28 +62,16 @@ namespace JumpRing.Game.Gameplay
             isConstructed = true;
         }
 
-        public bool CanControlPlayer
-        {
-            get
-            {
-                return gameStateMachine.CurrentState == GameState.Gameplay;
-            }
-        }
+        public bool CanControlPlayer => isConstructed && gameStateMachine.CurrentState == GameState.Gameplay;
 
-        public bool CanStartRun
-        {
-            get
-            {
-                return gameStateMachine.CurrentState == GameState.MainMenu ||
-                    gameStateMachine.CurrentState == GameState.GameOver;
-            }
-        }
+        public bool CanStartRun => isConstructed && (gameStateMachine.CurrentState == GameState.MainMenu ||
+            gameStateMachine.CurrentState == GameState.GameOver);
 
         public bool HasActiveRun => hasActiveRun;
 
         public int TapCount { get; private set; }
 
-        public bool IsInReadyState => gameStateMachine.CurrentState == GameState.Ready;
+        public bool IsInReadyState => isConstructed && gameStateMachine.CurrentState == GameState.Ready;
 
         public void RegisterStartGate(IRunStartGate gate)
         {
@@ -152,8 +140,8 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
-            gameStateMachine.Enter(GameState.MainMenu);
             hasActiveRun = false;
+            gameStateMachine.Enter(GameState.GameOver);
             RunFinished?.Invoke();
         }
 

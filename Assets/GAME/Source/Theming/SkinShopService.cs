@@ -19,6 +19,9 @@ namespace JumpRing.Game.Theming
         [SerializeField]
         private MonoBehaviour currencyServiceComponent;
 
+        [SerializeField]
+        private PlatformStorageService storageService;
+
         public event Action<SkinItem> SkinSelected;
         public event Action<SkinItem> SkinPurchased;
 
@@ -44,7 +47,7 @@ namespace JumpRing.Game.Theming
             return true;
         }
 
-        public bool UpgradesUnlocked => AllSkinsOwned();
+        public bool UpgradesUnlocked => true;
 
         public void Initialize()
         {
@@ -94,8 +97,16 @@ namespace JumpRing.Game.Theming
             }
 
             ActiveSkin = skin;
-            PlayerPrefs.SetString(ActiveSkinKey, skin.SkinId);
-            PlayerPrefs.Save();
+
+            if (storageService != null)
+            {
+                storageService.SetString(ActiveSkinKey, skin.SkinId);
+            }
+            else
+            {
+                PlayerPrefs.SetString(ActiveSkinKey, skin.SkinId);
+                PlayerPrefs.Save();
+            }
 
             var pack = catalog.FindPackForSkin(skin);
             themeManager.ApplyTheme(skin.ThemeData, pack);
@@ -107,7 +118,10 @@ namespace JumpRing.Game.Theming
         {
             ownedSkinIds = new HashSet<string>();
 
-            var saved = PlayerPrefs.GetString(OwnedSkinsKey, "");
+            var saved = storageService != null
+                ? storageService.GetString(OwnedSkinsKey, "")
+                : PlayerPrefs.GetString(OwnedSkinsKey, "");
+
             if (string.IsNullOrEmpty(saved))
             {
                 return;
@@ -126,13 +140,23 @@ namespace JumpRing.Game.Theming
         private void SaveOwnedSkins()
         {
             var joined = string.Join(",", ownedSkinIds);
-            PlayerPrefs.SetString(OwnedSkinsKey, joined);
-            PlayerPrefs.Save();
+
+            if (storageService != null)
+            {
+                storageService.SetString(OwnedSkinsKey, joined);
+            }
+            else
+            {
+                PlayerPrefs.SetString(OwnedSkinsKey, joined);
+                PlayerPrefs.Save();
+            }
         }
 
         private void LoadActiveSkin()
         {
-            var savedId = PlayerPrefs.GetString(ActiveSkinKey, "");
+            var savedId = storageService != null
+                ? storageService.GetString(ActiveSkinKey, "")
+                : PlayerPrefs.GetString(ActiveSkinKey, "");
 
             if (!string.IsNullOrEmpty(savedId))
             {

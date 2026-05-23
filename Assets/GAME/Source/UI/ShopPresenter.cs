@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using JumpRing.Game.Core.Services;
 using JumpRing.Game.Theming;
+using System.Collections;
 
 namespace JumpRing.Game.UI
 {
@@ -58,12 +59,26 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private GameObject tapHand;
 
+        [Header("Ad Reward")]
+        [SerializeField]
+        private Button watchAdButton;
+
+        [SerializeField]
+        private RewardedAdService rewardedAdService;
+
+        [SerializeField]
+        private int adRewardAmount = 50;
+
+        [SerializeField]
+        private float adCooldownSeconds = 180f;
+
         [Header("Overlay")]
         [SerializeField]
         private DimOverlay dimOverlay;
 
         private readonly List<ShopSkinCardView> activeCards = new();
         private Sequence openSequence;
+        private float lastAdWatchTime = float.NegativeInfinity;
 
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
 
@@ -107,6 +122,11 @@ namespace JumpRing.Game.UI
                 closeButton.onClick.AddListener(Close);
             }
 
+            if (watchAdButton != null)
+            {
+                watchAdButton.onClick.AddListener(OnWatchAdClicked);
+            }
+
             if (skinShopService != null)
             {
                 skinShopService.SkinPurchased += OnSkinPurchased;
@@ -124,6 +144,11 @@ namespace JumpRing.Game.UI
             if (closeButton != null)
             {
                 closeButton.onClick.RemoveListener(Close);
+            }
+
+            if (watchAdButton != null)
+            {
+                watchAdButton.onClick.RemoveListener(OnWatchAdClicked);
             }
 
             if (skinShopService != null)
@@ -157,6 +182,7 @@ namespace JumpRing.Game.UI
 
             UpdateBalance();
             RebuildGrid();
+            UpdateAdButton();
 
             openSequence = WindowAnimations.AnimateOpen(shopPanel, shopPanel.transform);
         }
@@ -324,6 +350,46 @@ namespace JumpRing.Game.UI
             {
                 balanceLabel.text = CurrencyService.Balance.ToString();
             }
+        }
+
+        private void OnWatchAdClicked()
+        {
+            if (!IsAdAvailable())
+            {
+                return;
+            }
+
+            rewardedAdService.ShowAd(
+                onReward: () =>
+                {
+                    lastAdWatchTime = Time.unscaledTime;
+                    CurrencyService.Add(adRewardAmount);
+                    UpdateBalance();
+                    RefreshCards();
+                    UpdateAdButton();
+                }
+            );
+        }
+
+        private void UpdateAdButton()
+        {
+            if (watchAdButton == null)
+            {
+                return;
+            }
+
+            watchAdButton.interactable = IsAdAvailable();
+        }
+
+        private bool IsAdAvailable()
+        {
+            if (rewardedAdService == null || !rewardedAdService.CanShowAd)
+            {
+                return false;
+            }
+
+            float elapsed = Time.unscaledTime - lastAdWatchTime;
+            return elapsed >= adCooldownSeconds;
         }
     }
 }

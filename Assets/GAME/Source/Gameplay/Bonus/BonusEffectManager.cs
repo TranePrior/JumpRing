@@ -54,7 +54,7 @@ namespace JumpRing.Game.Gameplay
 
         [Header("ScoreBoost")]
         [SerializeField, Min(1f)]
-        private float scoreBoostCoinMultiplier = 2f;
+        private float scoreBoostCoinMultiplier = 1.5f;
 
         [Header("SecondChance")]
         [SerializeField, Min(1)]

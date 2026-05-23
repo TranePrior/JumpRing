@@ -1,0 +1,88 @@
+using System;
+using PlatformLink;
+using RetroCat.PlatformLink.Runtime.Source.Common.Modules.Advertisement;
+using UnityEngine;
+
+namespace JumpRing.Game.Core.Services
+{
+    public sealed class RewardedAdService : MonoBehaviour
+    {
+        private Action onRewardGranted;
+        private Action onAdFailed;
+
+        public bool CanShowAd => PLink.IsInitialized && PLink.Advertisement.RewardedAd.CanShow();
+
+        private void OnEnable()
+        {
+            if (PLink.IsInitialized)
+            {
+                SubscribeToAd();
+            }
+            else
+            {
+                PLink.Initilized += SubscribeToAd;
+            }
+        }
+
+        private void OnDisable()
+        {
+            PLink.Initilized -= SubscribeToAd;
+            UnsubscribeFromAd();
+        }
+
+        public void ShowAd(Action onReward, Action onFail = null)
+        {
+            if (!CanShowAd)
+            {
+                onFail?.Invoke();
+                return;
+            }
+
+            onRewardGranted = onReward;
+            onAdFailed = onFail;
+            PLink.Advertisement.RewardedAd.Show();
+        }
+
+        private void SubscribeToAd()
+        {
+            PLink.Advertisement.RewardedAd.Rewarded += OnRewarded;
+            PLink.Advertisement.RewardedAd.Failed += OnFailed;
+            PLink.Advertisement.RewardedAd.Closed += OnClosed;
+        }
+
+        private void UnsubscribeFromAd()
+        {
+            if (!PLink.IsInitialized)
+            {
+                return;
+            }
+
+            PLink.Advertisement.RewardedAd.Rewarded -= OnRewarded;
+            PLink.Advertisement.RewardedAd.Failed -= OnFailed;
+            PLink.Advertisement.RewardedAd.Closed -= OnClosed;
+        }
+
+        private void OnRewarded(Reward reward)
+        {
+            onRewardGranted?.Invoke();
+            ClearCallbacks();
+        }
+
+        private void OnFailed()
+        {
+            onAdFailed?.Invoke();
+            ClearCallbacks();
+        }
+
+        private void OnClosed()
+        {
+            ClearCallbacks();
+        }
+
+        private void ClearCallbacks()
+        {
+            onRewardGranted = null;
+            onAdFailed = null;
+        }
+    }
+}

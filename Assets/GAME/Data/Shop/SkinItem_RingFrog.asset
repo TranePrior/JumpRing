@@ -15,7 +15,7 @@ MonoBehaviour:
   skinId: ring_frog
   displayName: "\u041B\u044F\u0433\u0443\u0448\u043A\u0430"
   icon: {fileID: -8505579741359233612, guid: 99823f2adfde248c0ad696814fc152b0, type: 3}
-  price: 100
+  price: 0
   currencyIcon: {fileID: 21300000, guid: 46e8bd654219941998d811c284564320, type: 3}
   shopSprite: {fileID: 21300000, guid: 6530e43a2d0a54c40a92dedce56bb995, type: 3}
   themeData: {fileID: 11400000, guid: d1d2d3d4e5e6f7f8a9a0b1b2c3c4d5e6, type: 2}

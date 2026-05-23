@@ -7,15 +7,37 @@ namespace JumpRing.Game.Core.Services
     {
         private const string BalanceKey = "DiamondBalance";
 
+        [SerializeField]
+        private PlatformStorageService storageService;
+
         public event Action<int> BalanceChanged;
 
-        public int Balance => PlayerPrefs.GetInt(BalanceKey, 0);
+        public int Balance => storageService != null
+            ? storageService.GetInt(BalanceKey, 0)
+            : PlayerPrefs.GetInt(BalanceKey, 0);
+
+        public int RunEarnings { get; private set; }
+
+        public void ResetRunEarnings()
+        {
+            RunEarnings = 0;
+        }
 
         public void Add(int amount)
         {
+            RunEarnings += amount;
+
             var newBalance = Balance + amount;
-            PlayerPrefs.SetInt(BalanceKey, newBalance);
-            PlayerPrefs.Save();
+
+            if (storageService != null)
+            {
+                storageService.SetInt(BalanceKey, newBalance);
+            }
+            else
+            {
+                PlayerPrefs.SetInt(BalanceKey, newBalance);
+                PlayerPrefs.Save();
+            }
 
             BalanceChanged?.Invoke(newBalance);
         }
@@ -28,8 +50,16 @@ namespace JumpRing.Game.Core.Services
             }
 
             var newBalance = Balance - amount;
-            PlayerPrefs.SetInt(BalanceKey, newBalance);
-            PlayerPrefs.Save();
+
+            if (storageService != null)
+            {
+                storageService.SetInt(BalanceKey, newBalance);
+            }
+            else
+            {
+                PlayerPrefs.SetInt(BalanceKey, newBalance);
+                PlayerPrefs.Save();
+            }
 
             BalanceChanged?.Invoke(newBalance);
             return true;

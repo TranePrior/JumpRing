@@ -1,6 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using JumpRing.Game.Core.Services;
 using JumpRing.Game.Gameplay;
 
 namespace JumpRing.Game.UI
@@ -30,6 +31,9 @@ namespace JumpRing.Game.UI
         private Button continueButton;
 
         [SerializeField]
+        private Button adContinueButton;
+
+        [SerializeField]
         private Button quitButton;
 
         [SerializeField]
@@ -39,27 +43,47 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private DimOverlay dimOverlay;
 
+        [Header("Ad Revival")]
+        [SerializeField]
+        private RewardedAdService rewardedAdService;
+
         [Header("Revival")]
         [SerializeField, Min(0.1f)]
         private float reviveOffset = 2f;
+
         private float countdown;
         private float countdownDuration;
         private bool isCountingDown;
+        private bool adReviveUsedThisRun;
+        private bool isAdReviveMode;
         private Sequence panelSequence;
 
         private void OnEnable()
         {
             runSessionController.DeathRequested += OnDeathRequested;
+            runSessionController.RunStarted += OnRunStarted;
             continueButton.onClick.AddListener(OnContinueClicked);
             quitButton.onClick.AddListener(OnQuitClicked);
+
+            if (adContinueButton != null)
+            {
+                adContinueButton.onClick.AddListener(OnAdContinueClicked);
+            }
+
             secondChancePanel.SetActive(false);
         }
 
         private void OnDisable()
         {
             runSessionController.DeathRequested -= OnDeathRequested;
+            runSessionController.RunStarted -= OnRunStarted;
             continueButton.onClick.RemoveListener(OnContinueClicked);
             quitButton.onClick.RemoveListener(OnQuitClicked);
+
+            if (adContinueButton != null)
+            {
+                adContinueButton.onClick.RemoveListener(OnAdContinueClicked);
+            }
         }
 
         private void Update()
@@ -78,15 +102,33 @@ namespace JumpRing.Game.UI
             }
         }
 
+        private void OnRunStarted()
+        {
+            adReviveUsedThisRun = false;
+        }
+
         private void OnDeathRequested()
         {
-            if (bonusEffectManager.SecondChanceCount <= 0)
+            bool hasHearts = bonusEffectManager.SecondChanceCount > 0;
+            bool canAdRevive = !adReviveUsedThisRun
+                               && rewardedAdService != null
+                               && rewardedAdService.CanShowAd;
+
+            if (!hasHearts && !canAdRevive)
             {
                 runSessionController.ForceFinishRun();
                 return;
             }
 
-            countdownDuration = bonusEffectManager.SecondChanceTimerDuration;
+            isAdReviveMode = !hasHearts && canAdRevive;
+
+            continueButton.gameObject.SetActive(hasHearts);
+            if (adContinueButton != null)
+            {
+                adContinueButton.gameObject.SetActive(canAdRevive && !hasHearts);
+            }
+
+            countdownDuration = 5f;
             countdown = countdownDuration;
             isCountingDown = true;
 
@@ -103,7 +145,32 @@ namespace JumpRing.Game.UI
             }
 
             bonusEffectManager.ConsumeSecondChance();
+            Revive();
+        }
 
+        private void OnAdContinueClicked()
+        {
+            if (adReviveUsedThisRun)
+            {
+                return;
+            }
+
+            rewardedAdService.ShowAd(
+                onReward: () =>
+                {
+                    adReviveUsedThisRun = true;
+                    bonusEffectManager.StartInvincibility();
+                    Revive();
+                },
+                onFail: () =>
+                {
+                    OnQuitClicked();
+                }
+            );
+        }
+
+        private void Revive()
+        {
             var deathPos = playerJumpController.LastDeathPosition;
             playerJumpController.RevivePlayer(deathPos.x - reviveOffset);
 

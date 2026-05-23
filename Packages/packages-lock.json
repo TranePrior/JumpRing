@@ -11,6 +11,15 @@
       },
       "url": "https://package.openupm.com"
     },
+    "com.retrocat.platformlink": {
+      "version": "https://github.com/Flux32/PlatformLink.git?path=/Assets/RetroCat/PlatformLink#main",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.textmeshpro": "3.0.6"
+      },
+      "hash": "e74bd0377a30bc31406696512833e782ddec311d"
+    },
     "com.unity.2d.animation": {
       "version": "13.0.5",
       "depth": 1,
@@ -307,6 +316,14 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "com.unity.textmeshpro": {
+      "version": "5.0.0",
+      "depth": 1,
+      "source": "builtin",
+      "dependencies": {
+        "com.unity.ugui": "2.0.0"
+      }
     },
     "com.unity.timeline": {
       "version": "1.8.10",

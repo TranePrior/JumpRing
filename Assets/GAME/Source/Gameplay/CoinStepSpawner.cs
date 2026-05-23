@@ -36,7 +36,7 @@ namespace JumpRing.Game.Gameplay
 
         [Header("Spawn")]
         [SerializeField, Min(0.1f)]
-        private float spawnStep = 7f;
+        private float spawnStep = 10f;
 
         [SerializeField, Min(0f)]
         private float spawnAheadDistance = 18f;

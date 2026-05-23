@@ -15,7 +15,7 @@ MonoBehaviour:
   skinId: ring_cat
   displayName: "\u041A\u043E\u0448\u043A\u0430"
   icon: {fileID: 5988347158796290056, guid: cb570c46675b24cd9984182b1fbbd671, type: 3}
-  price: 100
+  price: 150
   currencyIcon: {fileID: 21300000, guid: 369419fe310c34f5084785c39a81941f, type: 3}
   shopSprite: {fileID: 21300000, guid: 9d566cf45f82945a195b586929ca9e2a, type: 3}
   themeData: {fileID: 11400000, guid: e1ca38908f7df4d3f98004a816370cd3, type: 2}

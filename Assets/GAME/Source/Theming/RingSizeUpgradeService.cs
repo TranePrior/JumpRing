@@ -17,11 +17,14 @@ namespace JumpRing.Game.Theming
         [SerializeField, Min(1)]
         private int maxLevel = 6;
 
-        [SerializeField, Min(1f)]
-        private float priceMultiplier = 1.5f;
+        [SerializeField]
+        private float[] levelPriceMultipliers = { 1f, 1.5f, 2f, 3f, 4f, 5.5f };
 
         [SerializeField]
         private MonoBehaviour currencyServiceComponent;
+
+        [SerializeField]
+        private PlatformStorageService storageService;
 
         public event Action<SkinItem, int> SkinUpgraded;
 
@@ -51,10 +54,16 @@ namespace JumpRing.Game.Theming
             return Mathf.Min(BaseScale + GetBonusScale(skinId), MaxScale);
         }
 
+        private const int FreeSkinsUpgradeBasePrice = 150;
+
         public int GetUpgradePrice(SkinItem skin)
         {
             int level = GetLevel(skin.SkinId);
-            return Mathf.RoundToInt(skin.Price * Mathf.Pow(priceMultiplier, level));
+            float multiplier = level < levelPriceMultipliers.Length
+                ? levelPriceMultipliers[level]
+                : levelPriceMultipliers[^1];
+            int basePrice = skin.Price > 0 ? skin.Price : FreeSkinsUpgradeBasePrice;
+            return Mathf.RoundToInt(basePrice * multiplier);
         }
 
         public bool IsMaxed(string skinId)
@@ -92,7 +101,9 @@ namespace JumpRing.Game.Theming
         {
             upgradeLevels = new Dictionary<string, int>();
 
-            var saved = PlayerPrefs.GetString(UpgradesKey, "");
+            var saved = storageService != null
+                ? storageService.GetString(UpgradesKey, "")
+                : PlayerPrefs.GetString(UpgradesKey, "");
             if (string.IsNullOrEmpty(saved))
             {
                 return;
@@ -117,8 +128,17 @@ namespace JumpRing.Game.Theming
                 parts.Add($"{kvp.Key}:{kvp.Value}");
             }
 
-            PlayerPrefs.SetString(UpgradesKey, string.Join(",", parts));
-            PlayerPrefs.Save();
+            var joined = string.Join(",", parts);
+
+            if (storageService != null)
+            {
+                storageService.SetString(UpgradesKey, joined);
+            }
+            else
+            {
+                PlayerPrefs.SetString(UpgradesKey, joined);
+                PlayerPrefs.Save();
+            }
         }
     }
 }

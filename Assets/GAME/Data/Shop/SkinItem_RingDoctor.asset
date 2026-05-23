@@ -15,7 +15,7 @@ MonoBehaviour:
   skinId: ring_doctor
   displayName: "\u0414\u043E\u043A\u0442\u043E\u0440"
   icon: {fileID: -1548295738369931509, guid: 3607521551e11421692fcd03c5e0f53f, type: 3}
-  price: 100
+  price: 400
   currencyIcon: {fileID: 21300000, guid: 7e81c725014d14863ab355b836cbe10a, type: 3}
   shopSprite: {fileID: 21300000, guid: 318e00a9cc471487584366ce414b5b15, type: 3}
   themeData: {fileID: 11400000, guid: e1e2e3e4f5f6a7a8b9b0c1c2d3d4e5f6, type: 2}

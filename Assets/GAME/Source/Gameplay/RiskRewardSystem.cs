@@ -35,7 +35,7 @@ namespace JumpRing.Game.Gameplay
         private float goldenZoneDuration = 5f;
 
         [SerializeField]
-        private float goldenZoneCoinMultiplier = 5f;
+        private float goldenZoneCoinMultiplier = 3f;
 
         [SerializeField, Range(0f, 1f)]
         private float goldenZoneMinDifficulty = 0.5f;
@@ -52,7 +52,7 @@ namespace JumpRing.Game.Gameplay
         private float goldenZoneTimer;
 
         public int CurrentCombo => currentCombo;
-        public float ComboMultiplier => 1f + (currentCombo - 1) * 0.5f;
+        public float ComboMultiplier => 1f + (currentCombo - 1) * 0.375f;
         public bool IsGoldenZone => isGoldenZone;
 
         /// <summary>

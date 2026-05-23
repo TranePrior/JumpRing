@@ -1,3 +1,4 @@
+using DG.Tweening;
 using JumpRing.Game.Core.State;
 using TMPro;
 using UnityEngine;
@@ -45,6 +46,7 @@ namespace JumpRing.Game.UI
         private float scaleMax = 1.05f;
 
         private bool isVisible;
+        private Tween fadeTween;
 
         private void OnEnable()
         {
@@ -116,10 +118,20 @@ namespace JumpRing.Game.UI
         private void OnStateChanged(GameState state)
         {
             isVisible = state == GameState.MainMenu;
+            fadeTween?.Kill();
 
-            canvasGroup.alpha = isVisible ? 1f : 0f;
-            canvasGroup.interactable = isVisible;
-            canvasGroup.blocksRaycasts = isVisible;
+            if (isVisible)
+            {
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+                fadeTween = WindowAnimations.FadeIn(canvasGroup);
+            }
+            else
+            {
+                canvasGroup.alpha = 0f;
+                canvasGroup.interactable = false;
+                canvasGroup.blocksRaycasts = false;
+            }
         }
 
         public void StartRun()

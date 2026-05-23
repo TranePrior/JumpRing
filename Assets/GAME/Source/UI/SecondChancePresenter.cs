@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using JumpRing.Game.Gameplay;
@@ -23,6 +24,9 @@ namespace JumpRing.Game.UI
         private GameObject secondChancePanel;
 
         [SerializeField]
+        private CanvasGroup secondChancePanelCanvasGroup;
+
+        [SerializeField]
         private Button continueButton;
 
         [SerializeField]
@@ -41,6 +45,7 @@ namespace JumpRing.Game.UI
         private float countdown;
         private float countdownDuration;
         private bool isCountingDown;
+        private Sequence panelSequence;
 
         private void OnEnable()
         {
@@ -87,6 +92,7 @@ namespace JumpRing.Game.UI
 
             dimOverlay.Show();
             secondChancePanel.SetActive(true);
+            ShowPanel();
         }
 
         private void OnContinueClicked()
@@ -116,11 +122,33 @@ namespace JumpRing.Game.UI
             runSessionController.ForceFinishRun();
         }
 
+        private void ShowPanel()
+        {
+            panelSequence?.Kill();
+            if (secondChancePanelCanvasGroup != null)
+            {
+                secondChancePanelCanvasGroup.interactable = true;
+                secondChancePanelCanvasGroup.blocksRaycasts = true;
+                panelSequence = WindowAnimations.AnimateOpen(
+                    secondChancePanelCanvasGroup, secondChancePanel.transform);
+            }
+        }
+
         private void HidePanel()
         {
+            panelSequence?.Kill();
             isCountingDown = false;
             dimOverlay.Hide();
-            secondChancePanel.SetActive(false);
+
+            if (secondChancePanelCanvasGroup != null)
+            {
+                panelSequence = WindowAnimations.AnimateClose(
+                    secondChancePanelCanvasGroup, secondChancePanel.transform, secondChancePanel);
+            }
+            else
+            {
+                secondChancePanel.SetActive(false);
+            }
         }
     }
 }

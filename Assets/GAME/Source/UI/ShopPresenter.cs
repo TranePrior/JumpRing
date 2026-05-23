@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -62,6 +63,7 @@ namespace JumpRing.Game.UI
         private DimOverlay dimOverlay;
 
         private readonly List<ShopSkinCardView> activeCards = new();
+        private Sequence openSequence;
 
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
 
@@ -138,11 +140,11 @@ namespace JumpRing.Game.UI
 
         public void Open()
         {
+            openSequence?.Kill();
             gameObject.SetActive(true);
 
             if (dimOverlay != null) dimOverlay.Show();
 
-            shopPanel.alpha = 1f;
             shopPanel.interactable = true;
             shopPanel.blocksRaycasts = true;
 
@@ -155,13 +157,13 @@ namespace JumpRing.Game.UI
 
             UpdateBalance();
             RebuildGrid();
+
+            openSequence = WindowAnimations.AnimateOpen(shopPanel, shopPanel.transform);
         }
 
         public void Close()
         {
-            shopPanel.alpha = 0f;
-            shopPanel.interactable = false;
-            shopPanel.blocksRaycasts = false;
+            openSequence?.Kill();
 
             if (dimOverlay != null) dimOverlay.Hide();
 
@@ -172,7 +174,7 @@ namespace JumpRing.Game.UI
             if (bestScoreLabel != null) bestScoreLabel.SetActive(true);
             if (tapHand != null) tapHand.SetActive(true);
 
-            gameObject.SetActive(false);
+            openSequence = WindowAnimations.AnimateClose(shopPanel, shopPanel.transform, gameObject);
         }
 
         private void RebuildGrid()

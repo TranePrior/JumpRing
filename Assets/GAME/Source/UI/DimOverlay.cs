@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +9,9 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private GameObject overlay;
 
+        [SerializeField]
+        private CanvasGroup overlayCanvasGroup;
+
         [Header("Blur")]
         [SerializeField, Range(2, 32)]
         private int downsampleFactor = 8;
@@ -15,17 +19,38 @@ namespace JumpRing.Game.UI
         private GameObject blurObject;
         private RawImage blurRawImage;
         private RenderTexture blurRT;
+        private Tween fadeTween;
 
         public void Show()
         {
+            fadeTween?.Kill();
             CaptureBlur();
             overlay.SetActive(true);
+
+            if (overlayCanvasGroup != null)
+            {
+                fadeTween = WindowAnimations.FadeIn(overlayCanvasGroup);
+            }
         }
 
         public void Hide()
         {
-            overlay.SetActive(false);
-            ReleaseBlur();
+            fadeTween?.Kill();
+
+            if (overlayCanvasGroup != null)
+            {
+                fadeTween = WindowAnimations.FadeOut(overlayCanvasGroup);
+                fadeTween.OnComplete(() =>
+                {
+                    overlay.SetActive(false);
+                    ReleaseBlur();
+                });
+            }
+            else
+            {
+                overlay.SetActive(false);
+                ReleaseBlur();
+            }
         }
 
         private void CaptureBlur()

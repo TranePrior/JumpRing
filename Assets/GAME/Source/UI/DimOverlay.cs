@@ -3,16 +3,32 @@ using UnityEngine.UI;
 
 namespace JumpRing.Game.UI
 {
-    public sealed class ScreenBlurEffect : MonoBehaviour
+    public sealed class DimOverlay : MonoBehaviour
     {
+        [SerializeField]
+        private GameObject overlay;
+
+        [Header("Blur")]
         [SerializeField, Range(2, 32)]
         private int downsampleFactor = 8;
 
         private GameObject blurObject;
-        private RawImage rawImage;
+        private RawImage blurRawImage;
         private RenderTexture blurRT;
 
-        public void Capture()
+        public void Show()
+        {
+            CaptureBlur();
+            overlay.SetActive(true);
+        }
+
+        public void Hide()
+        {
+            overlay.SetActive(false);
+            ReleaseBlur();
+        }
+
+        private void CaptureBlur()
         {
             var cam = Camera.main;
             if (cam == null) return;
@@ -33,17 +49,17 @@ namespace JumpRing.Game.UI
             cam.Render();
             cam.targetTexture = prevTarget;
 
-            rawImage.texture = blurRT;
+            blurRawImage.texture = blurRT;
             blurObject.SetActive(true);
         }
 
-        public void Release()
+        private void ReleaseBlur()
         {
             if (blurObject != null)
                 blurObject.SetActive(false);
 
-            if (rawImage != null)
-                rawImage.texture = null;
+            if (blurRawImage != null)
+                blurRawImage.texture = null;
 
             ReleaseRT();
         }
@@ -53,8 +69,8 @@ namespace JumpRing.Game.UI
             if (blurObject != null) return;
 
             blurObject = new GameObject("BlurOverlay");
-            blurObject.transform.SetParent(transform.parent, false);
-            blurObject.transform.SetSiblingIndex(transform.GetSiblingIndex());
+            blurObject.transform.SetParent(overlay.transform.parent, false);
+            blurObject.transform.SetSiblingIndex(overlay.transform.GetSiblingIndex());
 
             var rect = blurObject.AddComponent<RectTransform>();
             rect.anchorMin = Vector2.zero;
@@ -62,8 +78,8 @@ namespace JumpRing.Game.UI
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
 
-            rawImage = blurObject.AddComponent<RawImage>();
-            rawImage.raycastTarget = false;
+            blurRawImage = blurObject.AddComponent<RawImage>();
+            blurRawImage.raycastTarget = false;
 
             blurObject.SetActive(false);
         }

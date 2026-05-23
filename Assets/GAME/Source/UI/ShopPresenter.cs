@@ -57,8 +57,11 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private GameObject tapHand;
 
+        [Header("Overlay")]
+        [SerializeField]
+        private DimOverlay dimOverlay;
+
         private readonly List<ShopSkinCardView> activeCards = new();
-        private ScreenBlurEffect blurEffect;
 
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
 
@@ -95,13 +98,6 @@ namespace JumpRing.Game.UI
             if (shopButton == null)
             {
                 shopButton = GameObject.Find("ShopButton");
-            }
-
-            if (blurEffect == null)
-            {
-                blurEffect = GetComponent<ScreenBlurEffect>();
-                if (blurEffect == null)
-                    blurEffect = gameObject.AddComponent<ScreenBlurEffect>();
             }
 
             if (closeButton != null)
@@ -144,7 +140,7 @@ namespace JumpRing.Game.UI
         {
             gameObject.SetActive(true);
 
-            if (blurEffect != null) blurEffect.Capture();
+            if (dimOverlay != null) dimOverlay.Show();
 
             shopPanel.alpha = 1f;
             shopPanel.interactable = true;
@@ -167,7 +163,7 @@ namespace JumpRing.Game.UI
             shopPanel.interactable = false;
             shopPanel.blocksRaycasts = false;
 
-            if (blurEffect != null) blurEffect.Release();
+            if (dimOverlay != null) dimOverlay.Hide();
 
             if (iconBar != null) iconBar.SetActive(true);
             if (shopButton != null) shopButton.SetActive(true);
@@ -244,7 +240,6 @@ namespace JumpRing.Game.UI
             if (skinShopService.IsOwned(skin))
             {
                 skinShopService.SelectSkin(skin);
-                RecaptureBlur();
             }
         }
 
@@ -255,7 +250,6 @@ namespace JumpRing.Game.UI
                 if (skinShopService.TryPurchase(skin))
                 {
                     skinShopService.SelectSkin(skin);
-                    RecaptureBlur();
                 }
             }
             else if (skinShopService.UpgradesUnlocked
@@ -265,23 +259,14 @@ namespace JumpRing.Game.UI
                 if (ringSizeUpgradeService.TryUpgrade(skin))
                 {
                     skinShopService.SelectSkin(skin);
-                    RecaptureBlur();
                 }
             }
             else
             {
                 skinShopService.SelectSkin(skin);
-                RecaptureBlur();
             }
         }
 
-        private void RecaptureBlur()
-        {
-            if (blurEffect != null)
-            {
-                blurEffect.Capture();
-            }
-        }
 
         private void OnSkinPurchased(SkinItem skin)
         {

@@ -31,10 +31,13 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private Image timerFill;
 
+        [Header("Overlay")]
+        [SerializeField]
+        private DimOverlay dimOverlay;
+
         [Header("Revival")]
         [SerializeField, Min(0.1f)]
         private float reviveOffset = 2f;
-
         private float countdown;
         private float countdownDuration;
         private bool isCountingDown;
@@ -82,6 +85,7 @@ namespace JumpRing.Game.UI
             countdown = countdownDuration;
             isCountingDown = true;
 
+            dimOverlay.Show();
             secondChancePanel.SetActive(true);
         }
 
@@ -115,6 +119,7 @@ namespace JumpRing.Game.UI
         private void HidePanel()
         {
             isCountingDown = false;
+            dimOverlay.Hide();
             secondChancePanel.SetActive(false);
         }
     }

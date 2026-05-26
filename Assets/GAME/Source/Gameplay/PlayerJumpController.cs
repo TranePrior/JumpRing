@@ -60,6 +60,13 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(0f), Tooltip("Velocity threshold to consider 'at peak'")]
         private float peakVelocityThreshold = 1.5f;
 
+        [Header("Audio")]
+        [SerializeField]
+        private AudioSource jumpAudioSource;
+
+        [SerializeField]
+        private AudioClip jumpSound;
+
         [Header("Squash & Stretch")]
         [SerializeField, Tooltip("Transform of the ring visual (skin slot or player sprite)")]
         private Transform ringVisual;
@@ -166,6 +173,11 @@ namespace JumpRing.Game.Gameplay
             var velocity = playerRigidbody.linearVelocity;
             velocity.y = jumpImpulse * JumpScale;
             playerRigidbody.linearVelocity = velocity;
+            if (jumpAudioSource != null && jumpSound != null)
+            {
+                jumpAudioSource.PlayOneShot(jumpSound);
+            }
+
             playerSkinSlot?.Skin?.OnJump();
         }
 

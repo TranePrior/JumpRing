@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>{{{ PRODUCT_NAME }}}</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <link rel="stylesheet" href="TemplateData/loading-screen.css">
+
+    <!-- Yandex Games SDK -->
+    <script src="https://yandex.ru/games/sdk/v2"></script>
+  </head>
+
+  <body>
+    <div id="unity-container">
+      <canvas id="unity-canvas" class="unity-canvas"></canvas>
+      <div id="canvas-overlay" class="canvas-overlay"></div>
+    </div>
+    
+    <script src="./TemplateData/loading-screen.js"></script>
+    <script src="./TemplateData/plugin.js"></script>
+    <script src="./TemplateData/fit.js"></script>
+
+    <script>      
+      const buildUrl = "Build";
+      const loadingScreenManualClose = "__PL_LOADING_SCREEN_MANUAL_CLOSE__" === "true";
+      const loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
+      const config = {
+        dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
+        frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+        codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
+#if MEMORY_FILENAME
+        memoryUrl: buildUrl + "/{{{ MEMORY_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+        symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
+#endif
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "{{{ COMPANY_NAME }}}",
+        productName: "{{{ PRODUCT_NAME }}}",
+        productVersion: "{{{ PRODUCT_VERSION }}}",
+      };
+
+      const container = document.querySelector("#unity-container");
+      const canvas = document.querySelector("#unity-canvas");
+      const canvasOverlay = document.querySelector("#canvas-overlay");
+      const loadingScreen = window.RetroLoadingScreen ? window.RetroLoadingScreen.create(canvasOverlay) : null;
+
+			let scaleToFit;
+
+			try {
+        scaleToFit = !!JSON.parse("{{{ SCALE_TO_FIT }}}");
+			} catch (e) {
+        scaleToFit = false;
+			}
+      
+      let fitGameScreen = () => {
+        if (scaleToFit == true)
+          fit(container, {{{MIN_RATIO_WIDTH}}}, {{{MIN_RATIO_HEIGHT}}}, {{{MAX_RATIO_WIDTH}}}, {{{MAX_RATIO_HEIGHT}}});
+      };
+
+        window.addEventListener('resize', fitGameScreen);
+
+      let myGameInstance = null;
+
+      const script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          if (loadingScreen) {
+            loadingScreen.setProgress(progress);
+          }
+
+          if (scaleToFit == true)
+            fitGameScreen();
+        }).then((unityInstance) => {
+          myGameInstance = unityInstance;
+          if (loadingScreen && loadingScreenManualClose == false) {
+            loadingScreen.hide();
+          } else if (!loadingScreen) {
+            canvasOverlay.style.display = "none";
+          }
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
+
+			if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+				// Mobile device style: fill the whole browser client area with the game canvas:
+				const meta = document.createElement('meta');
+				meta.name = 'viewport';
+				meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+				document.getElementsByTagName('head')[0].appendChild(meta);
+			}
+    </script>
+  </body>
+</html>

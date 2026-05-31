@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.ivanmurzak.unity.mcp": "0.75.3",
+    "com.ivanmurzak.unity.mcp": "0.76.3",
     "com.retrocat.platformlink": "https://github.com/Flux32/PlatformLink.git?path=/Assets/RetroCat/PlatformLink#main",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.collab-proxy": "2.11.3",

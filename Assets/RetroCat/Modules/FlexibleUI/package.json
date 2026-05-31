@@ -1,0 +1,14 @@
+{
+  "name": "com.retrocat.flexibleui",
+  "displayName": "FlexibleUI",
+  "version": "0.0.1",
+  "unity": "6000.1",
+  "description": "FlexibleUI",
+  "keywords": [ "attribute", "inspector", "editor" ],
+  "category": "editor extensions",
+  "dependencies": {},
+  "author": {
+    "name": "Flux32",
+    "url": "https://github.com/Flux32"
+  }
+}

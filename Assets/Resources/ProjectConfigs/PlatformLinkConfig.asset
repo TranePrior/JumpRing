@@ -1,0 +1,272 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8761f8d90e965a54c885c79f2fbe0058, type: 3}
+  m_Name: PlatformLinkConfig
+  m_EditorClassIdentifier: RetroCat.PlatformLink::PlatformLinkSettings
+  _platforms:
+  - _name: Editor
+    _type: 0
+    _editorSettings:
+      _environment:
+        _language: En
+        _deviceType: 0
+      _storage:
+        _saveFilePath: 
+      _purchases:
+        _products: []
+      _platform:
+        _authorized: 0
+      _leaderboard:
+        _fakeLoadingTimeSeconds: 0
+        _otherPlayers:
+        - _publicName: Alice
+          _score: 1500
+          _lang: En
+          _uniqueId: mock_alice
+          _extraData: 
+        - _publicName: Bob
+          _score: 1200
+          _lang: En
+          _uniqueId: mock_bob
+          _extraData: 
+        - _publicName: Charlie
+          _score: 900
+          _lang: En
+          _uniqueId: mock_charlie
+          _extraData: 
+      _platformGames:
+        _developerUrl: 
+        _games:
+        - _appId: puzzle
+          _title: Puzzle
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: match3
+          _title: Match 3
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: race
+          _title: Race
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: zombie
+          _title: Zombie
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: card
+          _title: Card
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+    _yandexSettings:
+      _enableYandexMetrika: 0
+      _yandexMetrikaId: 
+      _loadingScreen:
+        _manualClose: 0
+    _modules: []
+  - _name: Android
+    _type: 1
+    _editorSettings:
+      _environment:
+        _language: En
+        _deviceType: 0
+      _storage:
+        _saveFilePath: 
+      _purchases:
+        _products: []
+      _platform:
+        _authorized: 0
+      _leaderboard:
+        _fakeLoadingTimeSeconds: 0
+        _otherPlayers:
+        - _publicName: Alice
+          _score: 1500
+          _lang: En
+          _uniqueId: mock_alice
+          _extraData: 
+        - _publicName: Bob
+          _score: 1200
+          _lang: En
+          _uniqueId: mock_bob
+          _extraData: 
+        - _publicName: Charlie
+          _score: 900
+          _lang: En
+          _uniqueId: mock_charlie
+          _extraData: 
+      _platformGames:
+        _developerUrl: 
+        _games:
+        - _appId: puzzle
+          _title: Puzzle
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: match3
+          _title: Match 3
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: race
+          _title: Race
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: zombie
+          _title: Zombie
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: card
+          _title: Card
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+    _yandexSettings:
+      _enableYandexMetrika: 0
+      _yandexMetrikaId: 
+      _loadingScreen:
+        _manualClose: 0
+    _modules: []
+  - _name: Yandex Games
+    _type: 3
+    _editorSettings:
+      _environment:
+        _language: En
+        _deviceType: 0
+      _storage:
+        _saveFilePath: 
+      _purchases:
+        _products: []
+      _platform:
+        _authorized: 0
+      _leaderboard:
+        _fakeLoadingTimeSeconds: 0
+        _otherPlayers:
+        - _publicName: Alice
+          _score: 1500
+          _lang: En
+          _uniqueId: mock_alice
+          _extraData: 
+        - _publicName: Bob
+          _score: 1200
+          _lang: En
+          _uniqueId: mock_bob
+          _extraData: 
+        - _publicName: Charlie
+          _score: 900
+          _lang: En
+          _uniqueId: mock_charlie
+          _extraData: 
+      _platformGames:
+        _developerUrl: 
+        _games:
+        - _appId: puzzle
+          _title: Puzzle
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: match3
+          _title: Match 3
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: race
+          _title: Race
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: zombie
+          _title: Zombie
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+        - _appId: card
+          _title: Card
+          _url: 
+          _coverUrl: 
+          _iconUrl: 
+    _yandexSettings:
+      _enableYandexMetrika: 0
+      _yandexMetrikaId: 
+      _loadingScreen:
+        _manualClose: 0
+    _modules: []
+  _activePlatformIndex: 0
+  _editor:
+    _environment:
+      _language: En
+      _deviceType: 0
+    _storage:
+      _saveFilePath: Assets/PlatformLinkSaves
+    _purchases:
+      _products: []
+    _platform:
+      _authorized: 0
+    _leaderboard:
+      _fakeLoadingTimeSeconds: 0
+      _otherPlayers:
+      - _publicName: Alice
+        _score: 1500
+        _lang: En
+        _uniqueId: mock_alice
+        _extraData: 
+      - _publicName: Bob
+        _score: 1200
+        _lang: En
+        _uniqueId: mock_bob
+        _extraData: 
+      - _publicName: Charlie
+        _score: 900
+        _lang: En
+        _uniqueId: mock_charlie
+        _extraData: 
+    _platformGames:
+      _developerUrl: 
+      _games:
+      - _appId: puzzle
+        _title: Puzzle
+        _url: 
+        _coverUrl: 
+        _iconUrl: 
+      - _appId: match3
+        _title: Match 3
+        _url: 
+        _coverUrl: 
+        _iconUrl: 
+      - _appId: race
+        _title: Race
+        _url: 
+        _coverUrl: 
+        _iconUrl: 
+      - _appId: zombie
+        _title: Zombie
+        _url: 
+        _coverUrl: 
+        _iconUrl: 
+      - _appId: card
+        _title: Card
+        _url: 
+        _coverUrl: 
+        _iconUrl: 
+  _yandex:
+    _enableYandexMetrika: 0
+    _yandexMetrikaId: 
+    _loadingScreen:
+      _manualClose: 0
+  references:
+    version: 2
+    RefIds: []

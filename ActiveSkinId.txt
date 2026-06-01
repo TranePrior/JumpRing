@@ -1,1 +1,1 @@
-ring_doctor
+ring_pinguin

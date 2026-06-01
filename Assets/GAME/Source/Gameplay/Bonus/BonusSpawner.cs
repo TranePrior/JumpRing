@@ -41,20 +41,20 @@ namespace JumpRing.Game.Gameplay
         private int segmentSize = 3;
 
         [SerializeField, Min(1), Tooltip("Minimum segments between bonuses")]
-        private int cooldownSegments = 1;
+        private int cooldownSegments = 4;
 
         [SerializeField, Min(1), Tooltip("Skip first N segments (no bonuses at start)")]
         private int skipFirstSegments = 1;
 
         [Header("Spawn Chances")]
         [SerializeField, Range(0f, 1f)]
-        private float baseChance = 0.90f;
+        private float baseChance = 0.22f;
 
         [SerializeField, Range(0f, 0.5f)]
-        private float nearMissBoost = 0.30f;
+        private float nearMissBoost = 0.08f;
 
         [SerializeField, Range(0f, 0.5f)]
-        private float strugglingBoost = 0.20f;
+        private float strugglingBoost = 0.05f;
 
         [SerializeField, Range(0f, 0.3f)]
         private float proPlayerPenalty = 0.10f;
@@ -98,6 +98,7 @@ namespace JumpRing.Game.Gameplay
         {
             runSessionController.RunStarted += OnRunStarted;
             runSessionController.RunFinished += OnRunFinished;
+            bonusEffectManager.BonusActivated += OnBonusActivated;
 
             if (riskRewardSystem != null)
             {
@@ -109,6 +110,7 @@ namespace JumpRing.Game.Gameplay
         {
             runSessionController.RunStarted -= OnRunStarted;
             runSessionController.RunFinished -= OnRunFinished;
+            bonusEffectManager.BonusActivated -= OnBonusActivated;
 
             if (riskRewardSystem != null)
             {
@@ -164,6 +166,14 @@ namespace JumpRing.Game.Gameplay
             else
             {
                 ConsecutiveDeaths++;
+            }
+        }
+
+        private void OnBonusActivated(BonusType type)
+        {
+            if (type != BonusType.SecondChance)
+            {
+                ClearSpawnedBonuses();
             }
         }
 

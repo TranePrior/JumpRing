@@ -80,6 +80,8 @@ namespace JumpRing.Game.UI
         private Sequence openSequence;
         private float lastAdWatchTime = float.NegativeInfinity;
 
+        public static bool IsOpen { get; private set; }
+
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
 
         private void OnEnable()
@@ -167,6 +169,7 @@ namespace JumpRing.Game.UI
         {
             openSequence?.Kill();
             gameObject.SetActive(true);
+            IsOpen = true;
 
             if (dimOverlay != null) dimOverlay.Show();
 
@@ -190,6 +193,7 @@ namespace JumpRing.Game.UI
         public void Close()
         {
             openSequence?.Kill();
+            IsOpen = false;
 
             if (dimOverlay != null) dimOverlay.Hide();
 

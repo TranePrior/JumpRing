@@ -128,24 +128,37 @@ namespace JumpRing.Game.Gameplay
 
         private void Update()
         {
-            if (!WasJumpPressed() || IsPointerOverUI())
+            if (!WasJumpPressed())
             {
                 return;
             }
 
             if (runSessionController.IsInReadyState)
             {
+                if (IsPointerOverUI())
+                {
+                    return;
+                }
+
                 runSessionController.BeginGameplay();
+                // Fall through to execute the first jump immediately
             }
 
             if (!runSessionController.CanControlPlayer)
             {
-                if (!runSessionController.CanStartRun)
+                if (!runSessionController.CanStartRun ||
+                    UI.ShopPresenter.IsOpen ||
+                    UI.UIInputHelper.IsTapOverInteractableUI())
                 {
                     return;
                 }
 
                 runSessionController.StartRun();
+                return;
+            }
+
+            if (IsPointerOverUI())
+            {
                 return;
             }
 

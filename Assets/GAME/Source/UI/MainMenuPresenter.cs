@@ -2,7 +2,6 @@ using DG.Tweening;
 using JumpRing.Game.Core.State;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using JumpRing.Game.Gameplay;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -88,8 +87,9 @@ namespace JumpRing.Game.UI
 
         private void DetectTapToStart()
         {
+            if (ShopPresenter.IsOpen) return;
             if (!WasTapPressed()) return;
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+            if (UIInputHelper.IsTapOverInteractableUI()) return;
 
             runSessionController.StartRun();
         }

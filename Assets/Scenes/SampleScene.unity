@@ -376,11 +376,11 @@ MonoBehaviour:
   coinStepSpawner: {fileID: 1632676879}
   spawnedBonusParent: {fileID: 1612841224}
   segmentSize: 3
-  cooldownSegments: 1
+  cooldownSegments: 4
   skipFirstSegments: 1
-  baseChance: 0.9
-  nearMissBoost: 0.3
-  strugglingBoost: 0.2
+  baseChance: 0.22
+  nearMissBoost: 0.08
+  strugglingBoost: 0.05
   proPlayerPenalty: 0.1
   strugglingDeathThreshold: 2
   proPlayerScoreThreshold: 40

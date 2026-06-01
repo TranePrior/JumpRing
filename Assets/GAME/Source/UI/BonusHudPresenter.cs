@@ -62,6 +62,12 @@ namespace JumpRing.Game.UI
 
         private void OnBonusActivated(BonusType type)
         {
+            // SecondChance is passive — it has its own HUD (HeartsHudPresenter)
+            if (type == BonusType.SecondChance)
+            {
+                return;
+            }
+
             if (bonusPanel != null)
             {
                 bonusPanel.SetActive(true);

@@ -33,10 +33,7 @@ namespace JumpRing.Game.Gameplay
         private AnimationCurve segmentByDifficulty = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
         [SerializeField]
-        private float behindCameraDistance = 10f;
-
-        [SerializeField]
-        private float aheadCameraDistance = 10f;
+        private float extraMargin = 5f;
 
         [SerializeField, Min(0.1f)]
         private float rebuildDistance = 0.5f;
@@ -96,6 +93,7 @@ namespace JumpRing.Game.Gameplay
         private readonly Dictionary<int, float> bakedHeights = new(256);
         private float activeSegmentLength;
         private bool lineHiddenByTheme;
+        private bool hideForRebuild;
 
         // tan values for angle types
         private const float Tan15 = 0.2679f;
@@ -193,6 +191,8 @@ namespace JumpRing.Game.Gameplay
             PatternsLevel4,
         };
 
+        private float CameraHalfWidth => gameplayCamera.orthographicSize * gameplayCamera.aspect;
+
         public LineRenderer LineRenderer => lineRenderer;
 
         public void SetLineMaterial(Material material)
@@ -258,6 +258,8 @@ namespace JumpRing.Game.Gameplay
         [ContextMenu("Generate Line")]
         public void ForceRebuild()
         {
+            hideForRebuild = true;
+            lineRenderer.enabled = false;
             bakedHeights.Clear();
             ResetFrontier();
             hasWindow = false;
@@ -287,6 +289,9 @@ namespace JumpRing.Game.Gameplay
             var seg = ActiveSegmentLength;
             var startStep = Mathf.RoundToInt(fromX / seg) + 1;
             var currentY = EvaluateHeightAtX(fromX);
+
+            var minStepsToEdge = Mathf.CeilToInt((CameraHalfWidth + extraMargin) / seg) + 2;
+            segmentCount = Mathf.Max(segmentCount, minStepsToEdge);
 
             for (var i = 0; i < segmentCount; i++)
             {
@@ -335,6 +340,13 @@ namespace JumpRing.Game.Gameplay
 
         private void UpdateLineVisibility()
         {
+            if (hideForRebuild)
+            {
+                lineRenderer.enabled = false;
+                hideForRebuild = false;
+                return;
+            }
+
             lineRenderer.enabled = !lineHiddenByTheme;
         }
 
@@ -348,6 +360,8 @@ namespace JumpRing.Game.Gameplay
 
         private void OnRunStarted()
         {
+            hideForRebuild = true;
+            lineRenderer.enabled = false;
             isRunActive = true;
             var t = segmentByDifficulty.Evaluate(0f);
             activeSegmentLength = Mathf.Lerp(baseSegmentLength, minSegmentLength, t);
@@ -359,8 +373,10 @@ namespace JumpRing.Game.Gameplay
 
             bakedHeights.Clear();
 
-            var behindSteps = Mathf.CeilToInt(behindCameraDistance / seg) + 2;
-            var flatEnd = playerStep + startFlatSegments;
+            var behindSteps = Mathf.CeilToInt((CameraHalfWidth + extraMargin) / seg) + 2;
+            var aheadSteps = Mathf.CeilToInt((CameraHalfWidth + extraMargin) / seg) + 2;
+            var minFlatSteps = Mathf.Max(startFlatSegments, aheadSteps);
+            var flatEnd = playerStep + minFlatSteps;
 
             for (var s = playerStep - behindSteps; s <= flatEnd; s++)
             {
@@ -589,8 +605,9 @@ namespace JumpRing.Game.Gameplay
         {
             var seg = ActiveSegmentLength;
             var cameraX = gameplayCamera.transform.position.x;
-            var desiredStartX = cameraX - behindCameraDistance;
-            var desiredEndX = cameraX + aheadCameraDistance;
+            var halfWidth = CameraHalfWidth + extraMargin;
+            var desiredStartX = cameraX - halfWidth;
+            var desiredEndX = cameraX + halfWidth;
 
             var startX = Mathf.Floor(desiredStartX / seg) * seg;
             var endX = Mathf.Ceil(desiredEndX / seg) * seg;

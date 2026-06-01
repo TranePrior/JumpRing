@@ -125,7 +125,7 @@ namespace JumpRing.Game.UI
             if (panelCanvasGroup != null)
             {
                 panelSequence = WindowAnimations.AnimateClose(panelCanvasGroup, panel.transform, panel);
-                panelSequence.OnComplete(() => gameStateMachine.Enter(GameState.MainMenu));
+                panelSequence.AppendCallback(() => gameStateMachine.Enter(GameState.MainMenu));
             }
             else
             {

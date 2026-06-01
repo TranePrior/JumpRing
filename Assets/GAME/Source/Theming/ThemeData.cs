@@ -41,6 +41,10 @@ namespace JumpRing.Game.Theming
         [SerializeField]
         private Color tileColor = new(1f, 1f, 1f, 0.1f);
 
+        [Header("UI")]
+        [SerializeField]
+        private Color tapCounterColor = new(1f, 1f, 1f, 0.15f);
+
         [Header("Coins")]
         [SerializeField]
         private GameObject coinPrefab;
@@ -57,6 +61,7 @@ namespace JumpRing.Game.Theming
         public Texture2D BackgroundTexture => backgroundTexture;
         public Color BackgroundColor => backgroundColor;
         public Color TileColor => tileColor;
+        public Color TapCounterColor => tapCounterColor;
         public GameObject CoinPrefab => coinPrefab;
     }
 }

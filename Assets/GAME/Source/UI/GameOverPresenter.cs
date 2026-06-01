@@ -144,7 +144,7 @@ namespace JumpRing.Game.UI
             if (panelCanvasGroup != null)
             {
                 panelSequence = WindowAnimations.AnimateClose(panelCanvasGroup, panel.transform, panel);
-                panelSequence.OnComplete(() => onComplete?.Invoke());
+                panelSequence.AppendCallback(() => onComplete?.Invoke());
             }
             else
             {

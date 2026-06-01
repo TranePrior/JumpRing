@@ -249,6 +249,8 @@ namespace JumpRing.Game.UI
                     activeCards.Add(card);
                 }
             }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)gridContent);
         }
 
         private void ClearGrid()

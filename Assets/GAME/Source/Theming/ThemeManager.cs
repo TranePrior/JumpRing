@@ -1,5 +1,6 @@
 using UnityEngine;
 using JumpRing.Game.Gameplay;
+using JumpRing.Game.UI;
 
 
 namespace JumpRing.Game.Theming
@@ -30,6 +31,9 @@ namespace JumpRing.Game.Theming
 
         [SerializeField]
         private Camera gameplayCamera;
+
+        [SerializeField]
+        private WorldTapCounterPresenter worldTapCounterPresenter;
 
 
         public ThemeData ActiveTheme => activeTheme;
@@ -87,6 +91,11 @@ namespace JumpRing.Game.Theming
             if (coinStepSpawner != null && theme.CoinPrefab != null)
             {
                 coinStepSpawner.SetCoinPrefab(theme.CoinPrefab);
+            }
+
+            if (worldTapCounterPresenter != null)
+            {
+                worldTapCounterPresenter.SetColor(theme.TapCounterColor);
             }
 
             ApplyBackground(theme);

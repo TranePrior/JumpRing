@@ -65,6 +65,11 @@ namespace JumpRing.Game.UI
             tapCountText.gameObject.SetActive(visible);
         }
 
+        public void SetColor(Color color)
+        {
+            tapCountText.color = color;
+        }
+
         private void OnTapCountChanged(int count)
         {
             tapCountText.text = count.ToString();

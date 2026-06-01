@@ -23,4 +23,5 @@ MonoBehaviour:
   backgroundTexture: {fileID: 2800000, guid: 7312292975f8e4a898b0d59eef79cf9d, type: 3}
   backgroundColor: {r: 0.08235294, g: 0.003921569, b: 0, a: 1}
   tileColor: {r: 1, g: 1, b: 1, a: 0.019607844}
+  tapCounterColor: {r: 1, g: 1, b: 1, a: 0.15}
   coinPrefab: {fileID: 8004871535491012844, guid: 6c9644255cee9405ebff4eb2e6d25fde, type: 3}

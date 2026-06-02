@@ -135,7 +135,7 @@ namespace JumpRing.Game.Gameplay
 
             if (runSessionController.IsInReadyState)
             {
-                if (IsPointerOverUI())
+                if (UI.UIInputHelper.IsTapOverInteractableUI())
                 {
                     return;
                 }
@@ -237,9 +237,12 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
-            // Skip death during invincibility
+            // Bounce off line during invincibility instead of dying
             if (bonusEffectManager != null && bonusEffectManager.IsInvincible)
             {
+                playerRigidbody.linearVelocity = new Vector2(
+                    playerRigidbody.linearVelocity.x,
+                    jumpImpulse * JumpScale);
                 return;
             }
 

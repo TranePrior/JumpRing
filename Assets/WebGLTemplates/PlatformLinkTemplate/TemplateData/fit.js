@@ -1,20 +1,16 @@
-function fit(container, minRatioW, minRatioH, maxRatioW, maxRatioH) {
-  let currentR = window.innerWidth / window.innerHeight;
+function fit(container) {
+  const RATIO = 9 / 16;
 
-  let minR = minRatioW / minRatioH;
-  let maxR = maxRatioW / maxRatioH;
+  let width, height;
 
-  let clampedR = Math.min(Math.max(currentR, minR), maxR);
-
-  let width = window.innerWidth;
-  let height = width / clampedR;
-
-  if (height > window.innerHeight) {
-    width = Math.min(width, Math.ceil(window.innerHeight * clampedR));
+  if (window.innerWidth / window.innerHeight > RATIO) {
+    height = window.innerHeight;
+    width = Math.floor(height * RATIO);
+  } else {
+    width = window.innerWidth;
+    height = Math.floor(width / RATIO);
   }
 
-  height = Math.floor(width / clampedR);
-  
   container.style.width = width + "px";
   container.style.height = height + "px";
 }

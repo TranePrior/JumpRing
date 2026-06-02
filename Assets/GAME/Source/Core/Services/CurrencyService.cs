@@ -12,9 +12,7 @@ namespace JumpRing.Game.Core.Services
 
         public event Action<int> BalanceChanged;
 
-        public int Balance => storageService != null
-            ? storageService.GetInt(BalanceKey, 0)
-            : PlayerPrefs.GetInt(BalanceKey, 0);
+        public int Balance => storageService.GetInt(BalanceKey, 0);
 
         public int RunEarnings { get; private set; }
 
@@ -28,17 +26,7 @@ namespace JumpRing.Game.Core.Services
             RunEarnings += amount;
 
             var newBalance = Balance + amount;
-
-            if (storageService != null)
-            {
-                storageService.SetInt(BalanceKey, newBalance);
-            }
-            else
-            {
-                PlayerPrefs.SetInt(BalanceKey, newBalance);
-                PlayerPrefs.Save();
-            }
-
+            storageService.SetInt(BalanceKey, newBalance);
             BalanceChanged?.Invoke(newBalance);
         }
 
@@ -50,17 +38,7 @@ namespace JumpRing.Game.Core.Services
             }
 
             var newBalance = Balance - amount;
-
-            if (storageService != null)
-            {
-                storageService.SetInt(BalanceKey, newBalance);
-            }
-            else
-            {
-                PlayerPrefs.SetInt(BalanceKey, newBalance);
-                PlayerPrefs.Save();
-            }
-
+            storageService.SetInt(BalanceKey, newBalance);
             BalanceChanged?.Invoke(newBalance);
             return true;
         }

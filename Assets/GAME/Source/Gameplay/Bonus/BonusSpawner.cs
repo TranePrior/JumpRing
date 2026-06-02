@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using JumpRing.Game.Core.Services;
 using UnityEngine;
 
 namespace JumpRing.Game.Gameplay
@@ -32,6 +33,9 @@ namespace JumpRing.Game.Gameplay
 
         [SerializeField]
         private CoinStepSpawner coinStepSpawner;
+
+        [SerializeField]
+        private PlatformStorageService storageService;
 
         [SerializeField]
         private Transform spawnedBonusParent;
@@ -90,8 +94,8 @@ namespace JumpRing.Game.Gameplay
 
         private int ConsecutiveDeaths
         {
-            get => PlayerPrefs.GetInt(ConsecutiveDeathsKey, 0);
-            set => PlayerPrefs.SetInt(ConsecutiveDeathsKey, value);
+            get => storageService.GetInt(ConsecutiveDeathsKey, 0);
+            set => storageService.SetInt(ConsecutiveDeathsKey, value);
         }
 
         private void OnEnable()

@@ -101,9 +101,7 @@ namespace JumpRing.Game.Theming
         {
             upgradeLevels = new Dictionary<string, int>();
 
-            var saved = storageService != null
-                ? storageService.GetString(UpgradesKey, "")
-                : PlayerPrefs.GetString(UpgradesKey, "");
+            var saved = storageService.GetString(UpgradesKey, "");
             if (string.IsNullOrEmpty(saved))
             {
                 return;
@@ -129,16 +127,7 @@ namespace JumpRing.Game.Theming
             }
 
             var joined = string.Join(",", parts);
-
-            if (storageService != null)
-            {
-                storageService.SetString(UpgradesKey, joined);
-            }
-            else
-            {
-                PlayerPrefs.SetString(UpgradesKey, joined);
-                PlayerPrefs.Save();
-            }
+            storageService.SetString(UpgradesKey, joined);
         }
     }
 }

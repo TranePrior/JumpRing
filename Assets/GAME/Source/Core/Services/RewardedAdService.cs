@@ -10,7 +10,17 @@ namespace JumpRing.Game.Core.Services
         private Action onRewardGranted;
         private Action onAdFailed;
 
-        public bool CanShowAd => PLink.IsInitialized && PLink.Advertisement.RewardedAd.CanShow();
+        public bool CanShowAd
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return true;
+#else
+                return PLink.IsInitialized && PLink.Advertisement.RewardedAd.CanShow();
+#endif
+            }
+        }
 
         private void OnEnable()
         {
@@ -38,9 +48,14 @@ namespace JumpRing.Game.Core.Services
                 return;
             }
 
+#if UNITY_EDITOR
+            Debug.Log("[RewardedAdService] Editor mock: ad shown, reward granted.");
+            onReward?.Invoke();
+#else
             onRewardGranted = onReward;
             onAdFailed = onFail;
             PLink.Advertisement.RewardedAd.Show();
+#endif
         }
 
         private void SubscribeToAd()

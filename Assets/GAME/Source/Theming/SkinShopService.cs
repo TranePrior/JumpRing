@@ -97,16 +97,7 @@ namespace JumpRing.Game.Theming
             }
 
             ActiveSkin = skin;
-
-            if (storageService != null)
-            {
-                storageService.SetString(ActiveSkinKey, skin.SkinId);
-            }
-            else
-            {
-                PlayerPrefs.SetString(ActiveSkinKey, skin.SkinId);
-                PlayerPrefs.Save();
-            }
+            storageService.SetString(ActiveSkinKey, skin.SkinId);
 
             var pack = catalog.FindPackForSkin(skin);
             themeManager.ApplyTheme(skin.ThemeData, pack);
@@ -118,9 +109,7 @@ namespace JumpRing.Game.Theming
         {
             ownedSkinIds = new HashSet<string>();
 
-            var saved = storageService != null
-                ? storageService.GetString(OwnedSkinsKey, "")
-                : PlayerPrefs.GetString(OwnedSkinsKey, "");
+            var saved = storageService.GetString(OwnedSkinsKey, "");
 
             if (string.IsNullOrEmpty(saved))
             {
@@ -140,23 +129,12 @@ namespace JumpRing.Game.Theming
         private void SaveOwnedSkins()
         {
             var joined = string.Join(",", ownedSkinIds);
-
-            if (storageService != null)
-            {
-                storageService.SetString(OwnedSkinsKey, joined);
-            }
-            else
-            {
-                PlayerPrefs.SetString(OwnedSkinsKey, joined);
-                PlayerPrefs.Save();
-            }
+            storageService.SetString(OwnedSkinsKey, joined);
         }
 
         private void LoadActiveSkin()
         {
-            var savedId = storageService != null
-                ? storageService.GetString(ActiveSkinKey, "")
-                : PlayerPrefs.GetString(ActiveSkinKey, "");
+            var savedId = storageService.GetString(ActiveSkinKey, "");
 
             if (!string.IsNullOrEmpty(savedId))
             {

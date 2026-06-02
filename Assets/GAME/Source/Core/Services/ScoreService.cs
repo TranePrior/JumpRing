@@ -14,9 +14,7 @@ namespace JumpRing.Game.Core.Services
 
         public int CurrentScore { get; private set; }
 
-        public int BestScore => storageService != null
-            ? storageService.GetInt(BestScoreKey, 0)
-            : PlayerPrefs.GetInt(BestScoreKey, 0);
+        public int BestScore => storageService.GetInt(BestScoreKey, 0);
 
         public void Reset()
         {
@@ -30,15 +28,7 @@ namespace JumpRing.Game.Core.Services
 
             if (CurrentScore > BestScore)
             {
-                if (storageService != null)
-                {
-                    storageService.SetInt(BestScoreKey, CurrentScore);
-                }
-                else
-                {
-                    PlayerPrefs.SetInt(BestScoreKey, CurrentScore);
-                    PlayerPrefs.Save();
-                }
+                storageService.SetInt(BestScoreKey, CurrentScore);
             }
 
             ScoreChanged?.Invoke(CurrentScore);

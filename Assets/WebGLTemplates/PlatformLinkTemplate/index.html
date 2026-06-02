@@ -48,17 +48,8 @@
       const canvasOverlay = document.querySelector("#canvas-overlay");
       const loadingScreen = window.RetroLoadingScreen ? window.RetroLoadingScreen.create(canvasOverlay) : null;
 
-			let scaleToFit;
-
-			try {
-        scaleToFit = !!JSON.parse("{{{ SCALE_TO_FIT }}}");
-			} catch (e) {
-        scaleToFit = false;
-			}
-      
       let fitGameScreen = () => {
-        if (scaleToFit == true)
-          fit(container, {{{MIN_RATIO_WIDTH}}}, {{{MIN_RATIO_HEIGHT}}}, {{{MAX_RATIO_WIDTH}}}, {{{MAX_RATIO_HEIGHT}}});
+        fit(container);
       };
 
         window.addEventListener('resize', fitGameScreen);
@@ -73,8 +64,7 @@
             loadingScreen.setProgress(progress);
           }
 
-          if (scaleToFit == true)
-            fitGameScreen();
+          fitGameScreen();
         }).then((unityInstance) => {
           myGameInstance = unityInstance;
           if (loadingScreen && loadingScreenManualClose == false) {

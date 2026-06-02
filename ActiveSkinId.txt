@@ -1,1 +1,1 @@
-ring_vampire
+ring_pinguin

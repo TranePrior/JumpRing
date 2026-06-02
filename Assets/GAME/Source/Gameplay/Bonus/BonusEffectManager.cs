@@ -82,6 +82,7 @@ namespace JumpRing.Game.Gameplay
         private float timeWarpFadeProgress;
         private float invincibilityRemaining;
         private float safeZoneRemaining;
+        private bool pendingInvincibility;
 
         public BonusType ActiveBonus => activeBonus;
         public bool HasActiveBonus => activeBonus != BonusType.None;
@@ -97,6 +98,7 @@ namespace JumpRing.Game.Gameplay
         {
             isRunActive = true;
             invincibilityRemaining = 0f;
+            pendingInvincibility = false;
             safeZoneRemaining = startSafeZoneDuration;
             secondChanceCount = 0;
             SecondChanceCountChanged?.Invoke(0);
@@ -190,7 +192,7 @@ namespace JumpRing.Game.Gameplay
         }
 
         /// <summary>
-        /// Consumes one heart and starts invincibility.
+        /// Consumes one heart and defers invincibility until gameplay begins.
         /// Called by SecondChancePresenter when player uses a heart to revive.
         /// </summary>
         public void ConsumeSecondChance()
@@ -201,17 +203,31 @@ namespace JumpRing.Game.Gameplay
             }
 
             secondChanceCount--;
-            invincibilityRemaining = invincibilityDuration;
+            pendingInvincibility = true;
             SecondChanceCountChanged?.Invoke(secondChanceCount);
         }
 
         /// <summary>
-        /// Starts invincibility without consuming a heart.
+        /// Activates pending invincibility when gameplay begins after revive.
+        /// </summary>
+        public void ActivatePendingInvincibility()
+        {
+            if (!pendingInvincibility)
+            {
+                return;
+            }
+
+            pendingInvincibility = false;
+            invincibilityRemaining = invincibilityDuration;
+        }
+
+        /// <summary>
+        /// Defers invincibility without consuming a heart.
         /// Used for ad-based revival.
         /// </summary>
         public void StartInvincibility()
         {
-            invincibilityRemaining = invincibilityDuration;
+            pendingInvincibility = true;
         }
 
         public void NotifyTap()

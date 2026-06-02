@@ -48,6 +48,9 @@ namespace JumpRing.Game.UI
         private RewardedAdService rewardedAdService;
 
         [Header("Revival")]
+        [SerializeField]
+        private CameraFollowTarget cameraFollowTarget;
+
         [SerializeField, Min(0.1f)]
         private float reviveOffset = 2f;
 
@@ -179,12 +182,19 @@ namespace JumpRing.Game.UI
                 coinStepSpawner.RespawnFromCurrentPosition();
             }
 
+            if (cameraFollowTarget != null)
+            {
+                cameraFollowTarget.SnapImmediate();
+            }
+
+            dimOverlay.HideImmediate();
             runSessionController.ReviveToReady();
             HidePanel();
         }
 
         private void OnQuitClicked()
         {
+            dimOverlay.Hide();
             HidePanel();
             runSessionController.ForceFinishRun();
         }
@@ -205,10 +215,12 @@ namespace JumpRing.Game.UI
         {
             panelSequence?.Kill();
             isCountingDown = false;
-            dimOverlay.Hide();
 
             if (secondChancePanelCanvasGroup != null)
             {
+                secondChancePanelCanvasGroup.interactable = false;
+                secondChancePanelCanvasGroup.blocksRaycasts = false;
+
                 panelSequence = WindowAnimations.AnimateClose(
                     secondChancePanelCanvasGroup, secondChancePanel.transform, secondChancePanel);
             }

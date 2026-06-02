@@ -133,6 +133,8 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
+            bool startedFromReady = false;
+
             if (runSessionController.IsInReadyState)
             {
                 if (UI.UIInputHelper.IsTapOverInteractableUI())
@@ -141,6 +143,13 @@ namespace JumpRing.Game.Gameplay
                 }
 
                 runSessionController.BeginGameplay();
+
+                if (bonusEffectManager != null)
+                {
+                    bonusEffectManager.ActivatePendingInvincibility();
+                }
+
+                startedFromReady = true;
                 // Fall through to execute the first jump immediately
             }
 
@@ -157,7 +166,7 @@ namespace JumpRing.Game.Gameplay
                 return;
             }
 
-            if (IsPointerOverUI())
+            if (!startedFromReady && IsPointerOverUI())
             {
                 return;
             }
@@ -229,6 +238,17 @@ namespace JumpRing.Game.Gameplay
             else
             {
                 playerRigidbody.gravityScale = defaultGravityScale * GravityScale;
+            }
+
+            // Ring clipped through the line — instant death, invincibility ignored
+            if (!IsLineInsidePlayableWindow())
+            {
+                lastDeathPosition = playerRigidbody.position;
+                playerRigidbody.gravityScale = 0f;
+                playerRigidbody.linearVelocity = Vector2.zero;
+                playerRigidbody.angularVelocity = 0f;
+                runSessionController.FinishRun();
+                return;
             }
 
             if (!linePathGenerator.IsTouchingLine(hitTopCollider, lineTouchTolerance) &&
@@ -328,7 +348,7 @@ namespace JumpRing.Game.Gameplay
             playerRigidbody.rotation = 0f;
             playerRigidbody.linearVelocity = Vector2.zero;
             playerRigidbody.angularVelocity = 0f;
-            playerRigidbody.gravityScale = defaultGravityScale;
+            playerRigidbody.gravityScale = 0f;
 
             Physics2D.SyncTransforms();
         }

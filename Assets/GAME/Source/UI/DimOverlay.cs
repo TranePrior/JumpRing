@@ -53,6 +53,19 @@ namespace JumpRing.Game.UI
             }
         }
 
+        public void HideImmediate()
+        {
+            fadeTween?.Kill();
+
+            if (overlayCanvasGroup != null)
+            {
+                overlayCanvasGroup.alpha = 0f;
+            }
+
+            overlay.SetActive(false);
+            ReleaseBlur();
+        }
+
         private void CaptureBlur()
         {
             var cam = Camera.main;

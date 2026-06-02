@@ -27,5 +27,12 @@ namespace JumpRing.Game.Gameplay
             var smoothedY = Mathf.SmoothDamp(transform.position.y, targetPosition.y, ref yVelocity, verticalSmoothTime);
             transform.position = new Vector3(targetPosition.x + horizontalOffset, smoothedY, cameraZ);
         }
+
+        public void SnapImmediate()
+        {
+            var targetPosition = target.position;
+            yVelocity = 0f;
+            transform.position = new Vector3(targetPosition.x + horizontalOffset, targetPosition.y, cameraZ);
+        }
     }
 }

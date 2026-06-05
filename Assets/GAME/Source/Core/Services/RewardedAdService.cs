@@ -1,4 +1,5 @@
 using System;
+using JumpRing.Game.Core;
 using PlatformLink;
 using RetroCat.PlatformLink.Runtime.Source.Common.Modules.Advertisement;
 using UnityEngine;
@@ -54,6 +55,7 @@ namespace JumpRing.Game.Core.Services
 #else
             onRewardGranted = onReward;
             onAdFailed = onFail;
+            PauseGame();
             PLink.Advertisement.RewardedAd.Show();
 #endif
         }
@@ -85,13 +87,29 @@ namespace JumpRing.Game.Core.Services
 
         private void OnFailed()
         {
+            ResumeGame();
             onAdFailed?.Invoke();
             ClearCallbacks();
         }
 
         private void OnClosed()
         {
+            ResumeGame();
             ClearCallbacks();
+        }
+
+        private void PauseGame()
+        {
+            WebGLFocusHandler.IsAdActive = true;
+            Time.timeScale = 0f;
+            AudioListener.pause = true;
+        }
+
+        private void ResumeGame()
+        {
+            WebGLFocusHandler.IsAdActive = false;
+            Time.timeScale = 1f;
+            AudioListener.pause = false;
         }
 
         private void ClearCallbacks()

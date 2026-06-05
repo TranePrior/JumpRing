@@ -374,6 +374,7 @@ MonoBehaviour:
   bonusConfig: {fileID: 11400000, guid: 970b74207d4f941dcaf2c42bcb0ebf53, type: 2}
   ringTransform: {fileID: 771753746}
   coinStepSpawner: {fileID: 1632676879}
+  storageService: {fileID: 1632676890}
   spawnedBonusParent: {fileID: 1612841224}
   segmentSize: 3
   cooldownSegments: 4
@@ -1954,6 +1955,21 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 9078359946137341132, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
       insertIndex: -1
       addedObject: {fileID: 285664761}
+    - targetCorrespondingSourceObject: {fileID: 3750461969427400134, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1122923068}
+    - targetCorrespondingSourceObject: {fileID: 5771921992728294188, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1122923067}
+    - targetCorrespondingSourceObject: {fileID: 2467102633795935806, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1122923066}
+    - targetCorrespondingSourceObject: {fileID: 5407051412955034908, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1122923065}
+    - targetCorrespondingSourceObject: {fileID: 2453577358856258653, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1122923064}
   m_SourcePrefab: {fileID: 100100000, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
 --- !u!224 &285664750 stripped
 RectTransform:
@@ -2046,6 +2062,7 @@ MonoBehaviour:
   scoreServiceComponent: {fileID: 1632676893}
   currencyServiceComponent: {fileID: 1632676876}
   rewardedAdService: {fileID: 1632676891}
+  interstitialAdService: {fileID: 0}
   panel: {fileID: 285664758}
   panelCanvasGroup: {fileID: 285664760}
   scoreLabel: {fileID: 285664757}
@@ -2517,7 +2534,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7599052341807307579, guid: 9002e3c2114304b888ecf40829781193, type: 3}
   m_PrefabInstance: {fileID: 8136499206885469059}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 8136499206885469061}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
@@ -4249,6 +4266,7 @@ MonoBehaviour:
   timerFill: {fileID: 1437853895}
   dimOverlay: {fileID: 982662098}
   rewardedAdService: {fileID: 1632676891}
+  cameraFollowTarget: {fileID: 0}
   reviveOffset: 2
 --- !u!114 &982662094
 MonoBehaviour:
@@ -5139,6 +5157,96 @@ RectTransform:
   m_AnchoredPosition: {x: 45, y: 0}
   m_SizeDelta: {x: -110, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1122923059 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2453577358856258653, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
+  m_PrefabInstance: {fileID: 285664749}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1122923060 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5407051412955034908, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
+  m_PrefabInstance: {fileID: 285664749}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1122923061 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2467102633795935806, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
+  m_PrefabInstance: {fileID: 285664749}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1122923062 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5771921992728294188, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
+  m_PrefabInstance: {fileID: 285664749}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1122923063 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3750461969427400134, guid: ca0160dcaa6d8439094c624315a4e334, type: 3}
+  m_PrefabInstance: {fileID: 285664749}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1122923064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122923059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 5
+--- !u!114 &1122923065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122923060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 4
+--- !u!114 &1122923066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122923061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 9
+--- !u!114 &1122923067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122923062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 2
+--- !u!114 &1122923068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122923063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 1
 --- !u!1 &1162540609
 GameObject:
   m_ObjectHideFlags: 0
@@ -7200,6 +7308,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e2c1938a08244673ac2e5d453391031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Services.ScoreService
+--- !u!114 &1632676894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632676867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99ce2953e6e244174abcf104a53b3640, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizationService
+  russianData: {fileID: 11400000, guid: 67c37f0ee9a4141d1a8859a0ac23df18, type: 2}
+  englishData: {fileID: 11400000, guid: 3abf013dd89eb4d509a14a34f7271ff0, type: 2}
 --- !u!1 &1654508917
 GameObject:
   m_ObjectHideFlags: 0
@@ -9316,6 +9438,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1632676891}
+    - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1632676894}
   m_SourcePrefab: {fileID: 100100000, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
 --- !u!1001 &3530500232422484129
 PrefabInstance:
@@ -10569,10 +10694,73 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6001881071741512838, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2109712310}
+    - targetCorrespondingSourceObject: {fileID: 1900789260593557126, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8136499206885469065}
+    - targetCorrespondingSourceObject: {fileID: 6286422091774689669, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8136499206885469064}
     - targetCorrespondingSourceObject: {fileID: 4471234567890123456, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2034539717}
+    - targetCorrespondingSourceObject: {fileID: 2752763622048309042, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8136499206885469063}
   m_SourcePrefab: {fileID: 100100000, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+--- !u!1 &8136499206885469060 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2752763622048309042, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+  m_PrefabInstance: {fileID: 8136499206885469059}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8136499206885469061 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6286422091774689669, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+  m_PrefabInstance: {fileID: 8136499206885469059}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8136499206885469062 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1900789260593557126, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+  m_PrefabInstance: {fileID: 8136499206885469059}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8136499206885469063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8136499206885469060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 6
+--- !u!114 &8136499206885469064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8136499206885469061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 0
+--- !u!114 &8136499206885469065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8136499206885469062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 6
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using JumpRing.Game.Core.Localization;
 using JumpRing.Game.Core.Services;
 using JumpRing.Game.Core.State;
 
@@ -7,7 +8,7 @@ namespace JumpRing.Game.UI
 {
     public sealed class HudPresenter : MonoBehaviour
     {
-        private const string ScoreFormat = "SCORE: {0}";
+        private const string ScoreFormat = "{0}: {1}";
         private const string BestScoreFormat = "{0}";
         private const string CoinsFormat = "{0}";
 
@@ -88,7 +89,10 @@ namespace JumpRing.Game.UI
         {
             if (scoreLabel != null)
             {
-                scoreLabel.text = string.Format(ScoreFormat, score);
+                string scoreWord = LocalizationService.Instance != null
+                    ? LocalizationService.Instance.GetText(LocalizationKey.Score)
+                    : "SCORE";
+                scoreLabel.text = string.Format(ScoreFormat, scoreWord, score);
             }
 
             if (bestScoreLabel != null)

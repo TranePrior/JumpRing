@@ -172,6 +172,8 @@ namespace JumpRing.Game.Core.Composition
             }
 
             GameStateMachine.Enter(GameState.MainMenu);
+
+            PLink.Analytics.SendGameReady();
         }
 
         private void OnDestroy()

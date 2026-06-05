@@ -22,6 +22,9 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private RewardedAdService rewardedAdService;
 
+        [SerializeField]
+        private InterstitialAdService interstitialAdService;
+
         [Header("UI")]
         [SerializeField]
         private GameObject panel;
@@ -155,16 +158,28 @@ namespace JumpRing.Game.UI
 
         private void OnRetryClicked()
         {
-            Hide(() =>
+            Hide(() => ShowInterstitialThen(() =>
             {
                 var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
                 UnityEngine.SceneManagement.SceneManager.LoadScene(scene.buildIndex, UnityEngine.SceneManagement.LoadSceneMode.Single);
-            });
+            }));
         }
 
         private void OnMenuClicked()
         {
-            Hide(() => gameStateMachine.Enter(GameState.MainMenu));
+            Hide(() => ShowInterstitialThen(() => gameStateMachine.Enter(GameState.MainMenu)));
+        }
+
+        private void ShowInterstitialThen(System.Action continuation)
+        {
+            if (interstitialAdService != null)
+            {
+                interstitialAdService.TryShow(continuation);
+            }
+            else
+            {
+                continuation?.Invoke();
+            }
         }
 
         private void OnDoubleRewardClicked()

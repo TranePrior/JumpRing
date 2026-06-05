@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using JumpRing.Game.Core.Localization;
 using JumpRing.Game.Theming;
 
 namespace JumpRing.Game.UI
@@ -138,7 +139,7 @@ namespace JumpRing.Game.UI
 
                 if (isMaxed)
                 {
-                    ShowLabelContent(isActive ? "Активен" : "Выбрать");
+                    ShowLabelContent(GetLocalizedText(isActive ? LocalizationKey.Active : LocalizationKey.Select));
                     SetButtonState(
                         isActive ? activeButtonSprite : GetActivateSprite(),
                         isActive ? activeButtonColor : activateButtonColor);
@@ -157,7 +158,7 @@ namespace JumpRing.Game.UI
             }
             else
             {
-                ShowLabelContent(isActive ? "Активен" : "Выбрать");
+                ShowLabelContent(GetLocalizedText(isActive ? LocalizationKey.Active : LocalizationKey.Select));
                 SetButtonState(
                     isActive ? activeButtonSprite : GetActivateSprite(),
                     isActive ? activeButtonColor : activateButtonColor);
@@ -220,7 +221,8 @@ namespace JumpRing.Game.UI
             upgradeLevelLabel.gameObject.SetActive(visible);
             if (visible)
             {
-                upgradeLevelLabel.text = $"Ур. {level}/{max}";
+                string lvlText = GetLocalizedText(LocalizationKey.UpgradeLevel);
+                upgradeLevelLabel.text = string.Format(lvlText, level, max);
             }
         }
 
@@ -268,6 +270,13 @@ namespace JumpRing.Game.UI
         private void OnActionClick()
         {
             ActionClicked?.Invoke(skinItem);
+        }
+
+        private static string GetLocalizedText(LocalizationKey key)
+        {
+            return LocalizationService.Instance != null
+                ? LocalizationService.Instance.GetText(key)
+                : key.ToString();
         }
     }
 }

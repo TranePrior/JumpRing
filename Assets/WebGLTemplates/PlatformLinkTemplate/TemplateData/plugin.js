@@ -1,3 +1,4 @@
+let ysdk;
 let player;
 let lastOpenedUrl = '';
 let lastOpenTimestamp = 0;
@@ -6,9 +7,10 @@ function initializePlugin()
 {
   YaGames
     .init()
-    .then(ysdk => {
+    .then(sdk => {
     console.log('Yandex SDK initialized');
-    window.ysdk = ysdk;
+    ysdk = sdk;
+    window.ysdk = sdk;
     initializePlayer();
 });
 }
@@ -275,7 +277,11 @@ function sendAnalyticsEventWithData(eventName, eventDataJson) {
 }
 
 function sendGameReadyMessage() {
-  ysdk.features.LoadingAPI?.ready();
+  if (!ysdk || !ysdk.features || !ysdk.features.LoadingAPI) {
+    console.warn('Yandex SDK LoadingAPI is not available yet');
+    return;
+  }
+  ysdk.features.LoadingAPI.ready();
 }
 
 function showInterstitialAd() {

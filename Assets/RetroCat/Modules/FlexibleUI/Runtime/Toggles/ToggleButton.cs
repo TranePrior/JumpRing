@@ -10,6 +10,7 @@ namespace RetroCat.Modules.Core.UI.Controls.Toggles
     {
         [SerializeField] private Image _handleImage;
         [SerializeField] private Image _backgroundImage;
+        [SerializeField] private CanvasGroup _backgroundEnabledOverlay;
         [SerializeField] private Color _colorHandleEnabled;
         [SerializeField] private Color _colorHandleDisabled;
         [SerializeField] private Color _colorBackgroundEnabled;
@@ -93,7 +94,7 @@ namespace RetroCat.Modules.Core.UI.Controls.Toggles
                 .DOAnchorPosX(_handleImage.rectTransform.sizeDelta.x, _switchDuration)
                 .SetUpdate(true);
 
-            DoColor(_colorHandleEnabled, _colorBackgroundEnabled);
+            DoColor(_colorHandleEnabled, _colorBackgroundEnabled, overlayAlpha: 1f);
         }
 
         private void SetDisabledState()
@@ -102,13 +103,16 @@ namespace RetroCat.Modules.Core.UI.Controls.Toggles
                 .DOAnchorPosX(0, _switchDuration)
                 .SetUpdate(true);
 
-            DoColor(_colorHandleDisabled, _colorBackgroundDisabled);
+            DoColor(_colorHandleDisabled, _colorBackgroundDisabled, overlayAlpha: 0f);
         }
-        
-        private void DoColor(Color handleColor, Color backgroundColor)
+
+        private void DoColor(Color handleColor, Color backgroundColor, float overlayAlpha)
         {
             _backgroundImage.DOColor(backgroundColor, _switchDuration);
             _handleImage.DOColor(handleColor, _switchDuration);
+
+            if (_backgroundEnabledOverlay != null)
+                _backgroundEnabledOverlay.DOFade(overlayAlpha, _switchDuration).SetUpdate(true);
         }
     }
 }

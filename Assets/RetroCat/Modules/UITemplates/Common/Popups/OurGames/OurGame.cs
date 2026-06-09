@@ -1,3 +1,4 @@
+using PlatformLink;
 using RetroCat.Modules.FlexibleUI.Runtime.Loaders;
 using RetroCat.PlatformLink.Runtime.Source.Common.Modules.Platform;
 using TMPro;
@@ -26,7 +27,8 @@ namespace RetroCat.Modules.UITemplates.Common.Popups.OurGames
 
         private void OnOpenGameButtonClicked()
         {
-            Application.OpenURL(_game.Url);
+            if (PLink.IsInitialized)
+                PLink.Platform.OpenLink(_game.Url);
         }
 
         private void OnDestroy()

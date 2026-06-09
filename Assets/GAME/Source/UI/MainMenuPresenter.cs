@@ -88,6 +88,7 @@ namespace JumpRing.Game.UI
         private void DetectTapToStart()
         {
             if (ShopPresenter.IsOpen) return;
+            if (PopupTracker.IsAnyPopupActive) return;
             if (!WasTapPressed()) return;
             if (UIInputHelper.IsTapOverInteractableUI()) return;
 

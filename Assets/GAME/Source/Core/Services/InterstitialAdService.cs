@@ -9,6 +9,9 @@ namespace JumpRing.Game.Core.Services
     {
         private const float CooldownSeconds = 60f;
 
+        [SerializeField]
+        private NoAdsService noAdsService;
+
         private float lastShowTime = float.NegativeInfinity;
         private Action onComplete;
 
@@ -35,6 +38,12 @@ namespace JumpRing.Game.Core.Services
         /// </summary>
         public void TryShow(Action onDone)
         {
+            if (noAdsService != null && noAdsService.IsNoAds)
+            {
+                onDone?.Invoke();
+                return;
+            }
+
             if (Time.realtimeSinceStartup - lastShowTime < CooldownSeconds)
             {
                 onDone?.Invoke();

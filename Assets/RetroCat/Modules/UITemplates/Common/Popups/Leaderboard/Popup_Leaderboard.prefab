@@ -3624,7 +3624,7 @@ MonoBehaviour:
   - {fileID: 6294194485621139519}
   _leadersParent: {fileID: 5083945811232676734}
   _yourRankParent: {fileID: 6614917195273789812}
-  _leaderboardId: ClassicMatch5TopScore
+  _leaderboardId: TopScore
   _quantityTop: 20
   _quantityAround: 1
   _popupContentLoader: {fileID: 5307855242533517392}

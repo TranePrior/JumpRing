@@ -79,6 +79,7 @@ namespace JumpRing.Game.UI
         private readonly List<ShopSkinCardView> activeCards = new();
         private Sequence openSequence;
         private float lastAdWatchTime = float.NegativeInfinity;
+        private bool lastAdAvailableState;
 
         public static bool IsOpen { get; private set; }
 
@@ -162,6 +163,21 @@ namespace JumpRing.Game.UI
             if (ringSizeUpgradeService != null)
             {
                 ringSizeUpgradeService.SkinUpgraded -= OnSkinUpgraded;
+            }
+        }
+
+        private void Update()
+        {
+            if (!IsOpen || watchAdButton == null)
+            {
+                return;
+            }
+
+            bool available = IsAdAvailable();
+            if (available != lastAdAvailableState)
+            {
+                lastAdAvailableState = available;
+                watchAdButton.interactable = available;
             }
         }
 

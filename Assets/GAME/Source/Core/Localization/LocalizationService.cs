@@ -1,4 +1,5 @@
 using System;
+using PlatformLink;
 using UnityEngine;
 
 namespace JumpRing.Game.Core.Localization
@@ -69,6 +70,15 @@ namespace JumpRing.Game.Core.Localization
 
         private static Language DetectSystemLanguage()
         {
+            if (PLink.IsInitialized)
+            {
+                string platformLang = PLink.Environment.Language;
+                if (!string.IsNullOrEmpty(platformLang))
+                {
+                    return platformLang == "ru" ? Language.RU : Language.EN;
+                }
+            }
+
             return Application.systemLanguage == SystemLanguage.Russian ? Language.RU : Language.EN;
         }
     }

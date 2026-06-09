@@ -157,6 +157,7 @@ namespace JumpRing.Game.Gameplay
             {
                 if (!runSessionController.CanStartRun ||
                     UI.ShopPresenter.IsOpen ||
+                    UI.PopupTracker.IsAnyPopupActive ||
                     UI.UIInputHelper.IsTapOverInteractableUI())
                 {
                     return;

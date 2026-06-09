@@ -2059,10 +2059,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.GameOverPresenter
   gameStateMachine: {fileID: 1632676869}
+  runSessionController: {fileID: 1632676868}
   scoreServiceComponent: {fileID: 1632676893}
   currencyServiceComponent: {fileID: 1632676876}
   rewardedAdService: {fileID: 1632676891}
-  interstitialAdService: {fileID: 0}
+  interstitialAdService: {fileID: 1632676897}
   panel: {fileID: 285664758}
   panelCanvasGroup: {fileID: 285664760}
   scoreLabel: {fileID: 285664757}
@@ -7322,6 +7323,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizationService
   russianData: {fileID: 11400000, guid: 67c37f0ee9a4141d1a8859a0ac23df18, type: 2}
   englishData: {fileID: 11400000, guid: 3abf013dd89eb4d509a14a34f7271ff0, type: 2}
+--- !u!114 &1632676897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632676867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecb61bbb085114ca9845d5467b88e587, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Services.InterstitialAdService
+  noAdsService: {fileID: 1632676899}
+--- !u!114 &1632676898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632676867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180b2558a50b14f92a6db36e5cc83f60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Services.AudioSettingsService
+  storageService: {fileID: 1632676890}
+  musicSource: {fileID: 1916836747}
+  effectsSources:
+  - {fileID: 7174431161555079073}
+--- !u!114 &1632676899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632676867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2babccad978334459a478af3c6e53cbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Services.NoAdsService
+  productId: noads
+  storageService: {fileID: 1632676890}
 --- !u!1 &1654508917
 GameObject:
   m_ObjectHideFlags: 0
@@ -9364,6 +9408,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 518728953}
     - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      propertyPath: noAdsService
+      value: 
+      objectReference: {fileID: 1632676899}
+    - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       propertyPath: themeManager
       value: 
       objectReference: {fileID: 1632676885}
@@ -9387,6 +9435,10 @@ PrefabInstance:
       propertyPath: bonusEffectManager
       value: 
       objectReference: {fileID: 43628384}
+    - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      propertyPath: audioSettingsService
+      value: 
+      objectReference: {fileID: 1632676898}
     - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       propertyPath: playerJumpController
       value: 
@@ -9441,6 +9493,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1632676894}
+    - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1632676899}
+    - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1632676898}
+    - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1632676897}
   m_SourcePrefab: {fileID: 100100000, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
 --- !u!1001 &3530500232422484129
 PrefabInstance:
@@ -10337,6 +10398,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bda1befffaa0f40d39155eaf294a7049, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.PlayerJumpController
+--- !u!82 &7174431161555079073 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 3875739888693839378, guid: 4bcf9dbe24b4a45f3ac647e0dc7b8608, type: 3}
+  m_PrefabInstance: {fileID: 7174431161555079067}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8136499206885469059
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10493,6 +10559,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5400750982698651788, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: _noAdsService
+      value: 
+      objectReference: {fileID: 1632676899}
+    - target: {fileID: 5400750982698651788, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: _audioSettingsService
+      value: 
+      objectReference: {fileID: 1632676898}
+    - target: {fileID: 5400750982698651788, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: _scoreServiceComponent
+      value: 
+      objectReference: {fileID: 1632676893}
     - target: {fileID: 5421697809370257937, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: coinLabel
       value: 

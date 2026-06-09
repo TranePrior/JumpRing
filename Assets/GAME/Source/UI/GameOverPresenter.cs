@@ -1,6 +1,7 @@
 using DG.Tweening;
 using JumpRing.Game.Core.Services;
 using JumpRing.Game.Core.State;
+using JumpRing.Game.Gameplay;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,9 @@ namespace JumpRing.Game.UI
         [Header("Dependencies")]
         [SerializeField]
         private GameStateMachine gameStateMachine;
+
+        [SerializeField]
+        private RunSessionController runSessionController;
 
         [SerializeField]
         private MonoBehaviour scoreServiceComponent;
@@ -160,8 +164,7 @@ namespace JumpRing.Game.UI
         {
             Hide(() => ShowInterstitialThen(() =>
             {
-                var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-                UnityEngine.SceneManagement.SceneManager.LoadScene(scene.buildIndex, UnityEngine.SceneManagement.LoadSceneMode.Single);
+                runSessionController.StartRun();
             }));
         }
 

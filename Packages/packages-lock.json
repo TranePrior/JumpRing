@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.coffee.softmask-for-ugui": {
+      "version": "https://github.com/mob-sakai/SoftMaskForUGUI.git?path=Packages/src",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      },
+      "hash": "9a7535a3fad66ebec5458a8b22f6ad023c960fd3"
+    },
     "com.coplaydev.unity-mcp": {
       "version": "https://github.com/CoplayDev/unity-mcp.git?path=MCPForUnity",
       "depth": 0,
@@ -16,6 +25,12 @@
         "com.unity.test-framework": "1.1.31"
       },
       "hash": "2d2bdc557502bf38cb2507d486a95137f94341fe"
+    },
+    "com.nox7atra.unity-figma-gradients": {
+      "version": "file:com.nox7atra.unity-figma-gradients",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
     },
     "com.retrocat.platformlink": {
       "version": "https://github.com/Flux32/PlatformLink.git?path=/Assets/RetroCat/PlatformLink#main",

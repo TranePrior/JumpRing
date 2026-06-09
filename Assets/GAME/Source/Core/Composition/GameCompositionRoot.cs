@@ -52,6 +52,14 @@ namespace JumpRing.Game.Core.Composition
         [SerializeField]
         private BonusEffectManager bonusEffectManager;
 
+        [Header("No Ads")]
+        [SerializeField]
+        private NoAdsService noAdsService;
+
+        [Header("Audio Settings")]
+        [SerializeField]
+        private AudioSettingsService audioSettingsService;
+
         [Header("Ring Upgrade")]
         [SerializeField]
         private RingSizeUpgradeService ringSizeUpgradeService;
@@ -71,7 +79,8 @@ namespace JumpRing.Game.Core.Composition
 
         private static readonly string[] StorageIntKeys =
         {
-            "DiamondBalance", "BestScore", "BonusSpawner_ConsecutiveDeaths"
+            "DiamondBalance", "BestScore", "BonusSpawner_ConsecutiveDeaths", "NoAdsPurchased",
+            "Settings_Music", "Settings_Effects", "Settings_Vibration"
         };
 
         private static readonly string[] StorageStringKeys =
@@ -79,15 +88,19 @@ namespace JumpRing.Game.Core.Composition
             "OwnedSkins", "ActiveSkinId", "SkinUpgrades"
         };
 
+        private bool _storageReady;
+        private bool _plinkReady;
+
         private void Awake()
         {
             try
             {
-                PLink.Initialize(null);
+                PLink.Initialize(OnPlinkInitialized);
             }
             catch (Exception e)
             {
                 Debug.LogWarning($"[GameCompositionRoot] PLink init failed: {e.Message}");
+                _plinkReady = true;
             }
 
             if (platformStorageService != null)
@@ -98,6 +111,23 @@ namespace JumpRing.Game.Core.Composition
             {
                 OnStorageReady();
             }
+        }
+
+        private void OnPlinkInitialized()
+        {
+            _plinkReady = true;
+            TryFinishLoading();
+        }
+
+        private void TryFinishLoading()
+        {
+            if (!_storageReady || !_plinkReady)
+            {
+                return;
+            }
+
+            PLink.Analytics.SendGameReady();
+            PLink.Environment.CloseLoadingScreen();
         }
 
         private void OnStorageReady()
@@ -136,6 +166,16 @@ namespace JumpRing.Game.Core.Composition
 
             runSessionController.RunStarted += () => CurrencyService.ResetRunEarnings();
 
+            if (noAdsService != null)
+            {
+                noAdsService.Initialize();
+            }
+
+            if (audioSettingsService != null)
+            {
+                audioSettingsService.Initialize();
+            }
+
             if (skinShopService != null)
             {
                 skinShopService.Initialize();
@@ -173,7 +213,8 @@ namespace JumpRing.Game.Core.Composition
 
             GameStateMachine.Enter(GameState.MainMenu);
 
-            PLink.Analytics.SendGameReady();
+            _storageReady = true;
+            TryFinishLoading();
         }
 
         private void OnDestroy()

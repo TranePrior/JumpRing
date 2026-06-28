@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using JumpRing.Game.Core;
 using PlatformLink;
 using UnityEngine;
@@ -8,12 +9,16 @@ namespace JumpRing.Game.Core.Services
     public sealed class InterstitialAdService : MonoBehaviour
     {
         private const float CooldownSeconds = 60f;
+        // Last-resort guard for an ad that never fires a terminal event. Kept well above real
+        // ad duration so it can't fire mid-ad and resume the game under a visible interstitial.
+        private const float AdWatchdogSeconds = 180f;
 
         [SerializeField]
         private NoAdsService noAdsService;
 
         private float lastShowTime = float.NegativeInfinity;
         private Action onComplete;
+        private Coroutine adWatchdog;
 
         private void OnEnable()
         {
@@ -65,6 +70,7 @@ namespace JumpRing.Game.Core.Services
             lastShowTime = Time.realtimeSinceStartup;
             PauseGame();
             PLink.Advertisement.InterstetialAd.Show();
+            adWatchdog = StartCoroutine(AdWatchdog());
 #endif
         }
 
@@ -110,9 +116,26 @@ namespace JumpRing.Game.Core.Services
 
         private void ResumeGame()
         {
+            StopWatchdog();
             WebGLFocusHandler.IsAdActive = false;
             Time.timeScale = 1f;
             AudioListener.pause = false;
+        }
+
+        private IEnumerator AdWatchdog()
+        {
+            yield return new WaitForSecondsRealtime(AdWatchdogSeconds);
+            adWatchdog = null;
+            OnFailed();
+        }
+
+        private void StopWatchdog()
+        {
+            if (adWatchdog != null)
+            {
+                StopCoroutine(adWatchdog);
+                adWatchdog = null;
+            }
         }
     }
 }

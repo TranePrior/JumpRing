@@ -1,4 +1,3 @@
-using System.Collections;
 using DG.Tweening;
 using JumpRing.Game.Core.Services;
 using JumpRing.Game.Core.State;
@@ -52,10 +51,17 @@ namespace JumpRing.Game.UI
 
         private void OnEnable()
         {
-            gameStateMachine.StateChanged += OnStateChanged;
             doubleRewardButton.onClick.AddListener(OnDoubleRewardClicked);
             continueButton.onClick.AddListener(OnContinueClicked);
             panel.SetActive(false);
+
+            // Only own the game-over flow when this feature is on. When off, GameOverPresenter
+            // is the sole owner — staying unsubscribed avoids both double-reward and the
+            // previous bug where this presenter force-entered MainMenu on top of it.
+            if (featureEnabled)
+            {
+                gameStateMachine.StateChanged += OnStateChanged;
+            }
         }
 
         private void OnDisable()
@@ -65,6 +71,11 @@ namespace JumpRing.Game.UI
             continueButton.onClick.RemoveListener(OnContinueClicked);
         }
 
+        private void OnDestroy()
+        {
+            panelSequence?.Kill();
+        }
+
         private void OnStateChanged(GameState state)
         {
             if (state != GameState.GameOver)
@@ -72,19 +83,7 @@ namespace JumpRing.Game.UI
                 return;
             }
 
-            if (!featureEnabled)
-            {
-                StartCoroutine(EnterMainMenuDeferred());
-                return;
-            }
-
             Show();
-        }
-
-        private IEnumerator EnterMainMenuDeferred()
-        {
-            yield return null;
-            gameStateMachine.Enter(GameState.MainMenu);
         }
 
         private void Show()
@@ -146,10 +145,6 @@ namespace JumpRing.Game.UI
                 rewardedAdService.ShowAd(
                     onReward: ApplyDoubleReward
                 );
-            }
-            else
-            {
-                ApplyDoubleReward();
             }
         }
 

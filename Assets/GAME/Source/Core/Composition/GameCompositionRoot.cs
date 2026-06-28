@@ -71,6 +71,12 @@ namespace JumpRing.Game.Core.Composition
         [SerializeField]
         private PlatformStorageService platformStorageService;
 
+        [SerializeField]
+        private GameplayApiService gameplayApiService;
+
+        [SerializeField]
+        private VibrationFeedbackService vibrationFeedbackService;
+
         private IGameStateMachine GameStateMachine => (IGameStateMachine)gameStateMachineComponent;
 
         private IScoreService ScoreService => (IScoreService)scoreServiceComponent;
@@ -85,11 +91,12 @@ namespace JumpRing.Game.Core.Composition
 
         private static readonly string[] StorageStringKeys =
         {
-            "OwnedSkins", "ActiveSkinId", "SkinUpgrades"
+            "OwnedSkins", "ActiveSkinId", "SkinUpgrades", "SelectedLanguage"
         };
 
         private bool _storageReady;
         private bool _plinkReady;
+        private bool _loadingFinished;
 
         private void Awake()
         {
@@ -103,6 +110,9 @@ namespace JumpRing.Game.Core.Composition
                 _plinkReady = true;
             }
 
+            // Always kick off storage loading so the game initializes even if the
+            // platform never signals readiness. PlatformStorageService waits for PLink
+            // internally (with a timeout) before choosing cloud vs local data.
             if (platformStorageService != null)
             {
                 platformStorageService.Initialize(StorageIntKeys, StorageStringKeys, OnStorageReady);
@@ -121,11 +131,12 @@ namespace JumpRing.Game.Core.Composition
 
         private void TryFinishLoading()
         {
-            if (!_storageReady || !_plinkReady)
+            if (_loadingFinished || !_storageReady || !_plinkReady)
             {
                 return;
             }
 
+            _loadingFinished = true;
             PLink.Analytics.SendGameReady();
             PLink.Environment.CloseLoadingScreen();
         }
@@ -164,7 +175,7 @@ namespace JumpRing.Game.Core.Composition
                 runSessionController.RunFinished += bonusEffectManager.OnRunFinished;
             }
 
-            runSessionController.RunStarted += () => CurrencyService.ResetRunEarnings();
+            runSessionController.RunStarted += OnRunStartedResetEarnings;
 
             if (noAdsService != null)
             {
@@ -211,6 +222,21 @@ namespace JumpRing.Game.Core.Composition
                 ringSizeUpgradeService.SkinUpgraded += OnSkinUpgradedForSizeBonus;
             }
 
+            if (gameplayApiService != null)
+            {
+                GameStateMachine.StateChanged += gameplayApiService.OnStateChanged;
+            }
+
+            if (vibrationFeedbackService != null)
+            {
+                runSessionController.DeathRequested += vibrationFeedbackService.OnDeath;
+
+                if (playerJumpController != null)
+                {
+                    playerJumpController.Jumped += vibrationFeedbackService.OnJump;
+                }
+            }
+
             GameStateMachine.Enter(GameState.MainMenu);
 
             _storageReady = true;
@@ -219,6 +245,23 @@ namespace JumpRing.Game.Core.Composition
 
         private void OnDestroy()
         {
+            runSessionController.RunStarted -= OnRunStartedResetEarnings;
+
+            if (gameplayApiService != null)
+            {
+                GameStateMachine.StateChanged -= gameplayApiService.OnStateChanged;
+            }
+
+            if (vibrationFeedbackService != null)
+            {
+                runSessionController.DeathRequested -= vibrationFeedbackService.OnDeath;
+
+                if (playerJumpController != null)
+                {
+                    playerJumpController.Jumped -= vibrationFeedbackService.OnJump;
+                }
+            }
+
             if (difficultyManager != null)
             {
                 runSessionController.RunStarted -= difficultyManager.OnRunStarted;
@@ -252,6 +295,11 @@ namespace JumpRing.Game.Core.Composition
             {
                 ringSizeUpgradeService.SkinUpgraded -= OnSkinUpgradedForSizeBonus;
             }
+        }
+
+        private void OnRunStartedResetEarnings()
+        {
+            CurrencyService.ResetRunEarnings();
         }
 
         private void OnSkinSelectedForSizeBonus(SkinItem skin)

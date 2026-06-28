@@ -87,6 +87,10 @@ namespace JumpRing.Game.UI
 
         private void OnEnable()
         {
+            // IsOpen is static and survives scene reloads. Reset it here so a reload that
+            // happened while the shop was open can't leave tap-to-start / jumping dead.
+            IsOpen = false;
+
             if (skinShopService == null)
             {
                 skinShopService = FindFirstObjectByType<SkinShopService>();
@@ -164,6 +168,11 @@ namespace JumpRing.Game.UI
             {
                 ringSizeUpgradeService.SkinUpgraded -= OnSkinUpgraded;
             }
+        }
+
+        private void OnDestroy()
+        {
+            openSequence?.Kill();
         }
 
         private void Update()

@@ -73,11 +73,7 @@ namespace JumpRing.Game.UI
             gameStateMachine.StateChanged += OnStateChanged;
             retryButton.onClick.AddListener(OnRetryClicked);
             menuButton.onClick.AddListener(OnMenuClicked);
-
-            if (doubleRewardButton != null)
-            {
-                doubleRewardButton.onClick.AddListener(OnDoubleRewardClicked);
-            }
+            doubleRewardButton.onClick.AddListener(OnDoubleRewardClicked);
 
             panel.SetActive(false);
         }
@@ -87,11 +83,12 @@ namespace JumpRing.Game.UI
             gameStateMachine.StateChanged -= OnStateChanged;
             retryButton.onClick.RemoveListener(OnRetryClicked);
             menuButton.onClick.RemoveListener(OnMenuClicked);
+            doubleRewardButton.onClick.RemoveListener(OnDoubleRewardClicked);
+        }
 
-            if (doubleRewardButton != null)
-            {
-                doubleRewardButton.onClick.RemoveListener(OnDoubleRewardClicked);
-            }
+        private void OnDestroy()
+        {
+            panelSequence?.Kill();
         }
 
         private void OnStateChanged(GameState state)
@@ -118,10 +115,7 @@ namespace JumpRing.Game.UI
             rewardDoubled = false;
             UpdateEarningsUI();
 
-            if (doubleRewardButton != null)
-            {
-                doubleRewardButton.gameObject.SetActive(true);
-            }
+            doubleRewardButton.gameObject.SetActive(rewardedAdService.CanShowAd && pendingEarnings > 0);
 
             if (dimOverlay != null)
             {
@@ -187,19 +181,12 @@ namespace JumpRing.Game.UI
 
         private void OnDoubleRewardClicked()
         {
-            if (rewardDoubled)
+            if (rewardDoubled || !rewardedAdService.CanShowAd)
             {
                 return;
             }
 
-            if (rewardedAdService != null && rewardedAdService.CanShowAd)
-            {
-                rewardedAdService.ShowAd(onReward: ApplyDoubleReward);
-            }
-            else
-            {
-                ApplyDoubleReward();
-            }
+            rewardedAdService.ShowAd(onReward: ApplyDoubleReward);
         }
 
         private void ApplyDoubleReward()
@@ -208,10 +195,7 @@ namespace JumpRing.Game.UI
             CurrencyService.Add(pendingEarnings);
             UpdateEarningsUI();
 
-            if (doubleRewardButton != null)
-            {
-                doubleRewardButton.gameObject.SetActive(false);
-            }
+            doubleRewardButton.gameObject.SetActive(false);
         }
 
         private void UpdateEarningsUI()

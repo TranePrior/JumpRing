@@ -1,4 +1,5 @@
 using System;
+using JumpRing.Game.Core.Services;
 using PlatformLink;
 using UnityEngine;
 
@@ -14,6 +15,9 @@ namespace JumpRing.Game.Core.Localization
         [SerializeField]
         private LocalizationData englishData;
 
+        [SerializeField]
+        private PlatformStorageService storageService;
+
         private LocalizationData activeData;
 
         public Language CurrentLanguage { get; private set; }
@@ -26,10 +30,50 @@ namespace JumpRing.Game.Core.Localization
         {
             Instance = this;
             Initialize();
+
+            // PLink isn't ready at Awake, so a first-launch default may have fallen back to
+            // the unreliable Application.systemLanguage. Re-detect from the platform once it
+            // initializes — but only when the player has no explicit saved preference.
+            if (!PlayerPrefs.HasKey(LanguagePrefsKey))
+            {
+                if (PLink.IsInitialized)
+                {
+                    ApplyLanguage(DetectSystemLanguage());
+                }
+                else
+                {
+                    PLink.Initilized += OnPlinkReadyDetectLanguage;
+                }
+            }
+        }
+
+        private void OnPlinkReadyDetectLanguage()
+        {
+            PLink.Initilized -= OnPlinkReadyDetectLanguage;
+
+            if (!PlayerPrefs.HasKey(LanguagePrefsKey))
+            {
+                ApplyLanguage(DetectSystemLanguage());
+            }
+        }
+
+        private void Start()
+        {
+            if (storageService.IsLoaded)
+            {
+                ReconcileWithStorage();
+            }
+            else
+            {
+                storageService.Loaded += ReconcileWithStorage;
+            }
         }
 
         private void OnDestroy()
         {
+            storageService.Loaded -= ReconcileWithStorage;
+            PLink.Initilized -= OnPlinkReadyDetectLanguage;
+
             if (Instance == this)
                 Instance = null;
         }
@@ -46,11 +90,30 @@ namespace JumpRing.Game.Core.Localization
 
         public void SetLanguage(Language language)
         {
+            ApplyLanguage(language);
+            storageService.SetString(LanguagePrefsKey, language.ToString());
+        }
+
+        private void ApplyLanguage(Language language)
+        {
             CurrentLanguage = language;
             activeData = language == Language.RU ? russianData : englishData;
-            PlayerPrefs.SetString(LanguagePrefsKey, language.ToString());
-            PlayerPrefs.Save();
             LanguageChanged?.Invoke(language);
+        }
+
+        private void ReconcileWithStorage()
+        {
+            string saved = storageService.GetString(LanguagePrefsKey, string.Empty);
+            if (string.IsNullOrEmpty(saved))
+            {
+                return;
+            }
+
+            Language stored = saved == Language.EN.ToString() ? Language.EN : Language.RU;
+            if (stored != CurrentLanguage)
+            {
+                ApplyLanguage(stored);
+            }
         }
 
         private void Initialize()

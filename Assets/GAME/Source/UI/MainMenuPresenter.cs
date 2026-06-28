@@ -63,6 +63,11 @@ namespace JumpRing.Game.UI
             gameStateMachine.StateChanged -= OnStateChanged;
         }
 
+        private void OnDestroy()
+        {
+            fadeTween?.Kill();
+        }
+
         private void Update()
         {
             if (!isVisible) return;

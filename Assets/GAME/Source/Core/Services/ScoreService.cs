@@ -77,5 +77,29 @@ namespace JumpRing.Game.Core.Services
             _lastSubmitTime = Time.unscaledTime;
             _pendingScore = -1;
         }
+
+        // A throttled high score is otherwise only flushed on the next run start. Flush it
+        // when the player leaves so a record set in the cooldown window isn't lost if the
+        // tab is closed right after (WebGL fires focus/pause on tab switch and minimize).
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (!hasFocus)
+            {
+                FlushPendingScore();
+            }
+        }
+
+        private void OnApplicationPause(bool isPaused)
+        {
+            if (isPaused)
+            {
+                FlushPendingScore();
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            FlushPendingScore();
+        }
     }
 }

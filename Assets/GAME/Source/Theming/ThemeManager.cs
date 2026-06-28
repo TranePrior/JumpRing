@@ -66,12 +66,12 @@ namespace JumpRing.Game.Theming
                 {
                     lineDotsRenderer.Configure(theme.LineDotSprite, theme.LineDotSpacing, theme.LineDotSize);
                     lineDotsRenderer.Activate();
-                    linePathGenerator.SetLineVisible(false);
+                    if (linePathGenerator != null) linePathGenerator.SetLineVisible(false);
                 }
                 else
                 {
                     lineDotsRenderer.Deactivate();
-                    linePathGenerator.SetLineVisible(true);
+                    if (linePathGenerator != null) linePathGenerator.SetLineVisible(true);
                 }
             }
 

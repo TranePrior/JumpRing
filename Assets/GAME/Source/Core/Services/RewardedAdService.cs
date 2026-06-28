@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using JumpRing.Game.Core;
 using PlatformLink;
 using RetroCat.PlatformLink.Runtime.Source.Common.Modules.Advertisement;
@@ -8,8 +9,15 @@ namespace JumpRing.Game.Core.Services
 {
     public sealed class RewardedAdService : MonoBehaviour
     {
+        // Last-resort guard for an ad that never fires ANY terminal event. Must stay well
+        // above the real duration of a rewarded video (15-30s+) — a shorter value would fire
+        // mid-ad, resume the game under the still-visible ad and drop the actual reward.
+        private const float AdWatchdogSeconds = 180f;
+
         private Action onRewardGranted;
         private Action onAdFailed;
+        private Coroutine adWatchdog;
+        private bool adTerminal;
 
         public bool CanShowAd
         {
@@ -55,8 +63,10 @@ namespace JumpRing.Game.Core.Services
 #else
             onRewardGranted = onReward;
             onAdFailed = onFail;
+            adTerminal = false;
             PauseGame();
             PLink.Advertisement.RewardedAd.Show();
+            adWatchdog = StartCoroutine(AdWatchdog());
 #endif
         }
 
@@ -81,21 +91,45 @@ namespace JumpRing.Game.Core.Services
 
         private void OnRewarded(Reward reward)
         {
-            onRewardGranted?.Invoke();
-            ClearCallbacks();
+            FinalizeAd(rewardGranted: true);
         }
 
         private void OnFailed()
         {
-            ResumeGame();
-            onAdFailed?.Invoke();
-            ClearCallbacks();
+            FinalizeAd(rewardGranted: false);
         }
 
         private void OnClosed()
         {
+            // If the ad was closed without a reward (player skipped), treat it as a
+            // failure so the caller is always notified exactly once. On Yandex,
+            // Rewarded always precedes Closed, so a real reward is never dropped here.
+            FinalizeAd(rewardGranted: false);
+        }
+
+        private void FinalizeAd(bool rewardGranted)
+        {
+            if (adTerminal)
+            {
+                return;
+            }
+
+            adTerminal = true;
+            StopWatchdog();
             ResumeGame();
+
+            var reward = onRewardGranted;
+            var fail = onAdFailed;
             ClearCallbacks();
+
+            if (rewardGranted)
+            {
+                reward?.Invoke();
+            }
+            else
+            {
+                fail?.Invoke();
+            }
         }
 
         private void PauseGame()
@@ -107,9 +141,26 @@ namespace JumpRing.Game.Core.Services
 
         private void ResumeGame()
         {
+            StopWatchdog();
             WebGLFocusHandler.IsAdActive = false;
             Time.timeScale = 1f;
             AudioListener.pause = false;
+        }
+
+        private IEnumerator AdWatchdog()
+        {
+            yield return new WaitForSecondsRealtime(AdWatchdogSeconds);
+            adWatchdog = null;
+            OnFailed();
+        }
+
+        private void StopWatchdog()
+        {
+            if (adWatchdog != null)
+            {
+                StopCoroutine(adWatchdog);
+                adWatchdog = null;
+            }
         }
 
         private void ClearCallbacks()

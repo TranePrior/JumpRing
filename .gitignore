@@ -99,3 +99,14 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# macOS
+.DS_Store
+
+# Editor-runtime save dumps (PlatformStorageService fallback)
+/ActiveSkinId.txt
+/BestScore.txt
+/DiamondBalance.txt
+/OwnedSkins.txt
+/SkinUpgrades.txt
+/BonusSpawner_ConsecutiveDeaths.txt

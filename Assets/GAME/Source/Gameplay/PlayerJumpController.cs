@@ -10,6 +10,8 @@ namespace JumpRing.Game.Gameplay
 {
     public sealed class PlayerJumpController : MonoBehaviour, IRunStartGate
     {
+        public event System.Action Jumped;
+
         private static readonly Vector3 OriginPosition = Vector3.zero;
 
         [SerializeField]
@@ -202,6 +204,8 @@ namespace JumpRing.Game.Gameplay
             }
 
             playerSkinSlot?.Skin?.OnJump();
+
+            Jumped?.Invoke();
         }
 
         private void FixedUpdate()

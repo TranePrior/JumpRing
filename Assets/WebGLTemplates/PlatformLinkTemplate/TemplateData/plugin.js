@@ -177,6 +177,10 @@ function loadRemoteConfig() {
 }
 
 function sendMessageToUnity(message, value = undefined) {
+  if (!myGameInstance) {
+    console.warn('sendMessageToUnity skipped: Unity instance is not ready yet.', message);
+    return;
+  }
   myGameInstance.SendMessage('#!_platform_link_#!', message, value);
 }
 
@@ -282,6 +286,22 @@ function sendGameReadyMessage() {
     return;
   }
   ysdk.features.LoadingAPI.ready();
+}
+
+function gameplayApiStart() {
+  if (!ysdk || !ysdk.features || !ysdk.features.GameplayAPI) {
+    console.warn('Yandex SDK GameplayAPI is not available');
+    return;
+  }
+  ysdk.features.GameplayAPI.start();
+}
+
+function gameplayApiStop() {
+  if (!ysdk || !ysdk.features || !ysdk.features.GameplayAPI) {
+    console.warn('Yandex SDK GameplayAPI is not available');
+    return;
+  }
+  ysdk.features.GameplayAPI.stop();
 }
 
 function showInterstitialAd() {
@@ -492,28 +512,18 @@ function saveToPlatform(key, data)
     console.log('Data saved: ');
     console.log(object);
     sendMessageToUnity('fjs_onSaveDataSuccess');
+  }).catch(error => {
+    console.error('saveToPlatform error:', error);
   });
 }
 
 function loadFromPlatform(key) {
-    console.log('key: ' + key); //TODO: не тот ключ
-
     player.getData([key]).then(data => {
-        console.log('object: ');
-        console.log(data);
-        console.log('value: ');
-        console.log(data[key]);
-
-        player.getData([key]).then(data => {
-            if (data[key]) {
-                sendMessageToUnity('fjs_onLoadDataSuccess', data[key]);
-                console.log('loaded');
-            }
-            else {
-                console.log('loaded null');
-                sendMessageToUnity('fjs_onLoadDataSuccess', "");
-            }
-        });
+        const value = (data && data[key]) ? data[key] : "";
+        sendMessageToUnity('fjs_onLoadDataSuccess', value);
+    }).catch(error => {
+        console.error('loadFromPlatform error:', error);
+        sendMessageToUnity('fjs_onLoadDataSuccess', "");
     });
 }
 
@@ -821,7 +831,20 @@ function fallbackCopyToClipboard(text) {
 
 function setLeaderboardScore(leaderboardId, score)
 {
-  ysdk.leaderboards.setScore(leaderboardId, score);
+  if (!ysdk || !ysdk.leaderboards || typeof ysdk.leaderboards.setScore !== 'function') {
+    console.warn('Yandex SDK leaderboards.setScore is not available');
+    return;
+  }
+
+  if (!isPlayerAuthorized()) {
+    console.log('setLeaderboardScore skipped: player is not authorized');
+    return;
+  }
+
+  ysdk.leaderboards.setScore(leaderboardId, score)
+    .catch(err => {
+      console.log('setScore error:', err);
+    });
 }
 
 function getLeaderboardPlayerEntry(leaderboardId) {

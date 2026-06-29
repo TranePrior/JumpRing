@@ -76,7 +76,13 @@ MonoBehaviour:
       _yandexMetrikaId: 
       _loadingScreen:
         _manualClose: 0
-    _modules: []
+    _modules:
+    - _kind: 0
+      _adapterConfig:
+        rid: 2257758371993616460
+    - _kind: 1
+      _adapterConfig:
+        rid: 2257758371993616461
   - _name: Android
     _type: 1
     _editorSettings:
@@ -204,14 +210,20 @@ MonoBehaviour:
       _yandexMetrikaId: 
       _loadingScreen:
         _manualClose: 0
-    _modules: []
-  _activePlatformIndex: 0
+    _modules:
+    - _kind: 0
+      _adapterConfig:
+        rid: 2257758371993616462
+    - _kind: 1
+      _adapterConfig:
+        rid: 2257758371993616463
+  _activePlatformIndex: 2
   _editor:
     _environment:
       _language: En
       _deviceType: 0
     _storage:
-      _saveFilePath: Assets/PlatformLinkSaves
+      _saveFilePath: 
     _purchases:
       _products: []
     _platform:
@@ -269,4 +281,16 @@ MonoBehaviour:
       _manualClose: 0
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 2257758371993616460
+      type: {class: EditorInterstitialAdapterConfig, ns: , asm: RetroCat.PlatformLink}
+      data: 
+    - rid: 2257758371993616461
+      type: {class: EditorRewardedAdapterConfig, ns: , asm: RetroCat.PlatformLink}
+      data: 
+    - rid: 2257758371993616462
+      type: {class: YandexGamesInterstitialAdapterConfig, ns: , asm: RetroCat.PlatformLink}
+      data: 
+    - rid: 2257758371993616463
+      type: {class: YandexGamesRewardedAdapterConfig, ns: , asm: RetroCat.PlatformLink}
+      data: 

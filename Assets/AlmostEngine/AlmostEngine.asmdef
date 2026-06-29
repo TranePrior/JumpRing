@@ -1,0 +1,19 @@
+{
+    "name": "AlmostEngine",
+    "rootNamespace": "",
+    "references": [
+        "InputSystemForUI",
+        "AlmostEngine.Shared",
+        "Unity.InputSystem",
+        "Unity.InputSystem.ForUI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

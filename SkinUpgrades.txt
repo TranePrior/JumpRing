@@ -1,1 +1,1 @@
-ring_pinguin:1,ring_vampire:1,ring_doctor:1,ring_pizda:1
+ring_pinguin:1,ring_vampire:2,ring_doctor:1,ring_pizda:1,ring_cat:4

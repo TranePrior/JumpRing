@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e907029721b534c16ba15e26b2f936f3
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 174256
+  packageName: App Tracking Transparency for Unity - iOS 14 IDFA
+  packageVersion: 2.3.1
+  assetPath: Assets/Balaso Software/Editor/Scripts/LanguagesDictionary.cs
+  uploadId: 431674

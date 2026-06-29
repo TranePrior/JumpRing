@@ -69,6 +69,8 @@ namespace JumpRing.Game.Gameplay
 
         private readonly Vector3[] worldPointsBuffer = new Vector3[2048];
         private readonly Vector2[] localPointsBuffer = new Vector2[2048];
+        private readonly List<Vector2> colliderPointsBuffer = new();
+        private readonly List<int> bakedRemovalBuffer = new();
 
         private float lastStartX;
         private float lastEndX;
@@ -300,7 +302,8 @@ namespace JumpRing.Game.Gameplay
 
             // Remove cached points beyond the flat zone so they regenerate from the flat height
             var lastFlatStep = startStep + segmentCount - 1;
-            var toRemove = new List<int>();
+            bakedRemovalBuffer.Clear();
+            var toRemove = bakedRemovalBuffer;
 
             foreach (var key in bakedHeights.Keys)
             {
@@ -636,7 +639,8 @@ namespace JumpRing.Game.Gameplay
             var rawPointsCount = endStep - startStep + 1;
             var pointsCount = Mathf.Clamp(rawPointsCount, 2, worldPointsBuffer.Length);
             lineRenderer.positionCount = pointsCount;
-            var colliderPoints = new List<Vector2>(pointsCount);
+            colliderPointsBuffer.Clear();
+            var colliderPoints = colliderPointsBuffer;
 
             // Prune baked points far behind the camera
             var pruneStep = startStep - 20;
@@ -660,7 +664,8 @@ namespace JumpRing.Game.Gameplay
 
         private void PruneBakedBefore(int minStep)
         {
-            var toRemove = new List<int>();
+            bakedRemovalBuffer.Clear();
+            var toRemove = bakedRemovalBuffer;
 
             foreach (var key in bakedHeights.Keys)
             {

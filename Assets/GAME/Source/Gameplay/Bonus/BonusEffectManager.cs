@@ -66,6 +66,9 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(1f)]
         private float secondChanceTimerDuration = 7f;
 
+        [SerializeField, Min(0f), Tooltip("Short flat-line window after revive so the ring lands on stable ground")]
+        private float reviveSafeZoneDuration = 1.5f;
+
         public event Action<BonusType> BonusActivated;
         public event Action<BonusType> BonusDeactivated;
 
@@ -228,6 +231,15 @@ namespace JumpRing.Game.Gameplay
         public void StartInvincibility()
         {
             pendingInvincibility = true;
+        }
+
+        /// <summary>
+        /// Starts a short flat-line window after revive so the ring lands on stable
+        /// ground instead of resuming on an uneven slope. Shorter than the start safe zone.
+        /// </summary>
+        public void StartReviveSafeZone()
+        {
+            safeZoneRemaining = reviveSafeZoneDuration;
         }
 
         public void NotifyTap()

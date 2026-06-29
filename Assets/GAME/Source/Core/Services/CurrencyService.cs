@@ -23,6 +23,11 @@ namespace JumpRing.Game.Core.Services
 
         public void Add(int amount)
         {
+            if (amount < 0)
+            {
+                return;
+            }
+
             RunEarnings += amount;
 
             var newBalance = Balance + amount;
@@ -32,6 +37,11 @@ namespace JumpRing.Game.Core.Services
 
         public bool Spend(int amount)
         {
+            if (amount < 0)
+            {
+                return false;
+            }
+
             if (amount > Balance)
             {
                 return false;

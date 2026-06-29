@@ -1,0 +1,290 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a82de9ba8c39d348b992d89c89c02dc, type: 3}
+  m_Name: ScreenshotWindowConfig
+  m_EditorClassIdentifier: 
+  m_Config:
+    m_DestinationFolder: 0
+    m_RelativePath: D:\Screenshots\OilRush
+    m_RootedPath: /Users/flux/Downloads
+    m_ExportToPhoneGallery: 1
+    m_ExportAsync: 0
+    m_FileName: '{name}-{width}x{height}-screenshot'
+    m_OverwriteFiles: 0
+    m_NumberLeftPadding: 0
+    m_FileFormat: 0
+    m_JPGQuality: 75
+    m_ShareTitle: Share the screenshot
+    m_ShareSubject: Nice screenshot
+    m_ShareText: Look at this nice screenshot.
+    m_CaptureMode: 0
+    m_MultisamplingAntiAliasing: 0
+    m_ColorFormat: 0
+    m_RecomputeAlphaLayer: 0
+    m_ShotMode: 0
+    m_MaxBurstShotsNumber: 20
+    m_MaxShotPerSeconds: 30
+    m_FixedFrameRate: 1
+    m_CameraMode: 2
+    m_ExportToDifferentLayers: 0
+    m_Cameras: []
+    m_ResolutionCaptureMode: 1
+    m_Resolutions:
+    - m_Active: 1
+      m_Width: 2868
+      m_Height: 1320
+      m_Scale: 1
+      m_Orientation: 0
+      m_ResolutionName: IPhone_6.9
+      m_Category: IPhone_6.9
+      m_Platform: 
+      m_PPI: 0
+      m_ForcedUnityPPI: 0
+      m_DeviceCanvas: {fileID: 0}
+      m_Ratio: 2:1~
+      m_FileName: /Users/flux/Downloads/IPhone_6.9-2868x1320-screenshot.png
+      m_IgnoreOrientation: 0
+      m_DisableSafeArea: 0
+      m_SafeAreaPortrait:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_SafeAreaLandscapeLeft:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+    - m_Active: 1
+      m_Width: 2688
+      m_Height: 1242
+      m_Scale: 1
+      m_Orientation: 0
+      m_ResolutionName: IPhone_6.5
+      m_Category: IPhone_6.5
+      m_Platform: 
+      m_PPI: 0
+      m_ForcedUnityPPI: 0
+      m_DeviceCanvas: {fileID: 0}
+      m_Ratio: 2:1~
+      m_FileName: /Users/flux/Downloads/IPhone_6.5-2688x1242-screenshot.png
+      m_IgnoreOrientation: 0
+      m_DisableSafeArea: 0
+      m_SafeAreaPortrait:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_SafeAreaLandscapeLeft:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+    - m_Active: 1
+      m_Width: 2752
+      m_Height: 2064
+      m_Scale: 1
+      m_Orientation: 0
+      m_ResolutionName: IPad_13
+      m_Category: IPad_13
+      m_Platform: 
+      m_PPI: 0
+      m_ForcedUnityPPI: 0
+      m_DeviceCanvas: {fileID: 0}
+      m_Ratio: 4:3
+      m_FileName: /Users/flux/Downloads/IPad_13-2752x2064-screenshot.png
+      m_IgnoreOrientation: 0
+      m_DisableSafeArea: 0
+      m_SafeAreaPortrait:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_SafeAreaLandscapeLeft:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+    - m_Active: 1
+      m_Width: 1920
+      m_Height: 1080
+      m_Scale: 1
+      m_Orientation: 0
+      m_ResolutionName: AndroidPhone
+      m_Category: AndroidPhone
+      m_Platform: 
+      m_PPI: 0
+      m_ForcedUnityPPI: 0
+      m_DeviceCanvas: {fileID: 0}
+      m_Ratio: 9:16
+      m_FileName: /Users/flux/Downloads/AndroidPhone-1920x1080-screenshot.png
+      m_IgnoreOrientation: 0
+      m_DisableSafeArea: 0
+      m_SafeAreaPortrait:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_SafeAreaLandscapeLeft:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+    - m_Active: 1
+      m_Width: 2560
+      m_Height: 1600
+      m_Scale: 1
+      m_Orientation: 0
+      m_ResolutionName: AndroidTablet
+      m_Category: AndroidTablet
+      m_Platform: 
+      m_PPI: 0
+      m_ForcedUnityPPI: 0
+      m_DeviceCanvas: {fileID: 0}
+      m_Ratio: 4:3
+      m_FileName: /Users/flux/Downloads/AndroidTablet-2560x1600-screenshot.png
+      m_IgnoreOrientation: 0
+      m_DisableSafeArea: 0
+      m_SafeAreaPortrait:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_SafeAreaLandscapeLeft:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+    m_GameViewResolution:
+      m_Active: 1
+      m_Width: 2960
+      m_Height: 1440
+      m_Scale: 1
+      m_Orientation: 0
+      m_ResolutionName: GameView
+      m_Category: Custom
+      m_Platform: 
+      m_PPI: 0
+      m_ForcedUnityPPI: 0
+      m_DeviceCanvas: {fileID: 0}
+      m_Ratio: 
+      m_FileName: C:\Users\iron\Pictures/Screenshots/983x723-screenshot.png
+      m_IgnoreOrientation: 0
+      m_DisableSafeArea: 0
+      m_SafeAreaPortrait:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_SafeAreaLandscapeLeft:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+    m_CaptureActiveUICanvas: 1
+    m_ForceUICullingLayer: 0
+    m_Overlays: []
+    m_CompositionMode: 0
+    m_Compositions: []
+    m_BatchMode: 0
+    m_Batches: []
+    m_ShowGuidesInPreview: 0
+    m_GuideCanvas: {fileID: 0}
+    m_GuidesColor: {r: 1, g: 1, b: 1, a: 1}
+    m_ShowPreview: 1
+    m_PreviewSize: 1
+    m_PreviewInGameViewWhilePlaying: 0
+    m_DontDestroyOnLoad: 1
+    m_StopTimeOnCapture: 1
+    m_PlaySoundOnCapture: 1
+    m_ShotSound: {fileID: 0}
+    m_CaptureHotkey:
+      m_Shift: 0
+      m_Control: 0
+      m_Alt: 0
+      m_NewInputKey: 0
+      m_Key: 293
+    m_UpdatePreviewHotkey:
+      m_Shift: 0
+      m_Control: 0
+      m_Alt: 0
+      m_NewInputKey: 0
+      m_Key: 286
+    m_AlignHotkey:
+      m_Shift: 0
+      m_Control: 0
+      m_Alt: 0
+      m_NewInputKey: 0
+      m_Key: 292
+    m_PauseHotkey:
+      m_Shift: 0
+      m_Control: 0
+      m_Alt: 0
+      m_NewInputKey: 0
+      m_Key: 0
+    m_NewInputCaptureHotkey:
+      m_Shift: 0
+      m_Control: 0
+      m_Alt: 0
+      m_NewInputKey: 0
+      m_Key: 0
+    m_NewInputUpdatePreviewHotkey:
+      m_Shift: 0
+      m_Control: 0
+      m_Alt: 0
+      m_NewInputKey: 0
+      m_Key: 0
+    m_NewInputAlignHotkey:
+      m_Shift: 0
+      m_Control: 0
+      m_Alt: 0
+      m_NewInputKey: 0
+      m_Key: 0
+    m_NewInputPauseHotkey:
+      m_Shift: 0
+      m_Control: 0
+      m_Alt: 0
+      m_NewInputKey: 0
+      m_Key: 0
+    m_GameViewResizingWaitingMode: 0
+    m_ResizingWaitingTime: 1
+    m_ResizingWaitingFrames: 2
+    m_ItemsPerPage: 20
+    m_ShowDestination: 1
+    m_ShowName: 1
+    m_ShowCaptureMode: 1
+    m_ShowResolutions: 1
+    m_ShowCameras: 0
+    m_ShowCanvas: 1
+    m_ShowComposition: 0
+    m_ShowBatches: 0
+    m_ShowPreviewGUI: 0
+    m_ShowCapture: 0
+    m_ShowHotkeys: 1
+    m_ShowGallery: 1
+    m_ShowUtils: 1
+    m_ShowUsage: 1
+    m_ShowInstall: 1
+    m_ShowDelay: 0
+    m_ShowShare: 1

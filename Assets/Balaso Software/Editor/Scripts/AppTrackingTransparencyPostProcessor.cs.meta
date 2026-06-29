@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 1539d14491b6848fbac5db7f8d0dce5b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 174256
+  packageName: App Tracking Transparency for Unity - iOS 14 IDFA
+  packageVersion: 2.3.1
+  assetPath: Assets/Balaso Software/Editor/Scripts/AppTrackingTransparencyPostProcessor.cs
+  uploadId: 431674

@@ -9,9 +9,16 @@ namespace JumpRing.Tests.EditMode
     [TestFixture]
     public sealed class RingSizeUpgradeServiceTests
     {
+        private const string SkinId = "TestRing";
+        private const int MaxLevel = 10;
+        private const float ScaleStep = 0.1f;
+        private const int SkinPrice = 100;
+        private static readonly float[] PriceMultipliers = { 1f, 1.5f, 2f, 3f, 4f, 5.5f };
+
         private RingSizeUpgradeService service;
         private GameObject serviceObject;
         private FakeCurrencyService fakeCurrency;
+        private PlatformStorageService storage;
         private SkinItem testSkin;
 
         [SetUp]
@@ -21,40 +28,28 @@ namespace JumpRing.Tests.EditMode
 
             serviceObject = new GameObject("UpgradeService");
             fakeCurrency = serviceObject.AddComponent<FakeCurrencyService>();
+            storage = serviceObject.AddComponent<PlatformStorageService>();
             service = serviceObject.AddComponent<RingSizeUpgradeService>();
 
-            var currencyField = typeof(RingSizeUpgradeService)
-                .GetField("currencyServiceComponent",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            currencyField.SetValue(service, fakeCurrency);
-
-            var maxLevelField = typeof(RingSizeUpgradeService)
-                .GetField("maxLevel",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            maxLevelField.SetValue(service, 10);
-
-            var stepField = typeof(RingSizeUpgradeService)
-                .GetField("scaleStep",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            stepField.SetValue(service, 0.1f);
-
-            var multiplierField = typeof(RingSizeUpgradeService)
-                .GetField("priceMultiplier",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            multiplierField.SetValue(service, 1.5f);
+            SetPrivateField(service, "currencyServiceComponent", fakeCurrency);
+            SetPrivateField(service, "storageService", storage);
+            SetPrivateField(service, "maxLevel", MaxLevel);
+            SetPrivateField(service, "scaleStep", ScaleStep);
+            SetPrivateField(service, "levelPriceMultipliers", PriceMultipliers);
 
             testSkin = ScriptableObject.CreateInstance<SkinItem>();
-            var skinIdField = typeof(SkinItem)
-                .GetField("skinId",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            skinIdField.SetValue(testSkin, "TestRing");
-
-            var priceField = typeof(SkinItem)
-                .GetField("price",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            priceField.SetValue(testSkin, 100);
+            SetPrivateField(testSkin, "skinId", SkinId);
+            SetPrivateField(testSkin, "price", SkinPrice);
 
             service.Initialize();
+        }
+
+        private static void SetPrivateField(object target, string fieldName, object value)
+        {
+            var field = target.GetType().GetField(fieldName,
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.IsNotNull(field, $"Field '{fieldName}' not found on {target.GetType().Name}");
+            field.SetValue(target, value);
         }
 
         [TearDown]
@@ -141,7 +136,7 @@ namespace JumpRing.Tests.EditMode
         }
 
         [Test]
-        public void GetTotalScale_CappedAtTwo()
+        public void GetTotalScale_CappedAtMaxScale()
         {
             fakeCurrency.SetBalance(999999);
 
@@ -150,7 +145,7 @@ namespace JumpRing.Tests.EditMode
                 service.TryUpgrade(testSkin);
             }
 
-            Assert.AreEqual(2f, service.GetTotalScale("TestRing"), 0.001f);
+            Assert.AreEqual(1.3f, service.GetTotalScale("TestRing"), 0.001f);
         }
 
         [Test]

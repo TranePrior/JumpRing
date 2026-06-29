@@ -6,17 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="43718062-097b-4ba1-b3ad-9d99ef37b4f1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.JumpRing/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.JumpRing/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.mcp.json" beforeDir="false" afterPath="$PROJECT_DIR$/.mcp.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Core/Composition/GameCompositionRoot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Core/Composition/GameCompositionRoot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/CoinCollectible.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/CoinCollectible.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/CoinStepSpawner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/CoinStepSpawner.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/DifficultyManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/DifficultyManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/LinePathGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/LinePathGenerator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/PlayerForwardMover.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/PlayerForwardMover.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/PlayerJumpController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/PlayerJumpController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/RiskRewardSystem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/RiskRewardSystem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/RunSessionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/RunSessionController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Fonts/Rubik-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Fonts/Rubik-Bold SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Core/Services/RewardedAdService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Core/Services/RewardedAdService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Core/WebGLFocusHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Core/WebGLFocusHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/Bonus/BonusEffectManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/Gameplay/Bonus/BonusEffectManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/UI/GameOverPresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/UI/GameOverPresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GAME/Source/UI/SecondChancePresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GAME/Source/UI/SecondChancePresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/ProjectConfigs/PlatformLinkConfig.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/ProjectConfigs/PlatformLinkConfig.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/RetroCat/Modules/UITemplates/Common/Popups/Leaderboard/Popup_Leaderboard.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/RetroCat/Modules/UITemplates/Common/Popups/Leaderboard/Popup_Leaderboard.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/RetroCat/Modules/UITemplates/Minimalism/Fonts/Rubik-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/RetroCat/Modules/UITemplates/Minimalism/Fonts/Rubik-Bold SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DiamondBalance.txt" beforeDir="false" afterPath="$PROJECT_DIR$/DiamondBalance.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,20 +34,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/MacOS/Unity" />
@@ -109,6 +109,7 @@
       <updated>1776288206024</updated>
       <workItem from="1776288207545" duration="1000" />
       <workItem from="1776958463636" duration="9250000" />
+      <workItem from="1781453819068" duration="1784000" />
     </task>
     <servers />
   </component>

@@ -158,6 +158,17 @@ namespace JumpRing.Game.UI
                 return;
             }
 
+            // Freeze the auto-quit countdown while the rewarded ad is on screen.
+            // Time.unscaledDeltaTime keeps ticking under timeScale=0, so without this
+            // the timer would expire mid-ad, force game over, then revive on top of it.
+            isCountingDown = false;
+
+            if (secondChancePanelCanvasGroup != null)
+            {
+                secondChancePanelCanvasGroup.interactable = false;
+                secondChancePanelCanvasGroup.blocksRaycasts = false;
+            }
+
             rewardedAdService.ShowAd(
                 onReward: () =>
                 {
@@ -176,6 +187,7 @@ namespace JumpRing.Game.UI
         {
             var deathPos = playerJumpController.LastDeathPosition;
             playerJumpController.RevivePlayer(deathPos.x - reviveOffset);
+            bonusEffectManager.StartReviveSafeZone();
 
             if (coinStepSpawner != null)
             {

@@ -34,6 +34,7 @@ namespace JumpRing.Game.Gameplay
 
         private Sprite dotSprite;
         private readonly List<SpriteRenderer> activeDots = new(64);
+        private readonly HashSet<int> existingStepsBuffer = new();
         private readonly Queue<SpriteRenderer> pool = new(32);
         private int lastStartStep;
         private int lastEndStep;
@@ -135,7 +136,8 @@ namespace JumpRing.Game.Gameplay
             }
 
             // Build a set of existing steps
-            var existingSteps = new HashSet<int>(activeDots.Count);
+            existingStepsBuffer.Clear();
+            var existingSteps = existingStepsBuffer;
             foreach (var dot in activeDots)
             {
                 existingSteps.Add(Mathf.RoundToInt(dot.transform.position.x / spacing));

@@ -1,0 +1,23 @@
+{
+    "name": "AlmostEngine.UltimateScreenshotCreator.Editor",
+    "rootNamespace": "",
+    "references": [
+        "InputSystemForUI",
+        "AlmostEngine",
+        "AlmostEngine.Shared.Editor",
+        "AlmostEngine.Shared",
+        "Unity.InputSystem",
+        "Unity.InputSystem.ForUI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

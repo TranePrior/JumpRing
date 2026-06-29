@@ -142,22 +142,29 @@ namespace JumpRing.Game.Gameplay
 
             hasActiveRun = false;
             gameStateMachine.Enter(GameState.GameOver);
+            Time.timeScale = 1f;
             RunFinished?.Invoke();
         }
 
         public void PauseRun()
         {
             gameStateMachine.Enter(GameState.Paused);
+            // Freeze the whole world (and every deltaTime-based system) for the
+            // death / second-chance dialog. The dialog timer and UI tweens use
+            // unscaled time, so they keep running.
+            Time.timeScale = 0f;
         }
 
         public void ResumeRun()
         {
             gameStateMachine.Enter(GameState.Gameplay);
+            Time.timeScale = 1f;
         }
 
         public void ReviveToReady()
         {
             gameStateMachine.Enter(GameState.Ready);
+            Time.timeScale = 1f;
         }
 
         public void OpenMainMenu()

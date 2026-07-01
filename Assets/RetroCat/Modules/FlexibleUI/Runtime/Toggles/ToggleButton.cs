@@ -33,6 +33,9 @@ namespace RetroCat.Modules.Core.UI.Controls.Toggles
 #if UNITY_EDITOR
         private void OnValidate()
         {
+            if (_handleImage == null || _backgroundImage == null)
+                return;
+
             SetStateWithoutNotify(_state);
         }
 

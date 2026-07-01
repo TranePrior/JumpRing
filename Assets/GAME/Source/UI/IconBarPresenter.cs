@@ -31,12 +31,6 @@ namespace JumpRing.Game.UI
             _ourGamesButton.onClick.AddListener(OnOurGamesClicked);
             _shareButton.onClick.AddListener(OnShareClicked);
             _settingsButton.onClick.AddListener(OnSettingsClicked);
-
-            if (_noAdsService != null)
-            {
-                UpdateNoAdsButtonVisibility();
-                _noAdsService.StateChanged += UpdateNoAdsButtonVisibility;
-            }
         }
 
         private void OnDisable()
@@ -46,16 +40,6 @@ namespace JumpRing.Game.UI
             _ourGamesButton.onClick.RemoveListener(OnOurGamesClicked);
             _shareButton.onClick.RemoveListener(OnShareClicked);
             _settingsButton.onClick.RemoveListener(OnSettingsClicked);
-
-            if (_noAdsService != null)
-            {
-                _noAdsService.StateChanged -= UpdateNoAdsButtonVisibility;
-            }
-        }
-
-        private void UpdateNoAdsButtonVisibility()
-        {
-            _noAdsButton.gameObject.SetActive(!_noAdsService.IsNoAds);
         }
 
         private void OnNoAdsClicked()

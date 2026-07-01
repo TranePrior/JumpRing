@@ -97,6 +97,11 @@ namespace JumpRing.Game.Gameplay
 
         public Vector2 LastDeathPosition => lastDeathPosition;
 
+        /// <summary>
+        /// Raised the moment a jump impulse is applied to the player.
+        /// </summary>
+        public event System.Action Jumped;
+
         private void Awake()
         {
             linePathGenerator = Object.FindFirstObjectByType<LinePathGenerator>();
@@ -202,6 +207,8 @@ namespace JumpRing.Game.Gameplay
             }
 
             playerSkinSlot?.Skin?.OnJump();
+
+            Jumped?.Invoke();
         }
 
         private void FixedUpdate()

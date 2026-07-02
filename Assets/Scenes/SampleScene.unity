@@ -4285,6 +4285,7 @@ MonoBehaviour:
   adContinueButton: {fileID: 2035879042}
   quitButton: {fileID: 1033654679}
   timerFill: {fileID: 1437853895}
+  heartIcon: {fileID: 1459118303}
   dimOverlay: {fileID: 982662098}
   rewardedAdService: {fileID: 1632676891}
   cameraFollowTarget: {fileID: 0}
@@ -7343,7 +7344,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizationService
   russianData: {fileID: 11400000, guid: 67c37f0ee9a4141d1a8859a0ac23df18, type: 2}
   englishData: {fileID: 11400000, guid: 3abf013dd89eb4d509a14a34f7271ff0, type: 2}
-  storageService: {fileID: 0}
+  storageService: {fileID: 1632676890}
 --- !u!114 &1632676897
 MonoBehaviour:
   m_ObjectHideFlags: 0

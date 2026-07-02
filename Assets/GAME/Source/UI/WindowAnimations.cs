@@ -39,6 +39,21 @@ namespace JumpRing.Game.UI
             return seq;
         }
 
+        public static Sequence Heartbeat(Transform target)
+        {
+            target.localScale = Vector3.one;
+
+            var seq = DOTween.Sequence();
+            seq.Append(target.DOScale(1.12f, 0.14f).SetEase(Ease.OutQuad));
+            seq.Append(target.DOScale(1f, 0.14f).SetEase(Ease.InQuad));
+            seq.Append(target.DOScale(1.08f, 0.12f).SetEase(Ease.OutQuad));
+            seq.Append(target.DOScale(1f, 0.12f).SetEase(Ease.InQuad));
+            seq.AppendInterval(0.5f);
+            seq.SetLoops(-1);
+            seq.SetUpdate(true);
+            return seq;
+        }
+
         public static Tween FadeIn(CanvasGroup canvasGroup)
         {
             canvasGroup.alpha = 0f;

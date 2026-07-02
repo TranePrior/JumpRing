@@ -20,7 +20,7 @@ MonoBehaviour:
         _language: En
         _deviceType: 0
       _storage:
-        _saveFilePath: 
+        _saveFilePath: Assets/PlatformLinkSaves
       _purchases:
         _products: []
       _platform:

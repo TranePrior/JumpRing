@@ -109,17 +109,13 @@ namespace JumpRing.Game.Core.Services
 
         private void PauseGame()
         {
-            WebGLFocusHandler.IsAdActive = true;
-            Time.timeScale = 0f;
-            AudioListener.pause = true;
+            PauseService.Add(PauseReason.Ad);
         }
 
         private void ResumeGame()
         {
             StopWatchdog();
-            WebGLFocusHandler.IsAdActive = false;
-            Time.timeScale = 1f;
-            AudioListener.pause = false;
+            PauseService.Remove(PauseReason.Ad);
         }
 
         private IEnumerator AdWatchdog()

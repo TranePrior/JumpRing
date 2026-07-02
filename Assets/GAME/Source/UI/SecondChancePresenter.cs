@@ -39,6 +39,9 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private Image timerFill;
 
+        [SerializeField]
+        private Transform heartIcon;
+
         [Header("Overlay")]
         [SerializeField]
         private DimOverlay dimOverlay;
@@ -60,6 +63,7 @@ namespace JumpRing.Game.UI
         private bool adReviveUsedThisRun;
         private bool isAdReviveMode;
         private Sequence panelSequence;
+        private Sequence heartbeatSequence;
 
         private void OnEnable()
         {
@@ -209,11 +213,16 @@ namespace JumpRing.Game.UI
                 panelSequence = WindowAnimations.AnimateOpen(
                     secondChancePanelCanvasGroup, secondChancePanel.transform);
             }
+
+            heartbeatSequence?.Kill();
+            heartbeatSequence = WindowAnimations.Heartbeat(heartIcon);
         }
 
         private void HidePanel()
         {
             panelSequence?.Kill();
+            heartbeatSequence?.Kill();
+            heartIcon.localScale = Vector3.one;
             isCountingDown = false;
 
             if (secondChancePanelCanvasGroup != null)

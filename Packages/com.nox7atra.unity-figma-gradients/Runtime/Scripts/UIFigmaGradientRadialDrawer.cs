@@ -13,7 +13,6 @@ namespace Nox7atra.UIFigmaGradients
         [SerializeField] protected float _Radius1 = 1;
         [Range(0.01f, 10)]
         [SerializeField] protected float _Radius2 = 1;
-        protected override Material GradientMaterial => new Material(Shader.Find("UI/RadialGradientShader"));
 
         protected override void GenerateHelperUvs(VertexHelper vh)
         {

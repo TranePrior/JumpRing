@@ -482,39 +482,51 @@ function consumePurchase(token) {
     });
 }
 
+// Cache of the whole player data object. Populated by the first load with a single
+// player.getData() network round-trip, then reused so subsequent per-key loads resolve
+// instantly instead of hitting the network once per key.
+let playerDataCache = null;
+
 function saveToPlatform(key, data)
 {
   let object = {
     [key]: data
   }
 
+  // Keep the cache in sync so a later load reads the freshly written value.
+  if (playerDataCache !== null) {
+    playerDataCache[key] = data;
+  }
+
   player.setData(object).then(() => {
-    console.log('Data saved: ');
-    console.log(object);
     sendMessageToUnity('fjs_onSaveDataSuccess');
   });
 }
 
+function respondLoadFromCache(key) {
+  const value = playerDataCache ? playerDataCache[key] : undefined;
+  if (value !== undefined && value !== null) {
+    sendMessageToUnity('fjs_onLoadDataSuccess', String(value));
+  } else {
+    sendMessageToUnity('fjs_onLoadDataSuccess', "");
+  }
+}
+
 function loadFromPlatform(key) {
-    console.log('key: ' + key); //TODO: не тот ключ
+  if (playerDataCache !== null) {
+    respondLoadFromCache(key);
+    return;
+  }
 
-    player.getData([key]).then(data => {
-        console.log('object: ');
-        console.log(data);
-        console.log('value: ');
-        console.log(data[key]);
-
-        player.getData([key]).then(data => {
-            if (data[key]) {
-                sendMessageToUnity('fjs_onLoadDataSuccess', data[key]);
-                console.log('loaded');
-            }
-            else {
-                console.log('loaded null');
-                sendMessageToUnity('fjs_onLoadDataSuccess', "");
-            }
-        });
-    });
+  // First load fetches the entire player data object in one request and caches it.
+  player.getData().then(data => {
+    playerDataCache = data || {};
+    respondLoadFromCache(key);
+  }).catch(error => {
+    console.log('getData error:', error);
+    playerDataCache = {};
+    respondLoadFromCache(key);
+  });
 }
 
 function saveToLocalStorage(key, data) {
@@ -821,7 +833,18 @@ function fallbackCopyToClipboard(text) {
 
 function setLeaderboardScore(leaderboardId, score)
 {
-  ysdk.leaderboards.setScore(leaderboardId, score);
+  if (!ysdk || !ysdk.leaderboards || !ysdk.leaderboards.setScore) {
+    console.warn('Yandex SDK leaderboards.setScore is not available');
+    return;
+  }
+
+  // A rejected setScore is not fatal: the platform simply drops the request
+  // (rate limit, missing auth, network). Swallow it so it does not surface as
+  // an uncaught rejection, which Unity turns into a modal error dialog.
+  ysdk.leaderboards.setScore(leaderboardId, score)
+    .catch(err => {
+      console.warn('Failed to set leaderboard score:', err);
+    });
 }
 
 function getLeaderboardPlayerEntry(leaderboardId) {

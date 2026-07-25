@@ -4,7 +4,6 @@ using RetroCat.Modules.Core.UI.Activities.Popups.Core;
 using RetroCat.Modules.Core.UI.Controls.Toggles;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
 {
@@ -18,12 +17,6 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
         [SerializeField] private ToggleButton _musicToggle;
         [SerializeField] private ToggleButton _effectsToggle;
         [SerializeField] private ToggleButton _vibrationsToggle;
-
-        [Header("Links")]
-        [SerializeField] private Button _privacyPolicyButton;
-        [SerializeField] private Button _termsOfUseButton;
-        [SerializeField] private string _privacyPolicyUrl;
-        [SerializeField] private string _termsOfUseUrl;
 
         [Header("Events")]
         [SerializeField] private UnityEvent<bool> _onMusicChanged;
@@ -64,12 +57,6 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
 
             _vibrationsToggle.StateEnabled += OnVibrationStateEnabled;
             _vibrationsToggle.StateDisabled += OnVibrationStateDisabled;
-
-            if (_privacyPolicyButton != null)
-                _privacyPolicyButton.onClick.AddListener(OnPrivacyPolicyClicked);
-
-            if (_termsOfUseButton != null)
-                _termsOfUseButton.onClick.AddListener(OnTermsOfUseClicked);
         }
 
         private void OnVibrationStateDisabled()
@@ -111,18 +98,6 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
         protected override void OnOpenFinished() { }
         protected override void OnCloseStarted() { }
 
-        private void OnPrivacyPolicyClicked()
-        {
-            if (!string.IsNullOrEmpty(_privacyPolicyUrl) && PLink.IsInitialized)
-                PLink.Platform.OpenLink(_privacyPolicyUrl);
-        }
-
-        private void OnTermsOfUseClicked()
-        {
-            if (!string.IsNullOrEmpty(_termsOfUseUrl) && PLink.IsInitialized)
-                PLink.Platform.OpenLink(_termsOfUseUrl);
-        }
-
         protected override void OnCloseFinished()
         {
             _musicToggle.StateEnabled -= OnMusicStateEnabled;
@@ -133,12 +108,6 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
 
             _vibrationsToggle.StateEnabled -= OnVibrationStateEnabled;
             _vibrationsToggle.StateDisabled -= OnVibrationStateDisabled;
-
-            if (_privacyPolicyButton != null)
-                _privacyPolicyButton.onClick.RemoveListener(OnPrivacyPolicyClicked);
-
-            if (_termsOfUseButton != null)
-                _termsOfUseButton.onClick.RemoveListener(OnTermsOfUseClicked);
 
             MusicChanged = null;
             EffectsChanged = null;

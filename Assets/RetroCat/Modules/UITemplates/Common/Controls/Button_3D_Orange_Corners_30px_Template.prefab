@@ -89,10 +89,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2147183021598594693, guid: f3e989fd9b4f446baac7d2ad9b835d0c, type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 2147183021598594693, guid: f3e989fd9b4f446baac7d2ad9b835d0c, type: 3}
       propertyPath: _Gradient.key0.b
       value: 0
       objectReference: {fileID: 0}
@@ -115,10 +111,6 @@ PrefabInstance:
     - target: {fileID: 2147183021598594693, guid: f3e989fd9b4f446baac7d2ad9b835d0c, type: 3}
       propertyPath: _Gradient.key1.r
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2377358751233869093, guid: f3e989fd9b4f446baac7d2ad9b835d0c, type: 3}
-      propertyPath: m_Material
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 2377358751233869093, guid: f3e989fd9b4f446baac7d2ad9b835d0c, type: 3}
       propertyPath: _Gradient.key0.b
@@ -146,7 +138,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7884461837725946883, guid: f3e989fd9b4f446baac7d2ad9b835d0c, type: 3}
       propertyPath: m_Name
-      value: Button_3D_Orange_Corners_30px_Template Variant
+      value: Button_3D_Orange_Corners_30px_Template
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

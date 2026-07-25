@@ -95,7 +95,6 @@ namespace JumpRing.Game.Core.Composition
         };
 
         private bool _storageReady;
-        private bool _plinkReady;
         private bool _loadingFinished;
 
         private void Awake()
@@ -107,7 +106,6 @@ namespace JumpRing.Game.Core.Composition
             catch (Exception e)
             {
                 Debug.LogWarning($"[GameCompositionRoot] PLink init failed: {e.Message}");
-                _plinkReady = true;
             }
 
             // Always kick off storage loading so the game initializes even if the
@@ -125,13 +123,19 @@ namespace JumpRing.Game.Core.Composition
 
         private void OnPlinkInitialized()
         {
-            _plinkReady = true;
+            // PLink readiness no longer gates the loading screen (see TryFinishLoading).
+            // Still try to finish in case storage already resolved via its fallback timeout.
             TryFinishLoading();
         }
 
         private void TryFinishLoading()
         {
-            if (_loadingFinished || !_storageReady || !_plinkReady)
+            // Gate the loading screen on storage only. The game is ready to show as soon as
+            // save data is resolved, and PlatformStorageService already waits for PLink with
+            // its own timeout. Requiring PLink readiness here too would hang the loading
+            // screen forever whenever the platform never signals it (now that the WebGL
+            // template keeps the screen up until CloseLoadingScreen is called explicitly).
+            if (_loadingFinished || !_storageReady)
             {
                 return;
             }

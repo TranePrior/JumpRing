@@ -40,13 +40,10 @@ namespace JumpRing.Game.UI
         private TMP_Text scoreLabel;
 
         [SerializeField]
-        private TMP_Text bestScoreLabel;
+        private BestScoreBadge bestScoreBadge;
 
         [SerializeField]
-        private GameObject newBestRoot;
-
-        [SerializeField]
-        private TMP_Text earningsLabel;
+        private RewardChip rewardChip;
 
         [SerializeField]
         private Button doubleRewardButton;
@@ -64,9 +61,13 @@ namespace JumpRing.Game.UI
         private IScoreService ScoreService => (IScoreService)scoreServiceComponent;
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
 
+        private const float ScoreCountDuration = 0.55f;
+
         private int pendingEarnings;
         private bool rewardDoubled;
         private Sequence panelSequence;
+        private Tween scoreTween;
+        private Sequence doubleRewardPulse;
 
         private void OnEnable()
         {
@@ -89,6 +90,7 @@ namespace JumpRing.Game.UI
         private void OnDestroy()
         {
             panelSequence?.Kill();
+            KillContentTweens();
         }
 
         private void OnStateChanged(GameState state)
@@ -107,15 +109,11 @@ namespace JumpRing.Game.UI
             int bestScore = ScoreService.BestScore;
             bool isNewBest = currentScore >= bestScore && currentScore > 0;
 
-            scoreLabel.text = currentScore.ToString();
-            if (bestScoreLabel != null) bestScoreLabel.text = bestScore.ToString();
-            if (newBestRoot != null) newBestRoot.SetActive(isNewBest);
-
             pendingEarnings = CurrencyService.RunEarnings;
             rewardDoubled = false;
-            UpdateEarningsUI();
 
-            doubleRewardButton.gameObject.SetActive(rewardedAdService.CanShowAd && pendingEarnings > 0);
+            bool canDoubleReward = rewardedAdService.CanShowAd && pendingEarnings > 0;
+            doubleRewardButton.gameObject.SetActive(canDoubleReward);
 
             if (dimOverlay != null)
             {
@@ -124,6 +122,16 @@ namespace JumpRing.Game.UI
 
             panel.SetActive(true);
             panelSequence?.Kill();
+            KillContentTweens();
+
+            scoreTween = NumberTween.Play(scoreLabel, 0, currentScore, ScoreCountDuration, "{0}");
+            bestScoreBadge.Show(bestScore, isNewBest);
+            rewardChip.Show(pendingEarnings);
+
+            if (canDoubleReward)
+            {
+                doubleRewardPulse = WindowAnimations.Heartbeat(doubleRewardButton.transform);
+            }
 
             if (panelCanvasGroup != null)
             {
@@ -136,6 +144,7 @@ namespace JumpRing.Game.UI
         private void Hide(System.Action onComplete)
         {
             panelSequence?.Kill();
+            KillContentTweens();
 
             if (dimOverlay != null)
             {
@@ -193,19 +202,24 @@ namespace JumpRing.Game.UI
         {
             rewardDoubled = true;
             CurrencyService.Add(pendingEarnings);
-            UpdateEarningsUI();
+            rewardChip.ShowDoubled(pendingEarnings * 2);
 
+            StopDoubleRewardPulse();
             doubleRewardButton.gameObject.SetActive(false);
         }
 
-        private void UpdateEarningsUI()
+        private void KillContentTweens()
         {
-            int displayEarnings = rewardDoubled ? pendingEarnings * 2 : pendingEarnings;
+            scoreTween?.Kill();
+            scoreTween = null;
+            StopDoubleRewardPulse();
+        }
 
-            if (earningsLabel != null)
-            {
-                earningsLabel.text = $"+{displayEarnings}";
-            }
+        private void StopDoubleRewardPulse()
+        {
+            doubleRewardPulse?.Kill();
+            doubleRewardPulse = null;
+            doubleRewardButton.transform.localScale = Vector3.one;
         }
     }
 }

@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace Nox7atra.UIFigmaGradients
 {
+    // Shares the radial vertex layout; the diamond look comes from the assigned material.
     public class UIFigmaGradinetDiamondDrawer : UIFigmaGradientRadialDrawer
     {
-        protected override Material GradientMaterial => new Material(Shader.Find("UI/DiamondGradientShader"));
     }
 }

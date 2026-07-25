@@ -91,9 +91,7 @@ namespace JumpRing.Game.Core.Services
 
             loadStarted = true;
 
-            int remaining = pendingIntKeys.Length + pendingStringKeys.Length;
-
-            if (remaining == 0)
+            if (pendingIntKeys.Length + pendingStringKeys.Length == 0)
             {
                 cloudWritable = true;
                 Complete();
@@ -102,40 +100,50 @@ namespace JumpRing.Game.Core.Services
 
             StartCoroutine(FallbackTimeout());
 
-            foreach (var key in pendingIntKeys)
+            // Load keys one at a time instead of firing them all in a single frame.
+            // The underlying WebGL storage keeps only one pending load callback, so parallel
+            // loads would clobber each other. Sequential loads are cheap because the JS layer
+            // fetches the whole player data object on the first request and serves the rest
+            // from its cache — so this stays a single network round-trip overall.
+            LoadNextKey(0);
+        }
+
+        private void LoadNextKey(int index)
+        {
+            // A fallback Complete may have already resolved every key from PlayerPrefs; late
+            // callbacks must not mutate the cache after services have read their values.
+            if (callbackFired)
             {
-                string k = key;
-                PLink.Storage.LoadInt(k, (success, value) =>
-                {
-                    // Late callbacks that arrive after a fallback Complete must not mutate
-                    // the cache — services already read their values and a silent overwrite
-                    // would desync them.
-                    if (callbackFired) return;
-                    intCache[k] = success ? value : PlayerPrefs.GetInt(k, 0);
-                    remaining--;
-                    if (remaining <= 0)
-                    {
-                        cloudWritable = true;
-                        Complete();
-                    }
-                });
+                return;
             }
 
-            foreach (var key in pendingStringKeys)
+            if (index < pendingIntKeys.Length)
             {
-                string k = key;
+                string k = pendingIntKeys[index];
+                PLink.Storage.LoadInt(k, (success, value) =>
+                {
+                    if (callbackFired) return;
+                    intCache[k] = success ? value : PlayerPrefs.GetInt(k, 0);
+                    LoadNextKey(index + 1);
+                });
+                return;
+            }
+
+            int stringIndex = index - pendingIntKeys.Length;
+            if (stringIndex < pendingStringKeys.Length)
+            {
+                string k = pendingStringKeys[stringIndex];
                 PLink.Storage.LoadString(k, (success, value) =>
                 {
                     if (callbackFired) return;
                     stringCache[k] = success ? value : PlayerPrefs.GetString(k, "");
-                    remaining--;
-                    if (remaining <= 0)
-                    {
-                        cloudWritable = true;
-                        Complete();
-                    }
+                    LoadNextKey(index + 1);
                 });
+                return;
             }
+
+            cloudWritable = true;
+            Complete();
         }
 
         private void Complete()

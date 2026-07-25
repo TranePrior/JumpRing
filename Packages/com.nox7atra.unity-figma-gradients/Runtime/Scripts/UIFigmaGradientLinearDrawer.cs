@@ -19,7 +19,6 @@ namespace Nox7atra.UIFigmaGradients
 
       private Texture2D _GradientTexture;
       protected virtual TextureWrapMode WrapMode => TextureWrapMode.Clamp;
-      protected virtual Material GradientMaterial => new Material(Shader.Find("UI/LinearGradientShader"));
       public override Texture mainTexture => _GradientTexture;
 #if UNITY_EDITOR
       protected override void OnValidate()
@@ -59,6 +58,9 @@ namespace Nox7atra.UIFigmaGradients
          return tex;
       }
       
+      // The gradient material is assigned through the inspector. Building it from
+      // Shader.Find would leak a material per Refresh and, more importantly, resolve to
+      // null in a player build: a shader referenced only by name is stripped from the build.
       public void Refresh()
       {
          if (_GradientTexture != null)
@@ -66,8 +68,8 @@ namespace Nox7atra.UIFigmaGradients
             DestroyImmediate(_GradientTexture);
          }
 
-         material = GradientMaterial;
          _GradientTexture = GenerateTexture();
+         SetMaterialDirty();
       }
 
       protected override void OnDestroy()

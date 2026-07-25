@@ -75,7 +75,7 @@ MonoBehaviour:
       _enableYandexMetrika: 0
       _yandexMetrikaId: 
       _loadingScreen:
-        _manualClose: 0
+        _manualClose: 1
     _modules: []
   - _name: Android
     _type: 1
@@ -139,7 +139,7 @@ MonoBehaviour:
       _enableYandexMetrika: 0
       _yandexMetrikaId: 
       _loadingScreen:
-        _manualClose: 0
+        _manualClose: 1
     _modules: []
   - _name: Yandex Games
     _type: 3
@@ -203,7 +203,7 @@ MonoBehaviour:
       _enableYandexMetrika: 0
       _yandexMetrikaId: 
       _loadingScreen:
-        _manualClose: 0
+        _manualClose: 1
     _modules: []
   _activePlatformIndex: 0
   _editor:

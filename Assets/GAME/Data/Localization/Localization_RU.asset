@@ -24,7 +24,7 @@ MonoBehaviour:
   - key: 4
     value: "\u041C\u0415\u041D\u042E"
   - key: 5
-    value: "\u0415\u0429\u0401 \u0420\u0410\u0417"
+    value: "\u0418\u0413\u0420\u0410\u0422\u042C"
   - key: 6
     value: "\u041C\u0410\u0413\u0410\u0417\u0418\u041D"
   - key: 7
@@ -32,9 +32,8 @@ MonoBehaviour:
   - key: 8
     value: "\u0410\u043A\u0442\u0438\u0432\u0435\u043D"
   - key: 9
-    value: "\u0423\u0434\u0432\u043E\u0438\u0442\u044C x2"
+    value: "\u0423\u0414\u0412\u041E\u0418\u0422\u042C \xD72"
   - key: 10
-    value: "\u2605 \u041D\u041E\u0412\u042B\u0419 \u0420\u0415\u041A\u041E\u0420\u0414!
-      \u2605"
+    value: "\u041D\u041E\u0412\u042B\u0419 \u0420\u0415\u041A\u041E\u0420\u0414!"
   - key: 11
     value: "\u0423\u0440. {0}/{1}"

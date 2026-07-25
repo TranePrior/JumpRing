@@ -1,5 +1,4 @@
 using System;
-using PlatformLink;
 using UnityEngine;
 
 namespace JumpRing.Game.Core.Services
@@ -16,8 +15,7 @@ namespace JumpRing.Game.Core.Services
         [SerializeField]
         private string leaderboardId = DefaultLeaderboardId;
 
-        private float _lastSubmitTime = float.NegativeInfinity;
-        private int _pendingScore = -1;
+        private ThrottledScoreSubmitter _scoreSubmitter;
 
         public event Action<int> ScoreChanged;
 
@@ -29,7 +27,6 @@ namespace JumpRing.Game.Core.Services
 
         public void Reset()
         {
-            FlushPendingScore();
             CurrentScore = 0;
             ScoreChanged?.Invoke(CurrentScore);
         }
@@ -41,65 +38,26 @@ namespace JumpRing.Game.Core.Services
             if (CurrentScore > BestScore)
             {
                 storageService.SetInt(BestScoreKey, CurrentScore);
-                ScheduleLeaderboardSubmit(CurrentScore);
+                _scoreSubmitter.Submit(CurrentScore, Time.unscaledTime);
             }
 
             ScoreChanged?.Invoke(CurrentScore);
         }
 
-        private void ScheduleLeaderboardSubmit(int score)
+        private void Awake()
         {
-            if (!PLink.IsInitialized || string.IsNullOrEmpty(leaderboardId))
-            {
-                return;
-            }
-
-            if (Time.unscaledTime - _lastSubmitTime >= SubmitCooldown)
-            {
-                PLink.Leaderboard.SetScore(leaderboardId, score);
-                _lastSubmitTime = Time.unscaledTime;
-                _pendingScore = -1;
-            }
-            else
-            {
-                _pendingScore = score;
-            }
+            _scoreSubmitter = new ThrottledScoreSubmitter(
+                new PlatformLeaderboardSubmitter(), leaderboardId, SubmitCooldown);
         }
 
-        public void FlushPendingScore()
+        private void Update()
         {
-            if (_pendingScore < 0 || !PLink.IsInitialized || string.IsNullOrEmpty(leaderboardId))
-            {
-                return;
-            }
-
-            PLink.Leaderboard.SetScore(leaderboardId, _pendingScore);
-            _lastSubmitTime = Time.unscaledTime;
-            _pendingScore = -1;
-        }
-
-        // A throttled high score is otherwise only flushed on the next run start. Flush it
-        // when the player leaves so a record set in the cooldown window isn't lost if the
-        // tab is closed right after (WebGL fires focus/pause on tab switch and minimize).
-        private void OnApplicationFocus(bool hasFocus)
-        {
-            if (!hasFocus)
-            {
-                FlushPendingScore();
-            }
-        }
-
-        private void OnApplicationPause(bool isPaused)
-        {
-            if (isPaused)
-            {
-                FlushPendingScore();
-            }
+            _scoreSubmitter.Tick(Time.unscaledTime);
         }
 
         private void OnApplicationQuit()
         {
-            FlushPendingScore();
+            _scoreSubmitter.SubmitPendingImmediately(Time.unscaledTime);
         }
     }
 }

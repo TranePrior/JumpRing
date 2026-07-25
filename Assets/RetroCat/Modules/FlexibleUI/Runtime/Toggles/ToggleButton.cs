@@ -111,8 +111,8 @@ namespace RetroCat.Modules.Core.UI.Controls.Toggles
 
         private void DoColor(Color handleColor, Color backgroundColor, float overlayAlpha)
         {
-            _backgroundImage.DOColor(backgroundColor, _switchDuration);
-            _handleImage.DOColor(handleColor, _switchDuration);
+            _backgroundImage.DOColor(backgroundColor, _switchDuration).SetUpdate(true);
+            _handleImage.DOColor(handleColor, _switchDuration).SetUpdate(true);
 
             if (_backgroundEnabledOverlay != null)
                 _backgroundEnabledOverlay.DOFade(overlayAlpha, _switchDuration).SetUpdate(true);

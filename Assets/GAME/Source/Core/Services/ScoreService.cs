@@ -5,7 +5,7 @@ namespace JumpRing.Game.Core.Services
 {
     public sealed class ScoreService : MonoBehaviour, IScoreService
     {
-        private const string BestScoreKey = "BestScore";
+        private const string BestScoreKey = StorageKeys.BestScore;
         private const string DefaultLeaderboardId = "TopScore";
         private const float SubmitCooldown = 1.5f;
 

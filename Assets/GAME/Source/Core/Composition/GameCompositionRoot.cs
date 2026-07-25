@@ -83,17 +83,6 @@ namespace JumpRing.Game.Core.Composition
 
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
 
-        private static readonly string[] StorageIntKeys =
-        {
-            "DiamondBalance", "BestScore", "BonusSpawner_ConsecutiveDeaths", "NoAdsPurchased",
-            "Settings_Music", "Settings_Effects", "Settings_Vibration"
-        };
-
-        private static readonly string[] StorageStringKeys =
-        {
-            "OwnedSkins", "ActiveSkinId", "SkinUpgrades", "SelectedLanguage"
-        };
-
         private bool _storageReady;
         private bool _loadingFinished;
 
@@ -113,7 +102,7 @@ namespace JumpRing.Game.Core.Composition
             // internally (with a timeout) before choosing cloud vs local data.
             if (platformStorageService != null)
             {
-                platformStorageService.Initialize(StorageIntKeys, StorageStringKeys, OnStorageReady);
+                platformStorageService.Initialize(StorageKeys.IntKeys, StorageKeys.StringKeys, OnStorageReady);
             }
             else
             {

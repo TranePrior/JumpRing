@@ -22,6 +22,7 @@ namespace RetroCat.Modules.Core.UI.Activities.Popups.Core
         private Tween _animationTween;
         private bool _isAnimating;
         private bool _isOpen;
+        private bool _closePending;
         
 #if UNITY_EDITOR
         private void Reset()
@@ -38,6 +39,24 @@ namespace RetroCat.Modules.Core.UI.Activities.Popups.Core
             }
             
             OnInit();
+        }
+
+        public override void SettleBeforeOpen()
+        {
+            if (!_closePending)
+                return;
+
+            // Killing a close animation drops its OnComplete, so _isOpen would stay true and
+            // OnCloseFinished would never run — the next OnOpenStarted would then subscribe on top
+            // of the previous subscriptions. Settle it here, before the caller re-wires its
+            // per-open handlers, so OnCloseFinished can not clear what was just wired up.
+            _animationTween?.Kill();
+            _animationTween = null;
+            _isAnimating = false;
+            _isOpen = false;
+            _closePending = false;
+            gameObject.SetActive(false);
+            OnCloseFinished();
         }
 
         public override void Open()
@@ -81,6 +100,7 @@ namespace RetroCat.Modules.Core.UI.Activities.Popups.Core
             OnCloseStarted();
 
             _isAnimating = true;
+            _closePending = true;
             _canvasGroup.interactable = false;
             _canvasGroup.blocksRaycasts = false;
 
@@ -92,6 +112,7 @@ namespace RetroCat.Modules.Core.UI.Activities.Popups.Core
                 {
                     _isAnimating = false;
                     _isOpen = false;
+                    _closePending = false;
                     gameObject.SetActive(false);
                     OnCloseFinished();
                 });

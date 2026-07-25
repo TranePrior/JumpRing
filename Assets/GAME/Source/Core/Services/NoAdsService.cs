@@ -7,7 +7,7 @@ namespace JumpRing.Game.Core.Services
 {
     public sealed class NoAdsService : MonoBehaviour
     {
-        private const string NoAdsKey = "NoAdsPurchased";
+        private const string NoAdsKey = StorageKeys.NoAdsPurchased;
 
         [SerializeField]
         private string productId = "noads";

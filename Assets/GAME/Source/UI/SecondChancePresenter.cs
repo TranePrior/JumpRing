@@ -58,7 +58,11 @@ namespace JumpRing.Game.UI
         private float reviveOffset = 2f;
 
         private float countdown;
-        private float countdownDuration;
+        // Was a plain field overwritten with a literal on every show, while BonusEffectManager
+        // carried an inspector-editable duration that nothing read — the inspector said 7s and the
+        // game ran 5s. Serialized here at the value that was actually in effect.
+        [SerializeField, Min(1f)]
+        private float countdownDuration = 5f;
         private bool isCountingDown;
         private bool adReviveUsedThisRun;
         private bool isAdReviveMode;
@@ -135,7 +139,6 @@ namespace JumpRing.Game.UI
                 adContinueButton.gameObject.SetActive(canAdRevive && !hasHearts);
             }
 
-            countdownDuration = 5f;
             countdown = countdownDuration;
             isCountingDown = true;
 

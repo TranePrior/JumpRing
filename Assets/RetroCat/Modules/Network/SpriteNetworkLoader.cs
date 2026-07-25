@@ -28,7 +28,8 @@ namespace RetroCat.Modules.Network
 
         private static readonly Dictionary<string, CacheEntry> _cache = new(StringComparer.Ordinal);
         private static readonly Dictionary<string, Task<Sprite>> _inFlight = new(StringComparer.Ordinal);
-        
+        private static readonly List<string> _expiredKeys = new();
+
         public static Task<Sprite> LoadSpriteAsync(
             string url,
             IconLoadOptions? options = null,
@@ -39,11 +40,14 @@ namespace RetroCat.Modules.Network
 
             IconLoadOptions opt = options ?? new IconLoadOptions();
 
+            PruneExpired();
+
             if (_cache.TryGetValue(url, out var entry))
             {
                 if (entry.Sprite != null && DateTime.UtcNow <= entry.ExpiresAtUtc)
                     return Task.FromResult(entry.Sprite);
 
+                DestroyEntry(entry);
                 _cache.Remove(url);
             }
 
@@ -118,27 +122,80 @@ namespace RetroCat.Modules.Network
             {
                 foreach (var kv in _cache)
                 {
-                    if (kv.Value?.Sprite != null)
-                    {
-                        UnityEngine.Object.Destroy(kv.Value.Sprite);
-                    }
+                    DestroyEntry(kv.Value);
                 }
             }
 
             _cache.Clear();
         }
-        
+
         public static void Invalidate(string url, bool destroySprite = true)
         {
             if (string.IsNullOrWhiteSpace(url)) return;
 
             if (_cache.TryGetValue(url, out var entry))
             {
-                if (destroySprite && entry.Sprite != null)
-                    UnityEngine.Object.Destroy(entry.Sprite);
+                if (destroySprite)
+                    DestroyEntry(entry);
 
                 _cache.Remove(url);
             }
+        }
+
+        /// <summary>
+        /// Drops entries whose TTL has passed. Without this, entries only ever get evicted when the
+        /// same URL is requested again — and platform avatar URLs are usually unique, so nothing
+        /// would ever be evicted and the cache would grow for the whole session.
+        /// </summary>
+        private static void PruneExpired()
+        {
+            var now = DateTime.UtcNow;
+            _expiredKeys.Clear();
+
+            foreach (var kv in _cache)
+            {
+                if (now > kv.Value.ExpiresAtUtc)
+                    _expiredKeys.Add(kv.Key);
+            }
+
+            for (int i = 0; i < _expiredKeys.Count; i++)
+            {
+                if (_cache.TryGetValue(_expiredKeys[i], out var entry))
+                {
+                    DestroyEntry(entry);
+                    _cache.Remove(_expiredKeys[i]);
+                }
+            }
+
+            _expiredKeys.Clear();
+        }
+
+        /// <summary>
+        /// Destroying a Sprite does NOT destroy the Texture2D it was created from, so the texture
+        /// has to be released explicitly or every downloaded image stays in memory until the page
+        /// is closed.
+        /// </summary>
+        private static void DestroyEntry(CacheEntry entry)
+        {
+            if (entry?.Sprite == null)
+                return;
+
+            var texture = entry.Sprite.texture;
+            UnityEngine.Object.Destroy(entry.Sprite);
+            entry.Sprite = null;
+
+            if (texture != null)
+                UnityEngine.Object.Destroy(texture);
+        }
+
+        // Static caches survive when the editor runs with domain reload disabled. The Unity objects
+        // they reference do not, so the maps are dropped rather than destroyed.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetState()
+        {
+            _cache.Clear();
+            _inFlight.Clear();
+            _expiredKeys.Clear();
         }
     }
 }

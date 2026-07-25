@@ -5,7 +5,7 @@ namespace JumpRing.Game.Core.Services
 {
     public sealed class CurrencyService : MonoBehaviour, ICurrencyService
     {
-        private const string BalanceKey = "DiamondBalance";
+        private const string BalanceKey = StorageKeys.DiamondBalance;
 
         [SerializeField]
         private PlatformStorageService storageService;

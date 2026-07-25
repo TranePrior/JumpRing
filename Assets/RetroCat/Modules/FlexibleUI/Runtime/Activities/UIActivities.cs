@@ -19,6 +19,11 @@ namespace RetroCat.Modules.FlexibleUI.Runtime.Activities
     
         [SerializeField] private List<ActivityBase> _activities;
 
+        // Instances are reused across shows. Closing an activity only deactivates it, so creating a
+        // fresh one on every show left the previous instance alive in the hierarchy forever — with
+        // its whole UI tree — and the game runs a single scene, so nothing ever cleaned them up.
+        private readonly Dictionary<Type, ActivityBase> _instances = new();
+
         private IActivityFactory _activityFactory = new DefaultActivityFactory();
 
         public void SetActivityFactory(IActivityFactory activityFactory)
@@ -56,15 +61,30 @@ namespace RetroCat.Modules.FlexibleUI.Runtime.Activities
             if (!typeof(ActivityBase).IsAssignableFrom(activityType))
                 throw new ArgumentException("Type must inherit from ActivityBase: " + activityType.FullName, nameof(activityType));
 
+            ActivityBase activity = GetOrCreateInstance(activityType, executedFromScene);
+
+            // Settle first: a reused instance may still be mid-close, and its OnCloseFinished
+            // clears per-open subscriptions — running it after the callback would wipe them.
+            activity.SettleBeforeOpen();
+            activityCreated?.Invoke(activity);
+            activity.Open();
+        }
+
+        private ActivityBase GetOrCreateInstance(Type activityType, Scene executedFromScene)
+        {
+            if (_instances.TryGetValue(activityType, out ActivityBase cached) && cached != null)
+                return cached;
+
             ActivityBase prefab = FindPrefabByType(activityType);
-            
+
             if (prefab == null)
                 throw new InvalidOperationException("Failed to show activity of type " + activityType.FullName);
 
             RectTransform parent = GetParentForType(activityType);
             ActivityBase activity = Instantiate(prefab, parent, executedFromScene);
-            activityCreated?.Invoke(activity);
-            activity.Open();
+            _instances[activityType] = activity;
+
+            return activity;
         }
 
         private Type ResolveActivityType(string activityTypeName)

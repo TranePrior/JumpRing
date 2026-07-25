@@ -7,8 +7,8 @@ namespace JumpRing.Game.Theming
 {
     public sealed class SkinShopService : MonoBehaviour, ISkinShopService
     {
-        private const string OwnedSkinsKey = "OwnedSkins";
-        private const string ActiveSkinKey = "ActiveSkinId";
+        private const string OwnedSkinsKey = StorageKeys.OwnedSkins;
+        private const string ActiveSkinKey = StorageKeys.ActiveSkinId;
 
         [SerializeField]
         private SkinPackCatalog catalog;

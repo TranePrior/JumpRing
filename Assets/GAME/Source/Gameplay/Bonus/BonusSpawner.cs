@@ -6,7 +6,7 @@ namespace JumpRing.Game.Gameplay
 {
     public sealed class BonusSpawner : MonoBehaviour
     {
-        private const string ConsecutiveDeathsKey = "BonusSpawner_ConsecutiveDeaths";
+        private const string ConsecutiveDeathsKey = StorageKeys.ConsecutiveDeaths;
         private const int DeathResetScoreThreshold = 15;
 
         [Header("Dependencies")]

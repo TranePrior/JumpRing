@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using JumpRing.Game.Core;
@@ -86,6 +88,42 @@ namespace JumpRing.Tests.EditMode
 
             Assert.IsTrue(PauseService.HasReason(PauseReason.Dialog));
             Assert.IsFalse(PauseService.HasReason(PauseReason.Ad));
+        }
+
+        [Test]
+        public void ResetState_ClearsLeftoverPause()
+        {
+            PauseService.Add(PauseReason.Ad);
+
+            InvokeResetState();
+
+            Assert.IsFalse(PauseService.IsPaused, "A pause left over from a previous session must not survive the reset.");
+            Assert.AreEqual(1f, Time.timeScale);
+            Assert.IsFalse(AudioListener.pause);
+        }
+
+        [Test]
+        public void ResetState_DropsSubscribersFromThePreviousSession()
+        {
+            // With domain reload disabled, both the reason flags and the subscriber list survive
+            // between play sessions. The subscribers point at objects destroyed with the previous
+            // session, so the reset must drop them before it applies the cleared state.
+            var notifications = 0;
+            Action stale = () => notifications++;
+            PauseService.ReasonsChanged += stale;
+
+            InvokeResetState();
+            PauseService.Add(PauseReason.Ad);
+
+            Assert.AreEqual(0, notifications, "A subscriber registered before the reset must never be notified after it.");
+        }
+
+        private static void InvokeResetState()
+        {
+            var reset = typeof(PauseService).GetMethod(
+                "ResetState", BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.IsNotNull(reset, "ResetState not found");
+            reset.Invoke(null, null);
         }
     }
 }

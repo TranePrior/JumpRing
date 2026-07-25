@@ -58,6 +58,14 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private int masteryPhaseScore = 180;
 
+        // Exposed so LinePathGenerator can pick its pattern pools from the same numbers that drive
+        // the pacing phases. It used to keep its own hard-coded copy behind a comment claiming the
+        // two were aligned; they had already drifted apart, and nothing reported it.
+        public int TutorialEndScore => tutorialEndScore;
+        public int RhythmPhaseScore => rhythmPhaseScore;
+        public int ChaosPhaseScore => chaosPhaseScore;
+        public int MasteryPhaseScore => masteryPhaseScore;
+
         [Header("Dynamic Difficulty Adjustment")]
         [SerializeField, Min(3), Tooltip("Sliding window size for distance tracking")]
         private int ddaWindowSize = 15;

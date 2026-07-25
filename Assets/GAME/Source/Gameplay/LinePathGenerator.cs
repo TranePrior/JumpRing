@@ -63,6 +63,14 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private int randomSeed = 12345;
 
+        [SerializeField, Tooltip("Use the serialized seed instead of a random one, so a run can be reproduced exactly.")]
+        private bool useFixedSeed;
+
+        // The serialized field used to be overwritten in OnEnable, which dirtied the scene on every
+        // play and made a specific layout impossible to reproduce — even though the whole generator
+        // is deterministic in the seed by design.
+        private int activeSeed;
+
         [Header("Lifecycle")]
         [SerializeField]
         private bool generateOnEnable = true;
@@ -100,9 +108,12 @@ namespace JumpRing.Game.Gameplay
         private const float Tan30 = 0.5774f;
         private const float Tan45 = 1f;
 
-        // Score thresholds aligned with DifficultyManager phases
-        // Tutorial=0, Calm=30, Rhythm=60, Chaos=105, Mastery=180
-        private static readonly int[] LevelThresholds = { 0, 30, 60, 105, 180 };
+        // Score thresholds for pattern-pool selection, read from DifficultyManager every evaluation
+        // so geometry difficulty and pacing phases can not drift apart. This used to be a static
+        // array with a comment claiming it was aligned with DifficultyManager — by then the two had
+        // already diverged (60/105/180 here against 30/75/150 in the scene), and nothing reported it.
+        // Reused buffer: this runs from LateUpdate and must not allocate.
+        private readonly int[] levelThresholds = new int[5];
 
         // Level 0 — Tutorial (score 0–29): very gentle, learning the mechanic
         private static readonly float[][] PatternsLevel0 =
@@ -236,7 +247,7 @@ namespace JumpRing.Game.Gameplay
 
             ResetFrontier();
             isRunActive = false;
-            randomSeed = Random.Range(0, int.MaxValue);
+            activeSeed = useFixedSeed ? randomSeed : Random.Range(0, int.MaxValue);
             yOffset = 0f;
             activeSegmentLength = baseSegmentLength;
 
@@ -419,27 +430,48 @@ namespace JumpRing.Game.Gameplay
 
         private int StepHash(int step)
         {
-            return ((step * 73856093) ^ (randomSeed * 19349663)) & 0x7FFFFFFF;
+            return ((step * 73856093) ^ (activeSeed * 19349663)) & 0x7FFFFFFF;
+        }
+
+        private void RefreshLevelThresholds()
+        {
+            levelThresholds[0] = 0;
+            levelThresholds[1] = difficultyManager.TutorialEndScore;
+            levelThresholds[2] = difficultyManager.RhythmPhaseScore;
+            levelThresholds[3] = difficultyManager.ChaosPhaseScore;
+            levelThresholds[4] = difficultyManager.MasteryPhaseScore;
         }
 
         private float GetDifficultyLevelFloat()
         {
             if (!isRunActive) return 0f;
 
-            var score = difficultyManager != null ? difficultyManager.CurrentScore : 0;
-
-            for (var i = LevelThresholds.Length - 1; i >= 1; i--)
+            // Same result the old code produced for a missing manager: score 0 lands on level 0.
+            if (difficultyManager == null)
             {
-                if (score >= LevelThresholds[i])
+                return 0f;
+            }
+
+            var score = difficultyManager.CurrentScore;
+
+            RefreshLevelThresholds();
+
+            for (var i = levelThresholds.Length - 1; i >= 1; i--)
+            {
+                if (score >= levelThresholds[i])
                 {
                     return i;
                 }
 
-                if (score >= LevelThresholds[i - 1])
+                if (score >= levelThresholds[i - 1])
                 {
-                    var rangeStart = LevelThresholds[i - 1];
-                    var rangeEnd = LevelThresholds[i];
-                    var t = (float)(score - rangeStart) / (rangeEnd - rangeStart);
+                    var rangeStart = levelThresholds[i - 1];
+                    var rangeEnd = levelThresholds[i];
+                    var range = rangeEnd - rangeStart;
+
+                    // Thresholds are authored in the inspector and neighbours may be equal, which
+                    // would divide by zero here. An empty band is simply fully crossed.
+                    var t = range > 0 ? (float)(score - rangeStart) / range : 1f;
                     return (i - 1) + t;
                 }
             }

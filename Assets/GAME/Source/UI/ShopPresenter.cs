@@ -87,12 +87,18 @@ namespace JumpRing.Game.UI
 
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
 
+        // IsOpen is static and survives scene reloads and domain-reload-off play sessions. It can
+        // not be reset from OnEnable: Close() deactivates this very GameObject, so a shop that was
+        // open on exit stays disabled on the next run, OnEnable never fires, and a leftover true
+        // would leave tap-to-start and jumping dead for the whole session.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetOpenState()
+        {
+            IsOpen = false;
+        }
+
         private void OnEnable()
         {
-            // IsOpen is static and survives scene reloads. Reset it here so a reload that
-            // happened while the shop was open can't leave tap-to-start / jumping dead.
-            IsOpen = false;
-
             if (skinShopService == null)
             {
                 skinShopService = FindFirstObjectByType<SkinShopService>();

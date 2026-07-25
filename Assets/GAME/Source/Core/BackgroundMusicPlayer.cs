@@ -1,3 +1,4 @@
+using JumpRing.Game.Core.Services;
 using UnityEngine;
 
 namespace JumpRing.Game.Core
@@ -14,7 +15,7 @@ namespace JumpRing.Game.Core
         // Mirror of AudioSettingsService's music key. AudioSettingsService applies the
         // authoritative mute later (after async storage load); reading the local mirror here
         // avoids an audible blip on boot for players who disabled music.
-        private const string MusicSettingKey = "Settings_Music";
+        private const string MusicSettingKey = StorageKeys.SettingsMusic;
 
         private AudioSource audioSource;
 

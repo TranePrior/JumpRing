@@ -8,8 +8,12 @@ namespace JumpRing.Game.Core.Services
 {
     public sealed class PlatformStorageService : MonoBehaviour
     {
-        private const float FallbackTimeoutSeconds = 10f;
-        private const float PlinkWaitSeconds = 8f;
+        // One deadline for the whole load, measured from Initialize. Splitting it into a
+        // "wait for PLink" window plus a "wait for storage" window let the two stack, so a platform
+        // that became ready just before the first window expired pushed the loading screen out to
+        // the sum of both. Realtime, because a focus loss during boot pauses the game clock and a
+        // scaled wait would then never expire.
+        private const float LoadTimeoutSeconds = 10f;
         private const float SaveFlushSeconds = 2f;
 
         private readonly Dictionary<string, int> intCache = new();
@@ -40,6 +44,10 @@ namespace JumpRing.Game.Core.Services
             pendingStringKeys = stringKeys;
             pendingOnComplete = onComplete;
 
+            // Armed before either path starts, so the loading screen is bounded no matter where the
+            // load stalls — waiting for the platform, or waiting for a storage callback.
+            StartCoroutine(LoadDeadline());
+
             if (PLink.IsInitialized)
             {
                 LoadFromCloud();
@@ -47,9 +55,8 @@ namespace JumpRing.Game.Core.Services
             else
             {
                 // Wait for the platform to become ready so cloud data can be read,
-                // but never block the game forever: fall back to local after a timeout.
+                // but never block the game forever: the deadline falls back to local.
                 PLink.Initilized += OnPlinkReady;
-                StartCoroutine(PlinkWaitTimeout());
             }
         }
 
@@ -65,18 +72,18 @@ namespace JumpRing.Game.Core.Services
             LoadFromCloud();
         }
 
-        private IEnumerator PlinkWaitTimeout()
+        private IEnumerator LoadDeadline()
         {
-            yield return new WaitForSeconds(PlinkWaitSeconds);
+            yield return new WaitForSecondsRealtime(LoadTimeoutSeconds);
 
-            PLink.Initilized -= OnPlinkReady;
-
-            if (loadStarted)
+            if (callbackFired)
             {
                 yield break;
             }
 
-            Debug.LogWarning("[PlatformStorageService] PLink not ready in time — falling back to PlayerPrefs");
+            PLink.Initilized -= OnPlinkReady;
+
+            Debug.LogWarning("[PlatformStorageService] Load timed out — falling back to PlayerPrefs");
             loadStarted = true;
             LoadFromPlayerPrefs(pendingIntKeys, pendingStringKeys);
             Complete();
@@ -97,8 +104,6 @@ namespace JumpRing.Game.Core.Services
                 Complete();
                 return;
             }
-
-            StartCoroutine(FallbackTimeout());
 
             // Load keys one at a time instead of firing them all in a single frame.
             // The underlying WebGL storage keeps only one pending load callback, so parallel
@@ -123,7 +128,12 @@ namespace JumpRing.Game.Core.Services
                 PLink.Storage.LoadInt(k, (success, value) =>
                 {
                     if (callbackFired) return;
-                    intCache[k] = success ? value : PlayerPrefs.GetInt(k, 0);
+                    // A local write made while this load was in flight wins — overwriting it here
+                    // would silently discard what the player just did.
+                    if (!dirtyInts.Contains(k))
+                    {
+                        intCache[k] = success ? value : PlayerPrefs.GetInt(k, 0);
+                    }
                     LoadNextKey(index + 1);
                 });
                 return;
@@ -136,7 +146,11 @@ namespace JumpRing.Game.Core.Services
                 PLink.Storage.LoadString(k, (success, value) =>
                 {
                     if (callbackFired) return;
-                    stringCache[k] = success ? value : PlayerPrefs.GetString(k, "");
+                    // Same as above: a local write made mid-load must not be clobbered.
+                    if (!dirtyStrings.Contains(k))
+                    {
+                        stringCache[k] = success ? value : PlayerPrefs.GetString(k, "");
+                    }
                     LoadNextKey(index + 1);
                 });
                 return;
@@ -155,22 +169,18 @@ namespace JumpRing.Game.Core.Services
 
             callbackFired = true;
             isLoaded = true;
-            pendingOnComplete?.Invoke();
-            Loaded?.Invoke();
+            StartCoroutine(NotifyLoaded());
         }
 
-        private IEnumerator FallbackTimeout()
+        // Initialize() runs from Awake. A platform that answers synchronously — or an empty key set
+        // — would otherwise deliver this inline, before the other components' Awake/OnEnable had
+        // run, and every presenter that subscribes in OnEnable would miss the first state change.
+        private IEnumerator NotifyLoaded()
         {
-            yield return new WaitForSeconds(FallbackTimeoutSeconds);
+            yield return null;
 
-            if (callbackFired)
-            {
-                yield break;
-            }
-
-            Debug.LogWarning("[PlatformStorageService] PLink.Storage timeout — falling back to PlayerPrefs");
-            LoadFromPlayerPrefs(pendingIntKeys, pendingStringKeys);
-            Complete();
+            pendingOnComplete?.Invoke();
+            Loaded?.Invoke();
         }
 
         private void LoadFromPlayerPrefs(string[] intKeys, string[] stringKeys)

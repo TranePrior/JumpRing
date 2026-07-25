@@ -7,7 +7,7 @@ namespace JumpRing.Game.Core.Localization
 {
     public sealed class LocalizationService : MonoBehaviour
     {
-        private const string LanguagePrefsKey = "SelectedLanguage";
+        private const string LanguagePrefsKey = StorageKeys.SelectedLanguage;
 
         [SerializeField]
         private LocalizationData russianData;

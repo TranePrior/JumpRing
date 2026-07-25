@@ -12,6 +12,9 @@ namespace JumpRing.Game.Gameplay
     {
         private static readonly Vector3 OriginPosition = Vector3.zero;
 
+        // Absolute ceiling on the ring scale, independent of how upgrade levels are configured.
+        private const float MaxSizeScale = 1.5f;
+
         [SerializeField]
         private Rigidbody2D playerRigidbody;
 
@@ -332,11 +335,19 @@ namespace JumpRing.Game.Gameplay
         /// Expands or resets the playable gap between hitTop and hitBottom.
         /// amount > 0 expands each side by that amount; 0 resets to original.
         /// </summary>
+        /// <remarks>
+        /// <see cref="MaxSizeScale"/> is the absolute ceiling on the ring: bonuses stack on top of
+        /// the temporary modifier, and beyond this the ring stops reading as a ring.
+        /// </remarks>
         public void ApplySizeModifier(float amount)
         {
-            float clampedBonus = Mathf.Min(permanentSizeBonus, 0.3f);
+            // The upgrade bonus is already bounded by RingSizeUpgradeService (level can not exceed
+            // maxLevel, so the bonus can not exceed maxLevel * scaleStep). A second, hard-coded cap
+            // of 0.3 used to sit here — it happened to equal the current maximum exactly, so raising
+            // maxLevel would have made the extra levels do nothing at all, silently. Only the
+            // overall safety ceiling is kept.
             float baseScale = amount <= 0f ? 1f : 1f + amount;
-            currentSizeScale = Mathf.Min(baseScale + clampedBonus, 1.5f);
+            currentSizeScale = Mathf.Min(baseScale + permanentSizeBonus, MaxSizeScale);
         }
 
         /// <summary>

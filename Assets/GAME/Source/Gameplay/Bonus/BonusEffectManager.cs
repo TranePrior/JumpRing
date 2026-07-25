@@ -63,9 +63,6 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(0.1f)]
         private float invincibilityDuration = 3f;
 
-        [SerializeField, Min(1f)]
-        private float secondChanceTimerDuration = 7f;
-
         public event Action<BonusType> BonusActivated;
         public event Action<BonusType> BonusDeactivated;
 
@@ -91,7 +88,6 @@ namespace JumpRing.Game.Gameplay
         public int SecondChanceCount => secondChanceCount;
         public int MaxSecondChances => maxSecondChances;
         public bool IsInvincible => invincibilityRemaining > 0f;
-        public float SecondChanceTimerDuration => secondChanceTimerDuration;
         public float CoinMultiplier => activeBonus == BonusType.ScoreBoost ? scoreBoostCoinMultiplier : 1f;
 
         public void OnRunStarted()

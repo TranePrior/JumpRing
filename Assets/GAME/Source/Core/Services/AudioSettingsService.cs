@@ -4,9 +4,9 @@ namespace JumpRing.Game.Core.Services
 {
     public sealed class AudioSettingsService : MonoBehaviour
     {
-        private const string MusicKey = "Settings_Music";
-        private const string EffectsKey = "Settings_Effects";
-        private const string VibrationKey = "Settings_Vibration";
+        private const string MusicKey = StorageKeys.SettingsMusic;
+        private const string EffectsKey = StorageKeys.SettingsEffects;
+        private const string VibrationKey = StorageKeys.SettingsVibration;
 
         [SerializeField]
         private PlatformStorageService storageService;

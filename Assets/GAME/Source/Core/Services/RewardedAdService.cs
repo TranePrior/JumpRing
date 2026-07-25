@@ -18,6 +18,7 @@ namespace JumpRing.Game.Core.Services
         private Action onAdFailed;
         private Coroutine adWatchdog;
         private bool adTerminal;
+        private bool adInProgress;
 
         public bool CanShowAd
         {
@@ -47,6 +48,25 @@ namespace JumpRing.Game.Core.Services
         {
             PLink.Initilized -= SubscribeToAd;
             UnsubscribeFromAd();
+            AbortPendingAd();
+        }
+
+        // Disabling this object kills the watchdog coroutine silently, so without this the
+        // PauseReason.Ad taken in ShowAd would never be released and the game would stay at
+        // timeScale 0 for the rest of the session. Callbacks are dropped rather than invoked:
+        // the objects waiting on them are being torn down together with this one.
+        private void AbortPendingAd()
+        {
+            if (!adInProgress)
+            {
+                return;
+            }
+
+            adTerminal = true;
+            adInProgress = false;
+            StopWatchdog();
+            PauseService.Remove(PauseReason.Ad);
+            ClearCallbacks();
         }
 
         public void ShowAd(Action onReward, Action onFail = null)
@@ -64,6 +84,7 @@ namespace JumpRing.Game.Core.Services
             onRewardGranted = onReward;
             onAdFailed = onFail;
             adTerminal = false;
+            adInProgress = true;
             PauseGame();
             PLink.Advertisement.RewardedAd.Show();
             adWatchdog = StartCoroutine(AdWatchdog());
@@ -72,6 +93,10 @@ namespace JumpRing.Game.Core.Services
 
         private void SubscribeToAd()
         {
+            // Also runs as the PLink.Initilized handler; without this a second Initilized would
+            // subscribe the ad callbacks twice and deliver every terminal event twice.
+            PLink.Initilized -= SubscribeToAd;
+
             PLink.Advertisement.RewardedAd.Rewarded += OnRewarded;
             PLink.Advertisement.RewardedAd.Failed += OnFailed;
             PLink.Advertisement.RewardedAd.Closed += OnClosed;
@@ -115,6 +140,7 @@ namespace JumpRing.Game.Core.Services
             }
 
             adTerminal = true;
+            adInProgress = false;
             StopWatchdog();
             ResumeGame();
 

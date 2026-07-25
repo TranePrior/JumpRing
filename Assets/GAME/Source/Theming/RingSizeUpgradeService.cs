@@ -7,7 +7,7 @@ namespace JumpRing.Game.Theming
 {
     public sealed class RingSizeUpgradeService : MonoBehaviour
     {
-        private const string UpgradesKey = "SkinUpgrades";
+        private const string UpgradesKey = StorageKeys.SkinUpgrades;
         private const float MaxScale = 1.3f;
         private const float BaseScale = 1f;
 

@@ -19,6 +19,7 @@ namespace JumpRing.Game.Core.Services
         private float lastShowTime = float.NegativeInfinity;
         private Action onComplete;
         private Coroutine adWatchdog;
+        private bool adInProgress;
 
         private void OnEnable()
         {
@@ -36,6 +37,24 @@ namespace JumpRing.Game.Core.Services
         {
             PLink.Initilized -= SubscribeToAd;
             UnsubscribeFromAd();
+            AbortPendingAd();
+        }
+
+        // Disabling this object kills the watchdog coroutine silently, so without this the
+        // PauseReason.Ad taken in TryShow would never be released and the game would stay at
+        // timeScale 0 for the rest of the session. The callback is dropped rather than invoked:
+        // the objects waiting on it are being torn down together with this one.
+        private void AbortPendingAd()
+        {
+            if (!adInProgress)
+            {
+                return;
+            }
+
+            adInProgress = false;
+            onComplete = null;
+            StopWatchdog();
+            PauseService.Remove(PauseReason.Ad);
         }
 
         /// <summary>
@@ -68,6 +87,7 @@ namespace JumpRing.Game.Core.Services
 
             onComplete = onDone;
             lastShowTime = Time.realtimeSinceStartup;
+            adInProgress = true;
             PauseGame();
             PLink.Advertisement.InterstetialAd.Show();
             adWatchdog = StartCoroutine(AdWatchdog());
@@ -76,6 +96,10 @@ namespace JumpRing.Game.Core.Services
 
         private void SubscribeToAd()
         {
+            // Also runs as the PLink.Initilized handler; without this a second Initilized would
+            // subscribe the ad callbacks twice and deliver every terminal event twice.
+            PLink.Initilized -= SubscribeToAd;
+
             PLink.Advertisement.InterstetialAd.Closed += OnClosed;
             PLink.Advertisement.InterstetialAd.Failed += OnFailed;
         }
@@ -93,6 +117,7 @@ namespace JumpRing.Game.Core.Services
 
         private void OnClosed()
         {
+            adInProgress = false;
             ResumeGame();
             var callback = onComplete;
             onComplete = null;
@@ -101,6 +126,7 @@ namespace JumpRing.Game.Core.Services
 
         private void OnFailed()
         {
+            adInProgress = false;
             ResumeGame();
             var callback = onComplete;
             onComplete = null;

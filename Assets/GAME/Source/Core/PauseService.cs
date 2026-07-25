@@ -71,9 +71,12 @@ namespace JumpRing.Game.Core
 
         // Static state survives when the editor runs with domain reload disabled; reset it before
         // the scene loads so a leftover pause from a previous play session can't strand the game.
+        // The subscriber list survives too, so it is dropped before Apply() — otherwise the reset
+        // would notify delegates pointing at objects destroyed with the previous session.
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetState()
         {
+            ReasonsChanged = null;
             reasons = PauseReason.None;
             Apply();
         }

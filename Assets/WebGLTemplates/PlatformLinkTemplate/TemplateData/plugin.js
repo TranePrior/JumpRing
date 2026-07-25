@@ -482,26 +482,145 @@ function consumePurchase(token) {
     });
 }
 
-// Cache of the whole player data object. Populated by the first load with a single
-// player.getData() network round-trip, then reused so subsequent per-key loads resolve
-// instantly instead of hitting the network once per key.
-let playerDataCache = null;
+// player.setData() replaces the whole player data object instead of merging keys, so the
+// full object is mirrored here and always sent as a whole. Writing a single key directly
+// would wipe every other key stored in the cloud.
+//
+// The cache is populated by the first load with a single player.getData() round-trip and
+// then reused, so per-key loads resolve instantly instead of hitting the network per key.
+const SaveDebounceMs = 1000;
 
+let playerDataCache = null;
+// True only after a successful getData(). Writing before that would push a partial object
+// over real cloud progress, so saves stay local until the load succeeds.
+let playerDataLoaded = false;
+let playerDataRequestCallbacks = null;
+
+let pendingWrites = {};
+// Canonical form of the object the platform last accepted. setData() rejects with
+// "The data does not differ from the previous ones" when the payload matches it.
+let lastSentSnapshot = null;
+let saveTimerId = null;
+let saveInFlight = false;
+let saveRequestedWhileInFlight = false;
+
+// Key order from the platform and from local writes differs, so plain JSON.stringify
+// would report a change where there is none and trigger a rejected setData().
+function snapshotPlayerData(data) {
+  return JSON.stringify(Object.keys(data).sort().map(key => [key, data[key]]));
+}
+
+function ensurePlayerData(onReady) {
+  if (playerDataCache !== null) {
+    onReady();
+    return;
+  }
+
+  if (playerDataRequestCallbacks !== null) {
+    playerDataRequestCallbacks.push(onReady);
+    return;
+  }
+
+  playerDataRequestCallbacks = [onReady];
+
+  player.getData().then(data => {
+    playerDataCache = data || {};
+    playerDataLoaded = true;
+    lastSentSnapshot = snapshotPlayerData(playerDataCache);
+    resolvePlayerDataRequests();
+  }).catch(error => {
+    console.log('getData error:', error);
+    playerDataCache = {};
+    playerDataLoaded = false;
+    resolvePlayerDataRequests();
+  });
+}
+
+function resolvePlayerDataRequests() {
+  const callbacks = playerDataRequestCallbacks;
+  playerDataRequestCallbacks = null;
+  callbacks.forEach(callback => callback());
+}
+
+function commitPlayerData() {
+  if (saveInFlight) {
+    saveRequestedWhileInFlight = true;
+    return;
+  }
+
+  ensurePlayerData(() => {
+    Object.assign(playerDataCache, pendingWrites);
+    pendingWrites = {};
+
+    if (playerDataLoaded === false) {
+      console.warn('Skipping setData: player data was never loaded, a write would wipe cloud progress');
+      return;
+    }
+
+    const snapshot = snapshotPlayerData(playerDataCache);
+    if (snapshot === lastSentSnapshot) {
+      sendMessageToUnity('fjs_onSaveDataSuccess');
+      return;
+    }
+
+    saveInFlight = true;
+
+    player.setData(playerDataCache, true).then(() => {
+      lastSentSnapshot = snapshot;
+      sendMessageToUnity('fjs_onSaveDataSuccess');
+    }).catch(error => {
+      console.log('setData error:', error);
+    }).finally(() => {
+      saveInFlight = false;
+
+      if (saveRequestedWhileInFlight) {
+        saveRequestedWhileInFlight = false;
+        commitPlayerData();
+      }
+    });
+  });
+}
+
+// Unity flushes per key, so a single flush produces several calls in one frame. Debouncing
+// collapses them into one setData() and keeps the game far below the platform request limit.
 function saveToPlatform(key, data)
 {
-  let object = {
-    [key]: data
-  }
+  pendingWrites[key] = data;
 
   // Keep the cache in sync so a later load reads the freshly written value.
   if (playerDataCache !== null) {
     playerDataCache[key] = data;
   }
 
-  player.setData(object).then(() => {
-    sendMessageToUnity('fjs_onSaveDataSuccess');
-  });
+  if (saveTimerId !== null) {
+    clearTimeout(saveTimerId);
+  }
+
+  saveTimerId = setTimeout(() => {
+    saveTimerId = null;
+    commitPlayerData();
+  }, SaveDebounceMs);
 }
+
+// The debounce window outlives a tab switch or a close, so pending writes are pushed out
+// as soon as the page stops being visible.
+function commitPlayerDataImmediately() {
+  if (saveTimerId === null) {
+    return;
+  }
+
+  clearTimeout(saveTimerId);
+  saveTimerId = null;
+  commitPlayerData();
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    commitPlayerDataImmediately();
+  }
+});
+
+window.addEventListener('pagehide', commitPlayerDataImmediately);
 
 function respondLoadFromCache(key) {
   const value = playerDataCache ? playerDataCache[key] : undefined;
@@ -513,20 +632,7 @@ function respondLoadFromCache(key) {
 }
 
 function loadFromPlatform(key) {
-  if (playerDataCache !== null) {
-    respondLoadFromCache(key);
-    return;
-  }
-
-  // First load fetches the entire player data object in one request and caches it.
-  player.getData().then(data => {
-    playerDataCache = data || {};
-    respondLoadFromCache(key);
-  }).catch(error => {
-    console.log('getData error:', error);
-    playerDataCache = {};
-    respondLoadFromCache(key);
-  });
+  ensurePlayerData(() => respondLoadFromCache(key));
 }
 
 function saveToLocalStorage(key, data) {

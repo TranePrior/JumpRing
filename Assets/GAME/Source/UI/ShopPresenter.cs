@@ -64,6 +64,9 @@ namespace JumpRing.Game.UI
         private Button watchAdButton;
 
         [SerializeField]
+        private WatchAdButtonView adButtonView;
+
+        [SerializeField]
         private RewardedAdService rewardedAdService;
 
         [SerializeField]
@@ -79,7 +82,6 @@ namespace JumpRing.Game.UI
         private readonly List<ShopSkinCardView> activeCards = new();
         private Sequence openSequence;
         private float lastAdWatchTime = float.NegativeInfinity;
-        private bool lastAdAvailableState;
 
         public static bool IsOpen { get; private set; }
 
@@ -177,17 +179,12 @@ namespace JumpRing.Game.UI
 
         private void Update()
         {
-            if (!IsOpen || watchAdButton == null)
+            if (!IsOpen)
             {
                 return;
             }
 
-            bool available = IsAdAvailable();
-            if (available != lastAdAvailableState)
-            {
-                lastAdAvailableState = available;
-                watchAdButton.interactable = available;
-            }
+            UpdateAdButton();
         }
 
         public void Open()
@@ -404,17 +401,25 @@ namespace JumpRing.Game.UI
 
         private void UpdateAdButton()
         {
-            if (watchAdButton == null)
+            if (!rewardedAdService.CanShowAd)
             {
+                adButtonView.ShowUnavailable();
                 return;
             }
 
-            watchAdButton.interactable = IsAdAvailable();
+            float remaining = adCooldownSeconds - (Time.unscaledTime - lastAdWatchTime);
+            if (remaining > 0f)
+            {
+                adButtonView.ShowCooldown(remaining);
+                return;
+            }
+
+            adButtonView.ShowAvailable();
         }
 
         private bool IsAdAvailable()
         {
-            if (rewardedAdService == null || !rewardedAdService.CanShowAd)
+            if (!rewardedAdService.CanShowAd)
             {
                 return false;
             }

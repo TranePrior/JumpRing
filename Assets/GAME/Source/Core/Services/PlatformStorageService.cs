@@ -204,8 +204,15 @@ namespace JumpRing.Game.Core.Services
             return stringCache.TryGetValue(key, out var value) ? value : defaultValue;
         }
 
+        // Writing an unchanged value would still queue a cloud save, and the platform rejects
+        // a payload identical to the stored one — so unchanged writes are dropped here.
         public void SetInt(string key, int value)
         {
+            if (intCache.TryGetValue(key, out var current) && current == value)
+            {
+                return;
+            }
+
             intCache[key] = value;
             PlayerPrefs.SetInt(key, value);
             dirtyInts.Add(key);
@@ -214,6 +221,11 @@ namespace JumpRing.Game.Core.Services
 
         public void SetString(string key, string value)
         {
+            if (stringCache.TryGetValue(key, out var current) && current == value)
+            {
+                return;
+            }
+
             stringCache[key] = value;
             PlayerPrefs.SetString(key, value);
             dirtyStrings.Add(key);

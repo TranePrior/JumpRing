@@ -72,7 +72,9 @@ namespace JumpRing.Game.UI
 
         private void OnTapCountChanged(int count)
         {
-            tapCountText.text = count.ToString();
+            // SetText writes the number into TMP's own buffer; count.ToString() allocated a string
+            // on every single tap.
+            tapCountText.SetText("{0}", count);
         }
     }
 }

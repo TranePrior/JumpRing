@@ -32,11 +32,30 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private float pulseDuration = 0.7f;
 
+        private enum VisualState
+        {
+            None,
+            Available,
+            Cooldown,
+            Unavailable
+        }
+
         private Tween pulseTween;
         private int shownSeconds = -1;
 
+        // ShopPresenter drives these from Update while the shop is open, so the state-changing part
+        // has to be guarded. Re-applying SetActive and interactable every frame is not free:
+        // touching Selectable.interactable runs DoStateTransition and can dirty the canvas.
+        private VisualState shownState = VisualState.None;
+
         public void ShowAvailable()
         {
+            if (shownState == VisualState.Available)
+            {
+                return;
+            }
+
+            shownState = VisualState.Available;
             button.interactable = true;
             adIcon.gameObject.SetActive(true);
             adIcon.color = Color.white;
@@ -52,9 +71,13 @@ namespace JumpRing.Game.UI
         /// </summary>
         public void ShowCooldown(float remainingSeconds)
         {
-            SetLockedLook();
-            adIcon.gameObject.SetActive(false);
-            cooldownLabel.gameObject.SetActive(true);
+            if (shownState != VisualState.Cooldown)
+            {
+                shownState = VisualState.Cooldown;
+                SetLockedLook();
+                adIcon.gameObject.SetActive(false);
+                cooldownLabel.gameObject.SetActive(true);
+            }
 
             int total = Mathf.Max(0, Mathf.CeilToInt(remainingSeconds));
             if (total == shownSeconds)
@@ -68,6 +91,12 @@ namespace JumpRing.Game.UI
 
         public void ShowUnavailable()
         {
+            if (shownState == VisualState.Unavailable)
+            {
+                return;
+            }
+
+            shownState = VisualState.Unavailable;
             SetLockedLook();
             adIcon.gameObject.SetActive(true);
             adIcon.color = dimIconColor;
@@ -106,6 +135,11 @@ namespace JumpRing.Game.UI
         private void OnDisable()
         {
             StopPulse();
+
+            // The next activation re-applies the look from scratch; without this the guards would
+            // skip it and the button could come back showing a stale state.
+            shownState = VisualState.None;
+            shownSeconds = -1;
         }
     }
 }

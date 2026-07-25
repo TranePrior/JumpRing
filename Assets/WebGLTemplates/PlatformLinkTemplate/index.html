@@ -41,7 +41,10 @@
         companyName: "{{{ COMPANY_NAME }}}",
         productName: "{{{ PRODUCT_NAME }}}",
         productVersion: "{{{ PRODUCT_VERSION }}}",
-        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+        // Capped at 1.5: phones report a DPR of 3, and rendering a 2D hyper-casual game at 2x
+        // means drawing four times the pixels for detail nobody sees on that screen size.
+        // This is the cheapest frame-rate win available on mobile browsers.
+        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 1.5),
       };
 
       const container = document.querySelector("#unity-container");

@@ -8,9 +8,7 @@ namespace JumpRing.Game.UI
 {
     public sealed class HudPresenter : MonoBehaviour
     {
-        private const string ScoreFormat = "{0}: {1}";
-        private const string BestScoreFormat = "{0}";
-        private const string CoinsFormat = "{0}";
+        private const string NumberFormat = "{0}";
 
         [SerializeField]
         private TMP_Text scoreLabel;
@@ -28,6 +26,12 @@ namespace JumpRing.Game.UI
         private ICurrencyService currencyService;
         private IGameStateMachine gameStateMachine;
         private bool isConstructed;
+
+        // The localized word changes only when the player switches language, so the format string
+        // is rebuilt then rather than on every score change. TMP.SetText formats the number into
+        // its own buffer, which keeps the per-tap path free of string allocations.
+        private string cachedScoreWord;
+        private string cachedScoreFormat = NumberFormat;
 
         public void Construct(IScoreService score, ICurrencyService currency)
         {
@@ -92,12 +96,19 @@ namespace JumpRing.Game.UI
                 string scoreWord = LocalizationService.Instance != null
                     ? LocalizationService.Instance.GetText(LocalizationKey.Score)
                     : "SCORE";
-                scoreLabel.text = string.Format(ScoreFormat, scoreWord, score);
+
+                if (!ReferenceEquals(scoreWord, cachedScoreWord))
+                {
+                    cachedScoreWord = scoreWord;
+                    cachedScoreFormat = scoreWord + ": " + NumberFormat;
+                }
+
+                scoreLabel.SetText(cachedScoreFormat, score);
             }
 
             if (bestScoreLabel != null)
             {
-                bestScoreLabel.text = string.Format(BestScoreFormat, scoreService.BestScore);
+                bestScoreLabel.SetText(NumberFormat, scoreService.BestScore);
             }
         }
 
@@ -105,7 +116,7 @@ namespace JumpRing.Game.UI
         {
             if (diamondsLabel != null)
             {
-                diamondsLabel.text = string.Format(CoinsFormat, balance);
+                diamondsLabel.SetText(NumberFormat, balance);
             }
         }
     }

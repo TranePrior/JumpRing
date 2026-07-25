@@ -99,6 +99,18 @@ namespace JumpRing.Game.Gameplay
 
         // Baking system: once a point is generated, it never changes
         private readonly Dictionary<int, float> bakedHeights = new(256);
+
+        // Reused by ForceFlatAhead and PruneBakedBefore — both run from per-frame paths.
+        private readonly List<int> stepRemovalBuffer = new(64);
+
+        // EdgeCollider2D.SetPoints takes a List, so the window rebuild used to allocate one every
+        // time even though worldPointsBuffer/localPointsBuffer already exist to avoid exactly that.
+        private readonly List<Vector2> colliderPointsBuffer = new(2048);
+
+        // Guards ForceFlatAhead against redundant per-frame rebuilds. int.MinValue means "no flat
+        // zone applied yet"; reset whenever generation state is thrown away.
+        private int lastForcedFlatStep = int.MinValue;
+        private int lastForcedFlatCount = -1;
         private float activeSegmentLength;
         private bool lineHiddenByTheme;
         private bool hideForRebuild;
@@ -299,6 +311,19 @@ namespace JumpRing.Game.Gameplay
         {
             var seg = ActiveSegmentLength;
             var startStep = Mathf.RoundToInt(fromX / seg) + 1;
+
+            // Callers drive this from Update for as long as a flat zone is active, but the result
+            // only changes once the player crosses into a new step — about twice a second at normal
+            // speed. Running it per frame rebuilt the window and re-uploaded the EdgeCollider2D
+            // geometry ~60 times a second, for 7 seconds at the start of every single run.
+            if (startStep == lastForcedFlatStep && segmentCount == lastForcedFlatCount)
+            {
+                return;
+            }
+
+            lastForcedFlatStep = startStep;
+            lastForcedFlatCount = segmentCount;
+
             var currentY = EvaluateHeightAtX(fromX);
 
             var minStepsToEdge = Mathf.CeilToInt((CameraHalfWidth + extraMargin) / seg) + 2;
@@ -311,20 +336,22 @@ namespace JumpRing.Game.Gameplay
 
             // Remove cached points beyond the flat zone so they regenerate from the flat height
             var lastFlatStep = startStep + segmentCount - 1;
-            var toRemove = new List<int>();
+            stepRemovalBuffer.Clear();
 
             foreach (var key in bakedHeights.Keys)
             {
                 if (key > lastFlatStep)
                 {
-                    toRemove.Add(key);
+                    stepRemovalBuffer.Add(key);
                 }
             }
 
-            for (var i = 0; i < toRemove.Count; i++)
+            for (var i = 0; i < stepRemovalBuffer.Count; i++)
             {
-                bakedHeights.Remove(toRemove[i]);
+                bakedHeights.Remove(stepRemovalBuffer[i]);
             }
+
+            stepRemovalBuffer.Clear();
 
             // Update forward frontier so future generation continues from flat
             frontierStepForward = lastFlatStep;
@@ -384,6 +411,10 @@ namespace JumpRing.Game.Gameplay
 
             bakedHeights.Clear();
 
+            // A fresh run throws the baked field away, so any previously applied flat zone is gone.
+            lastForcedFlatStep = int.MinValue;
+            lastForcedFlatCount = -1;
+
             var behindSteps = Mathf.CeilToInt((CameraHalfWidth + extraMargin) / seg) + 2;
             var aheadSteps = Mathf.CeilToInt((CameraHalfWidth + extraMargin) / seg) + 2;
             var minFlatSteps = Mathf.Max(startFlatSegments, aheadSteps);
@@ -416,6 +447,8 @@ namespace JumpRing.Game.Gameplay
 
         private void ResetFrontier()
         {
+            lastForcedFlatStep = int.MinValue;
+            lastForcedFlatCount = -1;
             frontierStepForward = int.MinValue;
             frontierYForward = yOffset;
             frontierStepBackward = int.MaxValue;
@@ -668,7 +701,7 @@ namespace JumpRing.Game.Gameplay
             var rawPointsCount = endStep - startStep + 1;
             var pointsCount = Mathf.Clamp(rawPointsCount, 2, worldPointsBuffer.Length);
             lineRenderer.positionCount = pointsCount;
-            var colliderPoints = new List<Vector2>(pointsCount);
+            colliderPointsBuffer.Clear();
 
             // Prune baked points far behind the camera
             var pruneStep = startStep - 20;
@@ -684,28 +717,30 @@ namespace JumpRing.Game.Gameplay
                 worldPointsBuffer[index] = worldPoint;
                 localPointsBuffer[index] = transform.InverseTransformPoint(worldPoint);
                 lineRenderer.SetPosition(index, worldPoint);
-                colliderPoints.Add(localPointsBuffer[index]);
+                colliderPointsBuffer.Add(localPointsBuffer[index]);
             }
 
-            edgeCollider.SetPoints(colliderPoints);
+            edgeCollider.SetPoints(colliderPointsBuffer);
         }
 
         private void PruneBakedBefore(int minStep)
         {
-            var toRemove = new List<int>();
+            stepRemovalBuffer.Clear();
 
             foreach (var key in bakedHeights.Keys)
             {
                 if (key < minStep)
                 {
-                    toRemove.Add(key);
+                    stepRemovalBuffer.Add(key);
                 }
             }
 
-            for (var i = 0; i < toRemove.Count; i++)
+            for (var i = 0; i < stepRemovalBuffer.Count; i++)
             {
-                bakedHeights.Remove(toRemove[i]);
+                bakedHeights.Remove(stepRemovalBuffer[i]);
             }
+
+            stepRemovalBuffer.Clear();
         }
     }
 }

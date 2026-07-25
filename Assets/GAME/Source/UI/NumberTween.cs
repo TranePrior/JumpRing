@@ -9,18 +9,27 @@ namespace JumpRing.Game.UI
     /// </summary>
     public static class NumberTween
     {
+        /// <param name="format">
+        /// A TMP format string such as "{0}" or "+{0}". It is passed straight to
+        /// <see cref="TMP_Text.SetText(string, float)"/>, which formats the number into TMP's own
+        /// buffer — string.Format here allocated a string on every frame of the count-up, on the
+        /// Game Over screen where punch, scale and blur animations are already running.
+        /// </param>
         public static Tween Play(TMP_Text label, int from, int to, float duration, string format)
         {
             int current = from;
-            label.text = string.Format(format, from);
+            label.SetText(format, from);
 
             return DOTween.To(() => current, value =>
                 {
                     current = value;
-                    label.text = string.Format(format, value);
+                    label.SetText(format, value);
                 }, to, duration)
                 .SetEase(Ease.OutCubic)
-                .SetUpdate(true);
+                .SetUpdate(true)
+                // Gives the tween a Unity target, so it can be killed via DOTween.Kill(label) and
+                // safe mode can tie it to the label's lifetime. Without one it is unreachable.
+                .SetTarget(label);
         }
     }
 }

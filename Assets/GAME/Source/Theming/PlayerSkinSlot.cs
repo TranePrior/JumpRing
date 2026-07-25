@@ -36,8 +36,12 @@ namespace JumpRing.Game.Theming
                 var child = transform.GetChild(i);
                 if (child.GetComponentInChildren<SpriteRenderer>() != null)
                 {
+                    // Deactivated first so the old skin disappears this frame, then destroyed on
+                    // Unity's own schedule. DestroyImmediate tears the object down inside this loop,
+                    // outside the deferred destruction cycle, which is both a visible hitch and a
+                    // hazard for anything mid-update on that object.
                     child.gameObject.SetActive(false);
-                    DestroyImmediate(child.gameObject);
+                    Destroy(child.gameObject);
                 }
             }
         }

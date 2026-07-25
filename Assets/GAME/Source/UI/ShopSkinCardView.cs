@@ -24,9 +24,6 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private Image selectionFrame;
 
-        [SerializeField]
-        private Button cardButton;
-
         [Header("Action Button")]
         [SerializeField]
         private Button actionButton;
@@ -70,7 +67,6 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private float disabledContentAlpha = 0.5f;
 
-        public event Action<SkinItem> Clicked;
         public event Action<SkinItem> ActionClicked;
 
         private SkinItem skinItem;
@@ -238,11 +234,6 @@ namespace JumpRing.Game.UI
 
         private void Awake()
         {
-            if (cardButton != null)
-            {
-                cardButton.onClick.AddListener(OnClick);
-            }
-
             if (actionButton != null)
             {
                 actionButton.onClick.AddListener(OnActionClick);
@@ -251,20 +242,10 @@ namespace JumpRing.Game.UI
 
         private void OnDestroy()
         {
-            if (cardButton != null)
-            {
-                cardButton.onClick.RemoveListener(OnClick);
-            }
-
             if (actionButton != null)
             {
                 actionButton.onClick.RemoveListener(OnActionClick);
             }
-        }
-
-        private void OnClick()
-        {
-            Clicked?.Invoke(skinItem);
         }
 
         private void OnActionClick()

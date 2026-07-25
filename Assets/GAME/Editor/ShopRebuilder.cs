@@ -114,11 +114,6 @@ namespace JumpRing.Game.Editor
             if (roundedSpr) bg.sprite = roundedSpr;
             bg.type = Image.Type.Sliced;
             bg.color = CardBg;
-            var cardBtn = root.AddComponent<Button>();
-            cardBtn.targetGraphic = bg;
-            var nav = cardBtn.navigation;
-            nav.mode = Navigation.Mode.None;
-            cardBtn.navigation = nav;
 
             // --- Name Label (top) ---
             var nameGO = UI("NameLabel", root.transform);
@@ -229,7 +224,6 @@ namespace JumpRing.Game.Editor
             so.FindProperty("nameLabel").objectReferenceValue = nameLabel;
             so.FindProperty("priceLabel").objectReferenceValue = priceLabel;
             so.FindProperty("selectionFrame").objectReferenceValue = selFrame;
-            so.FindProperty("cardButton").objectReferenceValue = cardBtn;
             so.FindProperty("actionButton").objectReferenceValue = actionBtn;
             so.FindProperty("actionButtonLabel").objectReferenceValue = actLabel;
             so.FindProperty("actionButtonImage").objectReferenceValue = actionBg;

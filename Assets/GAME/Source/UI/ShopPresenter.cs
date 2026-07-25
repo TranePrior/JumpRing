@@ -270,7 +270,6 @@ namespace JumpRing.Game.UI
                         );
                     }
 
-                    card.Clicked += OnCardClicked;
                     card.ActionClicked += OnCardActionClicked;
                     activeCards.Add(card);
                 }
@@ -283,20 +282,11 @@ namespace JumpRing.Game.UI
         {
             foreach (var card in activeCards)
             {
-                card.Clicked -= OnCardClicked;
                 card.ActionClicked -= OnCardActionClicked;
                 Destroy(card.gameObject);
             }
 
             activeCards.Clear();
-        }
-
-        private void OnCardClicked(SkinItem skin)
-        {
-            if (skinShopService.IsOwned(skin))
-            {
-                skinShopService.SelectSkin(skin);
-            }
         }
 
         private void OnCardActionClicked(SkinItem skin)

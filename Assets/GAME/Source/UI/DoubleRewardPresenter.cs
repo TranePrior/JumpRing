@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace JumpRing.Game.UI
 {
-    public sealed class DoubleRewardPresenter : MonoBehaviour
+    public sealed class DoubleRewardPresenter : PopupWindow
     {
         [Header("Dependencies")]
         [SerializeField]
@@ -20,12 +20,6 @@ namespace JumpRing.Game.UI
         private RewardedAdService rewardedAdService;
 
         [Header("UI")]
-        [SerializeField]
-        private GameObject panel;
-
-        [SerializeField]
-        private CanvasGroup panelCanvasGroup;
-
         [SerializeField]
         private TMP_Text earningsLabel;
 
@@ -47,13 +41,12 @@ namespace JumpRing.Game.UI
 
         private int pendingEarnings;
         private bool rewardDoubled;
-        private Sequence panelSequence;
 
         private void OnEnable()
         {
             doubleRewardButton.onClick.AddListener(OnDoubleRewardClicked);
             continueButton.onClick.AddListener(OnContinueClicked);
-            panel.SetActive(false);
+            CloseWindowImmediate();
 
             // Only own the game-over flow when this feature is on. When off, GameOverPresenter
             // is the sole owner — staying unsubscribed avoids both double-reward and the
@@ -69,11 +62,6 @@ namespace JumpRing.Game.UI
             gameStateMachine.StateChanged -= OnStateChanged;
             doubleRewardButton.onClick.RemoveListener(OnDoubleRewardClicked);
             continueButton.onClick.RemoveListener(OnContinueClicked);
-        }
-
-        private void OnDestroy()
-        {
-            panelSequence?.Kill();
         }
 
         private void OnStateChanged(GameState state)
@@ -93,44 +81,16 @@ namespace JumpRing.Game.UI
 
             UpdateUI();
 
-            bool canShowAd = rewardedAdService != null && rewardedAdService.CanShowAd;
-            doubleRewardButton.gameObject.SetActive(canShowAd);
+            doubleRewardButton.gameObject.SetActive(rewardedAdService.CanShowAd);
 
-            if (dimOverlay != null)
-            {
-                dimOverlay.Show();
-            }
-
-            panel.SetActive(true);
-            panelSequence?.Kill();
-
-            if (panelCanvasGroup != null)
-            {
-                panelCanvasGroup.interactable = true;
-                panelCanvasGroup.blocksRaycasts = true;
-                panelSequence = WindowAnimations.AnimateOpen(panelCanvasGroup, panel.transform);
-            }
+            dimOverlay.Show();
+            OpenWindow();
         }
 
         private void Hide()
         {
-            panelSequence?.Kill();
-
-            if (dimOverlay != null)
-            {
-                dimOverlay.Hide();
-            }
-
-            if (panelCanvasGroup != null)
-            {
-                panelSequence = WindowAnimations.AnimateClose(panelCanvasGroup, panel.transform, panel);
-                panelSequence.AppendCallback(() => gameStateMachine.Enter(GameState.MainMenu));
-            }
-            else
-            {
-                panel.SetActive(false);
-                gameStateMachine.Enter(GameState.MainMenu);
-            }
+            dimOverlay.Hide();
+            CloseWindow(() => gameStateMachine.Enter(GameState.MainMenu));
         }
 
         private void OnDoubleRewardClicked()
@@ -140,11 +100,9 @@ namespace JumpRing.Game.UI
                 return;
             }
 
-            if (rewardedAdService != null && rewardedAdService.CanShowAd)
+            if (rewardedAdService.CanShowAd)
             {
-                rewardedAdService.ShowAd(
-                    onReward: ApplyDoubleReward
-                );
+                rewardedAdService.ShowAd(onReward: ApplyDoubleReward);
             }
         }
 
@@ -164,11 +122,7 @@ namespace JumpRing.Game.UI
         private void UpdateUI()
         {
             int displayEarnings = rewardDoubled ? pendingEarnings * 2 : pendingEarnings;
-
-            if (earningsLabel != null)
-            {
-                earningsLabel.text = $"+{displayEarnings}";
-            }
+            earningsLabel.SetText("+{0}", displayEarnings);
         }
     }
 }

@@ -23,6 +23,16 @@ namespace JumpRing.Game.UI
         private Sequence iconSequence;
         private Tween countTween;
 
+        /// <summary>
+        /// Writes the value the chip will end on, without animating. Lets the owner lay the card
+        /// out at its final width before the count-up starts, so the chip does not resize while
+        /// the digits tick.
+        /// </summary>
+        public void PrepareLayout(int amount)
+        {
+            amountLabel.SetText(AmountFormat, amount);
+        }
+
         public void Show(int amount)
         {
             KillTweens();

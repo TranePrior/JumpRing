@@ -284,6 +284,35 @@ function sendGameReadyMessage() {
   ysdk.features.LoadingAPI.ready();
 }
 
+// Called from GameplayApi.jslib, which is driven by GameplayApiService on the Unity side.
+// Yandex uses these to know when the player is actually playing (it holds back interstitials and
+// counts session time off them). The jslib guards on `typeof === 'function'`, so while these were
+// missing the whole chain was silently dead.
+let gameplayApiIsActive = false;
+
+function gameplayApiStart() {
+  if (gameplayApiIsActive) {
+    return;
+  }
+  if (!ysdk || !ysdk.features || !ysdk.features.GameplayAPI) {
+    console.warn('Yandex SDK GameplayAPI is not available');
+    return;
+  }
+  gameplayApiIsActive = true;
+  ysdk.features.GameplayAPI.start();
+}
+
+function gameplayApiStop() {
+  if (!gameplayApiIsActive) {
+    return;
+  }
+  if (!ysdk || !ysdk.features || !ysdk.features.GameplayAPI) {
+    return;
+  }
+  gameplayApiIsActive = false;
+  ysdk.features.GameplayAPI.stop();
+}
+
 function showInterstitialAd() {
   if (!ysdk || !ysdk.adv || typeof ysdk.adv.showFullscreenAdv !== 'function') {
     console.warn('Yandex SDK adv.showFullscreenAdv is not available');

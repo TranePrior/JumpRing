@@ -250,12 +250,6 @@ namespace JumpRing.Game.Gameplay
         private void OnEnable()
         {
             lineRenderer.useWorldSpace = true;
-            runSessionController = Object.FindFirstObjectByType<RunSessionController>();
-
-            if (difficultyManager == null)
-            {
-                difficultyManager = Object.FindFirstObjectByType<DifficultyManager>();
-            }
 
             ResetFrontier();
             isRunActive = false;

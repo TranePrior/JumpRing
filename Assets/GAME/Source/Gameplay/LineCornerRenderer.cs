@@ -27,15 +27,6 @@ namespace JumpRing.Game.Gameplay
         private int lastPositionCount;
         private float lastCameraX;
 
-        private void OnEnable()
-        {
-            if (linePathGenerator == null)
-                linePathGenerator = Object.FindFirstObjectByType<LinePathGenerator>();
-
-            if (gameplayCamera == null)
-                gameplayCamera = Camera.main;
-        }
-
         public void Configure(Sprite sprite)
         {
             cornerSprite = sprite;
@@ -46,12 +37,6 @@ namespace JumpRing.Game.Gameplay
 
         public void Activate()
         {
-            if (linePathGenerator == null)
-                linePathGenerator = Object.FindFirstObjectByType<LinePathGenerator>();
-
-            if (gameplayCamera == null)
-                gameplayCamera = Camera.main;
-
             isActive = true;
             lastPositionCount = -1;
             lastCameraX = float.MinValue;
@@ -71,7 +56,7 @@ namespace JumpRing.Game.Gameplay
 
         private void LateUpdate()
         {
-            if (!isActive || cornerSprite == null || gameplayCamera == null || linePathGenerator == null)
+            if (!isActive || cornerSprite == null)
                 return;
 
             var lr = linePathGenerator.LineRenderer;

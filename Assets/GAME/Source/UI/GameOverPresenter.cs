@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace JumpRing.Game.UI
 {
-    public sealed class GameOverPresenter : MonoBehaviour
+    public sealed class GameOverPresenter : PopupWindow
     {
         [Header("Dependencies")]
         [SerializeField]
@@ -31,12 +31,6 @@ namespace JumpRing.Game.UI
 
         [Header("UI")]
         [SerializeField]
-        private GameObject panel;
-
-        [SerializeField]
-        private CanvasGroup panelCanvasGroup;
-
-        [SerializeField]
         private TMP_Text scoreLabel;
 
         [SerializeField]
@@ -58,6 +52,10 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private DimOverlay dimOverlay;
 
+        [Header("Layout")]
+        [SerializeField]
+        private LayoutFreezer layoutFreezer;
+
         private IScoreService ScoreService => (IScoreService)scoreServiceComponent;
         private ICurrencyService CurrencyService => (ICurrencyService)currencyServiceComponent;
 
@@ -65,7 +63,6 @@ namespace JumpRing.Game.UI
 
         private int pendingEarnings;
         private bool rewardDoubled;
-        private Sequence panelSequence;
         private Tween scoreTween;
         private Sequence doubleRewardPulse;
 
@@ -76,7 +73,7 @@ namespace JumpRing.Game.UI
             menuButton.onClick.AddListener(OnMenuClicked);
             doubleRewardButton.onClick.AddListener(OnDoubleRewardClicked);
 
-            panel.SetActive(false);
+            CloseWindowImmediate();
         }
 
         private void OnDisable()
@@ -87,20 +84,25 @@ namespace JumpRing.Game.UI
             doubleRewardButton.onClick.RemoveListener(OnDoubleRewardClicked);
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
-            panelSequence?.Kill();
+            base.OnDestroy();
             KillContentTweens();
         }
 
         private void OnStateChanged(GameState state)
         {
-            if (state != GameState.GameOver)
+            if (state == GameState.GameOver)
             {
+                Show();
                 return;
             }
 
-            Show();
+            // Anything that leaves GameOver takes the card with it. Only the Retry and Menu buttons
+            // used to close it, so any other exit — a revive, a tap that restarted the run — left
+            // the card on screen and the next death re-opened it on top of itself, which read as a
+            // hard cut with no close animation.
+            HideImmediate();
         }
 
         private void Show()
@@ -115,17 +117,21 @@ namespace JumpRing.Game.UI
             bool canDoubleReward = rewardedAdService.CanShowAd && pendingEarnings > 0;
             doubleRewardButton.gameObject.SetActive(canDoubleReward);
 
-            if (dimOverlay != null)
-            {
-                dimOverlay.Show();
-            }
+            dimOverlay.Show();
 
-            panel.SetActive(true);
-            panelSequence?.Kill();
+            ActivateWindow();
             KillContentTweens();
 
-            scoreTween = NumberTween.Play(scoreLabel, 0, currentScore, ScoreCountDuration, "{0}");
             bestScoreBadge.Show(bestScore, isNewBest);
+
+            // Fill in the values the count-ups will land on, lay the card out once at that size,
+            // then freeze the layout. Without this every tweened SetText rebuilt eight nested
+            // layout groups per frame and the fitters resized the card as the digit count grew.
+            scoreLabel.SetText("{0}", currentScore);
+            rewardChip.PrepareLayout(pendingEarnings);
+            layoutFreezer.Rebuild();
+
+            scoreTween = NumberTween.Play(scoreLabel, 0, currentScore, ScoreCountDuration, "{0}");
             rewardChip.Show(pendingEarnings);
 
             if (canDoubleReward)
@@ -133,34 +139,26 @@ namespace JumpRing.Game.UI
                 doubleRewardPulse = WindowAnimations.Heartbeat(doubleRewardButton.transform);
             }
 
-            if (panelCanvasGroup != null)
+            PlayOpenAnimation();
+        }
+
+        private void HideImmediate()
+        {
+            if (!IsWindowOpen)
             {
-                panelCanvasGroup.interactable = true;
-                panelCanvasGroup.blocksRaycasts = true;
-                panelSequence = WindowAnimations.AnimateOpen(panelCanvasGroup, panel.transform);
+                return;
             }
+
+            KillContentTweens();
+            dimOverlay.HideImmediate();
+            CloseWindowImmediate();
         }
 
         private void Hide(System.Action onComplete)
         {
-            panelSequence?.Kill();
             KillContentTweens();
-
-            if (dimOverlay != null)
-            {
-                dimOverlay.Hide();
-            }
-
-            if (panelCanvasGroup != null)
-            {
-                panelSequence = WindowAnimations.AnimateClose(panelCanvasGroup, panel.transform, panel);
-                panelSequence.AppendCallback(() => onComplete?.Invoke());
-            }
-            else
-            {
-                panel.SetActive(false);
-                onComplete?.Invoke();
-            }
+            dimOverlay.Hide();
+            CloseWindow(onComplete);
         }
 
         private void OnRetryClicked()
@@ -178,14 +176,7 @@ namespace JumpRing.Game.UI
 
         private void ShowInterstitialThen(System.Action continuation)
         {
-            if (interstitialAdService != null)
-            {
-                interstitialAdService.TryShow(continuation);
-            }
-            else
-            {
-                continuation?.Invoke();
-            }
+            interstitialAdService.TryShow(continuation);
         }
 
         private void OnDoubleRewardClicked()
@@ -202,10 +193,16 @@ namespace JumpRing.Game.UI
         {
             rewardDoubled = true;
             CurrencyService.Add(pendingEarnings);
-            rewardChip.ShowDoubled(pendingEarnings * 2);
 
             StopDoubleRewardPulse();
             doubleRewardButton.gameObject.SetActive(false);
+
+            // The doubled amount is wider and the button just left the card, so re-lay the card out
+            // at its new final size before freezing it again for the count-up.
+            rewardChip.PrepareLayout(pendingEarnings * 2);
+            layoutFreezer.Rebuild();
+
+            rewardChip.ShowDoubled(pendingEarnings * 2);
         }
 
         private void KillContentTweens()

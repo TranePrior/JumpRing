@@ -13,79 +13,111 @@ namespace JumpRing.Game.UI
         private CanvasGroup overlayCanvasGroup;
 
         [Header("Blur")]
+        [SerializeField]
+        private Camera blurSourceCamera;
+
         [SerializeField, Range(2, 32)]
         private int downsampleFactor = 8;
+
+        private const float FadeDuration = 0.2f;
 
         private GameObject blurObject;
         private RawImage blurRawImage;
         private RenderTexture blurRT;
         private Tween fadeTween;
+        private bool isVisible;
 
+        /// <summary>
+        /// Fades the overlay in over the current frame. Re-entrant: while the overlay is already
+        /// visible this is a no-op.
+        /// </summary>
+        /// <remarks>
+        /// Presenters share one overlay, so a second <c>Show</c> used to re-capture the blur — an
+        /// extra full <see cref="Camera.Render"/> — and reset the alpha to 0, which read on screen
+        /// as the whole game flashing bright for the length of the fade.
+        /// </remarks>
         public void Show()
         {
+            if (isVisible)
+            {
+                return;
+            }
+
+            isVisible = true;
+            EnsureBlurObject();
             fadeTween?.Kill();
             CaptureBlur();
             overlay.SetActive(true);
-
-            if (overlayCanvasGroup != null)
-            {
-                fadeTween = WindowAnimations.FadeIn(overlayCanvasGroup);
-            }
+            SetAlpha(0f);
+            fadeTween = FadeTo(1f, Ease.OutQuad);
         }
 
         public void Hide()
         {
-            fadeTween?.Kill();
-
-            if (overlayCanvasGroup != null)
+            if (!isVisible)
             {
-                fadeTween = WindowAnimations.FadeOut(overlayCanvasGroup);
-                fadeTween.OnComplete(() =>
-                {
-                    overlay.SetActive(false);
-                    ReleaseBlur();
-                });
+                return;
             }
-            else
+
+            isVisible = false;
+            fadeTween?.Kill();
+            fadeTween = FadeTo(0f, Ease.InQuad);
+            fadeTween.OnComplete(() =>
             {
                 overlay.SetActive(false);
                 ReleaseBlur();
-            }
+            });
         }
 
         public void HideImmediate()
         {
+            isVisible = false;
+            EnsureBlurObject();
             fadeTween?.Kill();
-
-            if (overlayCanvasGroup != null)
-            {
-                overlayCanvasGroup.alpha = 0f;
-            }
-
+            SetAlpha(0f);
             overlay.SetActive(false);
             ReleaseBlur();
         }
 
+        /// <summary>
+        /// Drives the dim and the blur off a single value. The blur lives outside
+        /// <see cref="overlayCanvasGroup"/> — it has to render under the dim, and a child always
+        /// draws over its parent's graphic — so fading only the canvas group snapped the blur in at
+        /// full strength while the dim was still ramping up.
+        /// </summary>
+        private Tween FadeTo(float target, Ease ease)
+        {
+            return DOTween.To(() => overlayCanvasGroup.alpha, SetAlpha, target, FadeDuration)
+                .SetEase(ease)
+                .SetUpdate(true)
+                .SetTarget(overlayCanvasGroup);
+        }
+
+        private void SetAlpha(float alpha)
+        {
+            overlayCanvasGroup.alpha = alpha;
+
+            var color = blurRawImage.color;
+            color.a = alpha;
+            blurRawImage.color = color;
+        }
+
         private void CaptureBlur()
         {
-            var cam = Camera.main;
-            if (cam == null) return;
-
             int w = Screen.width / downsampleFactor;
             int h = Screen.height / downsampleFactor;
             if (w < 1) w = 1;
             if (h < 1) h = 1;
 
             ReleaseRT();
-            EnsureBlurObject();
 
             blurRT = RenderTexture.GetTemporary(w, h, 0, RenderTextureFormat.ARGB32);
             blurRT.filterMode = FilterMode.Bilinear;
 
-            var prevTarget = cam.targetTexture;
-            cam.targetTexture = blurRT;
-            cam.Render();
-            cam.targetTexture = prevTarget;
+            var prevTarget = blurSourceCamera.targetTexture;
+            blurSourceCamera.targetTexture = blurRT;
+            blurSourceCamera.Render();
+            blurSourceCamera.targetTexture = prevTarget;
 
             blurRawImage.texture = blurRT;
             blurObject.SetActive(true);
@@ -93,12 +125,8 @@ namespace JumpRing.Game.UI
 
         private void ReleaseBlur()
         {
-            if (blurObject != null)
-                blurObject.SetActive(false);
-
-            if (blurRawImage != null)
-                blurRawImage.texture = null;
-
+            blurObject.SetActive(false);
+            blurRawImage.texture = null;
             ReleaseRT();
         }
 
@@ -133,9 +161,13 @@ namespace JumpRing.Game.UI
 
         private void OnDestroy()
         {
+            fadeTween?.Kill();
             ReleaseRT();
+
             if (blurObject != null)
+            {
                 Destroy(blurObject);
+            }
         }
     }
 }

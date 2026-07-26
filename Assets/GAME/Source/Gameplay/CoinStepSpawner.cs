@@ -63,16 +63,6 @@ namespace JumpRing.Game.Gameplay
 
         private void OnEnable()
         {
-            if (riskRewardSystem == null)
-            {
-                riskRewardSystem = Object.FindFirstObjectByType<RiskRewardSystem>();
-            }
-
-            if (microEventSystem == null)
-            {
-                microEventSystem = Object.FindFirstObjectByType<MicroEventSystem>();
-            }
-
             runSessionController.RunStarted += OnRunStarted;
             runSessionController.RunFinished += OnRunFinished;
         }

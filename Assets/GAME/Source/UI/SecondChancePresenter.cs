@@ -6,7 +6,7 @@ using JumpRing.Game.Gameplay;
 
 namespace JumpRing.Game.UI
 {
-    public sealed class SecondChancePresenter : MonoBehaviour
+    public sealed class SecondChancePresenter : PopupWindow
     {
         [SerializeField]
         private BonusEffectManager bonusEffectManager;
@@ -21,12 +21,6 @@ namespace JumpRing.Game.UI
         private CoinStepSpawner coinStepSpawner;
 
         [Header("UI References")]
-        [SerializeField]
-        private GameObject secondChancePanel;
-
-        [SerializeField]
-        private CanvasGroup secondChancePanelCanvasGroup;
-
         [SerializeField]
         private Button continueButton;
 
@@ -66,7 +60,6 @@ namespace JumpRing.Game.UI
         private bool isCountingDown;
         private bool adReviveUsedThisRun;
         private bool isAdReviveMode;
-        private Sequence panelSequence;
         private Sequence heartbeatSequence;
 
         private void OnEnable()
@@ -75,13 +68,9 @@ namespace JumpRing.Game.UI
             runSessionController.RunStarted += OnRunStarted;
             continueButton.onClick.AddListener(OnContinueClicked);
             quitButton.onClick.AddListener(OnQuitClicked);
+            adContinueButton.onClick.AddListener(OnAdContinueClicked);
 
-            if (adContinueButton != null)
-            {
-                adContinueButton.onClick.AddListener(OnAdContinueClicked);
-            }
-
-            secondChancePanel.SetActive(false);
+            CloseWindowImmediate();
         }
 
         private void OnDisable()
@@ -90,11 +79,7 @@ namespace JumpRing.Game.UI
             runSessionController.RunStarted -= OnRunStarted;
             continueButton.onClick.RemoveListener(OnContinueClicked);
             quitButton.onClick.RemoveListener(OnQuitClicked);
-
-            if (adContinueButton != null)
-            {
-                adContinueButton.onClick.RemoveListener(OnAdContinueClicked);
-            }
+            adContinueButton.onClick.RemoveListener(OnAdContinueClicked);
         }
 
         private void Update()
@@ -121,9 +106,7 @@ namespace JumpRing.Game.UI
         private void OnDeathRequested()
         {
             bool hasHearts = bonusEffectManager.SecondChanceCount > 0;
-            bool canAdRevive = !adReviveUsedThisRun
-                               && rewardedAdService != null
-                               && rewardedAdService.CanShowAd;
+            bool canAdRevive = !adReviveUsedThisRun && rewardedAdService.CanShowAd;
 
             if (!hasHearts && !canAdRevive)
             {
@@ -143,7 +126,6 @@ namespace JumpRing.Game.UI
             isCountingDown = true;
 
             dimOverlay.Show();
-            secondChancePanel.SetActive(true);
             ShowPanel();
         }
 
@@ -184,15 +166,8 @@ namespace JumpRing.Game.UI
             var deathPos = playerJumpController.LastDeathPosition;
             playerJumpController.RevivePlayer(deathPos.x - reviveOffset);
 
-            if (coinStepSpawner != null)
-            {
-                coinStepSpawner.RespawnFromCurrentPosition();
-            }
-
-            if (cameraFollowTarget != null)
-            {
-                cameraFollowTarget.SnapImmediate();
-            }
+            coinStepSpawner.RespawnFromCurrentPosition();
+            cameraFollowTarget.SnapImmediate();
 
             dimOverlay.HideImmediate();
             runSessionController.ReviveToReady();
@@ -201,21 +176,16 @@ namespace JumpRing.Game.UI
 
         private void OnQuitClicked()
         {
-            dimOverlay.Hide();
+            // The dim stays up: ForceFinishRun hands straight over to the game over card, which
+            // shares this overlay. Hiding it here started a fade-out that the card's Show()
+            // immediately reversed, flashing the whole screen bright for a fifth of a second.
             HidePanel();
             runSessionController.ForceFinishRun();
         }
 
         private void ShowPanel()
         {
-            panelSequence?.Kill();
-            if (secondChancePanelCanvasGroup != null)
-            {
-                secondChancePanelCanvasGroup.interactable = true;
-                secondChancePanelCanvasGroup.blocksRaycasts = true;
-                panelSequence = WindowAnimations.AnimateOpen(
-                    secondChancePanelCanvasGroup, secondChancePanel.transform);
-            }
+            OpenWindow();
 
             heartbeatSequence?.Kill();
             heartbeatSequence = WindowAnimations.Heartbeat(heartIcon);
@@ -223,23 +193,17 @@ namespace JumpRing.Game.UI
 
         private void HidePanel()
         {
-            panelSequence?.Kill();
             heartbeatSequence?.Kill();
             heartIcon.localScale = Vector3.one;
             isCountingDown = false;
 
-            if (secondChancePanelCanvasGroup != null)
-            {
-                secondChancePanelCanvasGroup.interactable = false;
-                secondChancePanelCanvasGroup.blocksRaycasts = false;
+            CloseWindow();
+        }
 
-                panelSequence = WindowAnimations.AnimateClose(
-                    secondChancePanelCanvasGroup, secondChancePanel.transform, secondChancePanel);
-            }
-            else
-            {
-                secondChancePanel.SetActive(false);
-            }
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            heartbeatSequence?.Kill();
         }
     }
 }

@@ -30,7 +30,30 @@ namespace JumpRing.Game.UI
             RaycastResults.Clear();
         }
 
+        /// <summary>
+        /// True when the tap landed on a <see cref="Selectable"/> — a button the player meant to press.
+        /// </summary>
         public static bool IsTapOverInteractableUI()
+        {
+            return RaycastTap(requireSelectable: true);
+        }
+
+        /// <summary>
+        /// True when the tap landed on any raycast-blocking UI, button or not.
+        /// </summary>
+        /// <remarks>
+        /// Gameplay input must use this, not <see cref="IsTapOverInteractableUI"/>: an open popup
+        /// covers the screen with plain <see cref="Graphic"/>s (card body, dim overlay, labels) that
+        /// are not <see cref="Selectable"/>s, so the interactable-only check let every tap that
+        /// missed a button fall through to the player controller and silently restart the run
+        /// behind the popup.
+        /// </remarks>
+        public static bool IsTapOverBlockingUI()
+        {
+            return RaycastTap(requireSelectable: false);
+        }
+
+        private static bool RaycastTap(bool requireSelectable)
         {
             var eventSystem = EventSystem.current;
             if (eventSystem == null) return false;
@@ -63,17 +86,26 @@ namespace JumpRing.Game.UI
             RaycastResults.Clear();
             eventSystem.RaycastAll(pointerData, RaycastResults);
 
-            for (int i = 0; i < RaycastResults.Count; i++)
+            bool hit = false;
+
+            if (requireSelectable)
             {
-                if (RaycastResults[i].gameObject.GetComponentInParent<Selectable>() != null)
+                for (int i = 0; i < RaycastResults.Count; i++)
                 {
-                    RaycastResults.Clear();
-                    return true;
+                    if (RaycastResults[i].gameObject.GetComponentInParent<Selectable>() != null)
+                    {
+                        hit = true;
+                        break;
+                    }
                 }
+            }
+            else
+            {
+                hit = RaycastResults.Count > 0;
             }
 
             RaycastResults.Clear();
-            return false;
+            return hit;
         }
     }
 }

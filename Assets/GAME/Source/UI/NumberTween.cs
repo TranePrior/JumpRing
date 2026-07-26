@@ -22,6 +22,14 @@ namespace JumpRing.Game.UI
 
             return DOTween.To(() => current, value =>
                 {
+                    // The tween ticks every frame but the rounded value only changes a handful of
+                    // times. Skipping the repeats keeps TMP from regenerating an identical mesh
+                    // ~60 times a second on the frame budget the open animation already eats.
+                    if (value == current)
+                    {
+                        return;
+                    }
+
                     current = value;
                     label.SetText(format, value);
                 }, to, duration)

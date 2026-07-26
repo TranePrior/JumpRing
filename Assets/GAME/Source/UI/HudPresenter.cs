@@ -1,17 +1,22 @@
 using TMPro;
 using UnityEngine;
-using JumpRing.Game.Core.Localization;
 using JumpRing.Game.Core.Services;
-using JumpRing.Game.Core.State;
 
 namespace JumpRing.Game.UI
 {
+    /// <summary>
+    /// Drives the persistent HUD counters: best score and the coin balance.
+    /// </summary>
+    /// <remarks>
+    /// The live run score is not shown here — it is rendered in world space by
+    /// <see cref="WorldTapCounterPresenter"/>. This class used to carry a `scoreLabel` field, the
+    /// localized "SCORE: {0}" format caching around it, and a state subscription whose only job was
+    /// to hide that label outside the main menu. Nothing was ever assigned to the field, so all of
+    /// it was dead weight that read like a missing reference.
+    /// </remarks>
     public sealed class HudPresenter : MonoBehaviour
     {
         private const string NumberFormat = "{0}";
-
-        [SerializeField]
-        private TMP_Text scoreLabel;
 
         [SerializeField]
         private TMP_Text bestScoreLabel;
@@ -19,19 +24,9 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private TMP_Text diamondsLabel;
 
-        [SerializeField]
-        private MonoBehaviour gameStateMachineComponent;
-
         private IScoreService scoreService;
         private ICurrencyService currencyService;
-        private IGameStateMachine gameStateMachine;
         private bool isConstructed;
-
-        // The localized word changes only when the player switches language, so the format string
-        // is rebuilt then rather than on every score change. TMP.SetText formats the number into
-        // its own buffer, which keeps the per-tap path free of string allocations.
-        private string cachedScoreWord;
-        private string cachedScoreFormat = NumberFormat;
 
         public void Construct(IScoreService score, ICurrencyService currency)
         {
@@ -43,22 +38,11 @@ namespace JumpRing.Game.UI
             scoreService = score;
             currencyService = currency;
 
-            if (gameStateMachineComponent != null)
-            {
-                gameStateMachine = (IGameStateMachine)gameStateMachineComponent;
-                gameStateMachine.StateChanged += OnStateChanged;
-            }
-
             scoreService.ScoreChanged += OnScoreChanged;
             currencyService.BalanceChanged += OnBalanceChanged;
 
             OnScoreChanged(scoreService.CurrentScore);
             OnBalanceChanged(currencyService.Balance);
-
-            if (gameStateMachine != null)
-            {
-                OnStateChanged(gameStateMachine.CurrentState);
-            }
 
             isConstructed = true;
         }
@@ -72,52 +56,16 @@ namespace JumpRing.Game.UI
 
             scoreService.ScoreChanged -= OnScoreChanged;
             currencyService.BalanceChanged -= OnBalanceChanged;
-
-            if (gameStateMachine != null)
-            {
-                gameStateMachine.StateChanged -= OnStateChanged;
-            }
-        }
-
-        private void OnStateChanged(GameState state)
-        {
-            var showScores = state != GameState.MainMenu;
-
-            if (scoreLabel != null)
-            {
-                scoreLabel.gameObject.SetActive(showScores);
-            }
         }
 
         private void OnScoreChanged(int score)
         {
-            if (scoreLabel != null)
-            {
-                string scoreWord = LocalizationService.Instance != null
-                    ? LocalizationService.Instance.GetText(LocalizationKey.Score)
-                    : "SCORE";
-
-                if (!ReferenceEquals(scoreWord, cachedScoreWord))
-                {
-                    cachedScoreWord = scoreWord;
-                    cachedScoreFormat = scoreWord + ": " + NumberFormat;
-                }
-
-                scoreLabel.SetText(cachedScoreFormat, score);
-            }
-
-            if (bestScoreLabel != null)
-            {
-                bestScoreLabel.SetText(NumberFormat, scoreService.BestScore);
-            }
+            bestScoreLabel.SetText(NumberFormat, scoreService.BestScore);
         }
 
         private void OnBalanceChanged(int balance)
         {
-            if (diamondsLabel != null)
-            {
-                diamondsLabel.SetText(NumberFormat, balance);
-            }
+            diamondsLabel.SetText(NumberFormat, balance);
         }
     }
 }

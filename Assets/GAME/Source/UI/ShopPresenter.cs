@@ -99,83 +99,24 @@ namespace JumpRing.Game.UI
 
         private void OnEnable()
         {
-            if (skinShopService == null)
-            {
-                skinShopService = FindFirstObjectByType<SkinShopService>();
-            }
+            closeButton.onClick.AddListener(Close);
+            watchAdButton.onClick.AddListener(OnWatchAdClicked);
 
-            if (currencyServiceComponent == null)
-            {
-                var services = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
-                foreach (var s in services)
-                {
-                    if (s is ICurrencyService)
-                    {
-                        currencyServiceComponent = s;
-                        break;
-                    }
-                }
-            }
+            skinShopService.SkinPurchased += OnSkinPurchased;
+            skinShopService.SkinSelected += OnSkinSelectionChanged;
 
-            if (iconBar == null)
-            {
-                var candidate = GameObject.Find("IconBar");
-                if (candidate == null)
-                {
-                    candidate = GameObject.Find("IconBar(Clone)");
-                }
-                iconBar = candidate;
-            }
-
-            if (shopButton == null)
-            {
-                shopButton = GameObject.Find("ShopButton");
-            }
-
-            if (closeButton != null)
-            {
-                closeButton.onClick.AddListener(Close);
-            }
-
-            if (watchAdButton != null)
-            {
-                watchAdButton.onClick.AddListener(OnWatchAdClicked);
-            }
-
-            if (skinShopService != null)
-            {
-                skinShopService.SkinPurchased += OnSkinPurchased;
-                skinShopService.SkinSelected += OnSkinSelectionChanged;
-            }
-
-            if (ringSizeUpgradeService != null)
-            {
-                ringSizeUpgradeService.SkinUpgraded += OnSkinUpgraded;
-            }
+            ringSizeUpgradeService.SkinUpgraded += OnSkinUpgraded;
         }
 
         private void OnDisable()
         {
-            if (closeButton != null)
-            {
-                closeButton.onClick.RemoveListener(Close);
-            }
+            closeButton.onClick.RemoveListener(Close);
+            watchAdButton.onClick.RemoveListener(OnWatchAdClicked);
 
-            if (watchAdButton != null)
-            {
-                watchAdButton.onClick.RemoveListener(OnWatchAdClicked);
-            }
+            skinShopService.SkinPurchased -= OnSkinPurchased;
+            skinShopService.SkinSelected -= OnSkinSelectionChanged;
 
-            if (skinShopService != null)
-            {
-                skinShopService.SkinPurchased -= OnSkinPurchased;
-                skinShopService.SkinSelected -= OnSkinSelectionChanged;
-            }
-
-            if (ringSizeUpgradeService != null)
-            {
-                ringSizeUpgradeService.SkinUpgraded -= OnSkinUpgraded;
-            }
+            ringSizeUpgradeService.SkinUpgraded -= OnSkinUpgraded;
         }
 
         private void OnDestroy()
@@ -199,17 +140,17 @@ namespace JumpRing.Game.UI
             gameObject.SetActive(true);
             IsOpen = true;
 
-            if (dimOverlay != null) dimOverlay.Show();
+            dimOverlay.Show();
 
             shopPanel.interactable = true;
             shopPanel.blocksRaycasts = true;
 
-            if (iconBar != null) iconBar.SetActive(false);
-            if (shopButton != null) shopButton.SetActive(false);
-            if (tapToStartLabel != null) tapToStartLabel.SetActive(false);
-            if (coinLabel != null) coinLabel.SetActive(false);
-            if (bestScoreLabel != null) bestScoreLabel.SetActive(false);
-            if (tapHand != null) tapHand.SetActive(false);
+            iconBar.SetActive(false);
+            shopButton.SetActive(false);
+            tapToStartLabel.SetActive(false);
+            coinLabel.SetActive(false);
+            bestScoreLabel.SetActive(false);
+            tapHand.SetActive(false);
 
             UpdateBalance();
             RebuildGrid();
@@ -223,14 +164,14 @@ namespace JumpRing.Game.UI
             openSequence?.Kill();
             IsOpen = false;
 
-            if (dimOverlay != null) dimOverlay.Hide();
+            dimOverlay.Hide();
 
-            if (iconBar != null) iconBar.SetActive(true);
-            if (shopButton != null) shopButton.SetActive(true);
-            if (tapToStartLabel != null) tapToStartLabel.SetActive(true);
-            if (coinLabel != null) coinLabel.SetActive(true);
-            if (bestScoreLabel != null) bestScoreLabel.SetActive(true);
-            if (tapHand != null) tapHand.SetActive(true);
+            iconBar.SetActive(true);
+            shopButton.SetActive(true);
+            tapToStartLabel.SetActive(true);
+            coinLabel.SetActive(true);
+            bestScoreLabel.SetActive(true);
+            tapHand.SetActive(true);
 
             openSequence = WindowAnimations.AnimateClose(shopPanel, shopPanel.transform, gameObject);
         }
@@ -254,7 +195,7 @@ namespace JumpRing.Game.UI
                     var card = Instantiate(cardPrefab, gridContent);
                     card.Setup(skin);
 
-                    if (upgradesUnlocked && ringSizeUpgradeService != null)
+                    if (upgradesUnlocked)
                     {
                         card.UpdateState(
                             skinShopService.IsOwned(skin),
@@ -305,7 +246,6 @@ namespace JumpRing.Game.UI
                 }
             }
             else if (skinShopService.UpgradesUnlocked
-                     && ringSizeUpgradeService != null
                      && !ringSizeUpgradeService.IsMaxed(skin.SkinId))
             {
                 if (ringSizeUpgradeService.TryUpgrade(skin))
@@ -344,7 +284,7 @@ namespace JumpRing.Game.UI
             foreach (var card in activeCards)
             {
                 var skinItem = card.SkinItem;
-                if (upgradesUnlocked && ringSizeUpgradeService != null)
+                if (upgradesUnlocked)
                 {
                     card.UpdateState(
                         skinShopService.IsOwned(skinItem),
@@ -370,10 +310,7 @@ namespace JumpRing.Game.UI
 
         private void UpdateBalance()
         {
-            if (balanceLabel != null && CurrencyService != null)
-            {
-                balanceLabel.text = CurrencyService.Balance.ToString();
-            }
+            balanceLabel.SetText("{0}", CurrencyService.Balance);
         }
 
         private void OnWatchAdClicked()

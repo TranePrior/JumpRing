@@ -27,9 +27,16 @@ namespace JumpRing.Game.Gameplay
         [SerializeField]
         private PlayerSkinSlot playerSkinSlot;
 
+        [SerializeField]
         private LinePathGenerator linePathGenerator;
+
+        [SerializeField]
         private DifficultyManager difficultyManager;
+
+        [SerializeField]
         private RiskRewardSystem riskRewardSystem;
+
+        [SerializeField]
         private BonusEffectManager bonusEffectManager;
 
         private Vector3 originalHitTopLocalPos;
@@ -107,10 +114,6 @@ namespace JumpRing.Game.Gameplay
 
         private void Awake()
         {
-            linePathGenerator = Object.FindFirstObjectByType<LinePathGenerator>();
-            difficultyManager = Object.FindFirstObjectByType<DifficultyManager>();
-            riskRewardSystem = Object.FindFirstObjectByType<RiskRewardSystem>();
-            bonusEffectManager = Object.FindFirstObjectByType<BonusEffectManager>();
             defaultGravityScale = playerRigidbody.gravityScale;
             originalHitTopLocalPos = hitTop.localPosition;
             originalHitBottomLocalPos = hitBottom.localPosition;
@@ -151,11 +154,7 @@ namespace JumpRing.Game.Gameplay
                 }
 
                 runSessionController.BeginGameplay();
-
-                if (bonusEffectManager != null)
-                {
-                    bonusEffectManager.ActivatePendingInvincibility();
-                }
+                bonusEffectManager.ActivatePendingInvincibility();
 
                 startedFromReady = true;
                 // Fall through to execute the first jump immediately
@@ -166,7 +165,7 @@ namespace JumpRing.Game.Gameplay
                 if (!runSessionController.CanStartRun ||
                     UI.ShopPresenter.IsOpen ||
                     UI.PopupTracker.IsAnyPopupActive ||
-                    UI.UIInputHelper.IsTapOverInteractableUI())
+                    UI.UIInputHelper.IsTapOverBlockingUI())
                 {
                     return;
                 }
@@ -182,24 +181,14 @@ namespace JumpRing.Game.Gameplay
 
             var currentScore = runSessionController.RegisterTap();
 
-            if (difficultyManager != null)
-            {
-                difficultyManager.NotifyTap(currentScore);
+            difficultyManager.NotifyTap(currentScore);
 
-                var playerY = playerRigidbody.position.y;
-                var lineY = linePathGenerator.EvaluateHeightAtX(playerRigidbody.position.x);
-                difficultyManager.NotifyTapDistance(Mathf.Abs(playerY - lineY));
-            }
+            var playerY = playerRigidbody.position.y;
+            var lineY = linePathGenerator.EvaluateHeightAtX(playerRigidbody.position.x);
+            difficultyManager.NotifyTapDistance(Mathf.Abs(playerY - lineY));
 
-            if (riskRewardSystem != null)
-            {
-                riskRewardSystem.NotifyTap();
-            }
-
-            if (bonusEffectManager != null)
-            {
-                bonusEffectManager.NotifyTap();
-            }
+            riskRewardSystem.NotifyTap();
+            bonusEffectManager.NotifyTap();
 
             var velocity = playerRigidbody.linearVelocity;
             velocity.y = jumpImpulse * JumpScale;
@@ -269,7 +258,7 @@ namespace JumpRing.Game.Gameplay
             }
 
             // Bounce off line during invincibility instead of dying
-            if (bonusEffectManager != null && bonusEffectManager.IsInvincible)
+            if (bonusEffectManager.IsInvincible)
             {
                 playerRigidbody.linearVelocity = new Vector2(
                     playerRigidbody.linearVelocity.x,

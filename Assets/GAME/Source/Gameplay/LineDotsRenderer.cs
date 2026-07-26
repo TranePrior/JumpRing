@@ -39,19 +39,6 @@ namespace JumpRing.Game.Gameplay
         private int lastEndStep;
         private bool isActive;
 
-        private void OnEnable()
-        {
-            if (linePathGenerator == null)
-            {
-                linePathGenerator = Object.FindFirstObjectByType<LinePathGenerator>();
-            }
-
-            if (gameplayCamera == null)
-            {
-                gameplayCamera = Camera.main;
-            }
-        }
-
         public void Configure(Sprite sprite, float dotSpacing, float size)
         {
             dotSprite = sprite;
@@ -67,16 +54,6 @@ namespace JumpRing.Game.Gameplay
 
         public void Activate()
         {
-            if (linePathGenerator == null)
-            {
-                linePathGenerator = Object.FindFirstObjectByType<LinePathGenerator>();
-            }
-
-            if (gameplayCamera == null)
-            {
-                gameplayCamera = Camera.main;
-            }
-
             isActive = true;
             lastStartStep = int.MaxValue;
             lastEndStep = int.MinValue;
@@ -98,7 +75,7 @@ namespace JumpRing.Game.Gameplay
 
         private void LateUpdate()
         {
-            if (!isActive || dotSprite == null || gameplayCamera == null || linePathGenerator == null)
+            if (!isActive || dotSprite == null)
             {
                 return;
             }

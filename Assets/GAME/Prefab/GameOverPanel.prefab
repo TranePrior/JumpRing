@@ -2965,6 +2965,7 @@ GameObject:
   - component: {fileID: 2906345521742463613}
   - component: {fileID: 1043961635042671799}
   - component: {fileID: 7836847397926610656}
+  - component: {fileID: 1644025852599844838}
   m_Layer: 0
   m_Name: Panel
   m_TagString: Untagged
@@ -3017,7 +3018,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.56078434, g: 0.7137255, b: 0.93333334, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -3073,6 +3074,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!114 &1644025852599844838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8012631975573851336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b60a5798fb50e41559097ecc47ee9d17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.PopupTracker
 --- !u!1 &8066524665144308632
 GameObject:
   m_ObjectHideFlags: 0
@@ -3424,6 +3437,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4413113045285704927}
   - component: {fileID: 4791840304512646446}
+  - component: {fileID: 2719951633620637990}
+  - component: {fileID: 11769718068084734}
+  - component: {fileID: 6107462235334134172}
   m_Layer: 0
   m_Name: GameOverPanel
   m_TagString: Untagged
@@ -3463,3 +3479,56 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!223 &2719951633620637990
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9078359946137341132}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &11769718068084734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9078359946137341132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &6107462235334134172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9078359946137341132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c4616a1485e64434b23229041e58b09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.LayoutFreezer
+  root: {fileID: 4780948818889648237}

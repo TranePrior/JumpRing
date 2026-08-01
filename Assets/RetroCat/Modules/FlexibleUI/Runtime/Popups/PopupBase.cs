@@ -76,7 +76,11 @@ namespace RetroCat.Modules.Core.UI.Activities.Popups.Core
             OnOpenStarted();
 
             _isAnimating = true;
+
+            // Unscaled: an open popup freezes the game, and a scaled sequence would never reach its
+            // OnComplete — the window would hang half-faded and never become interactable.
             _animationTween = DOTween.Sequence()
+                .SetUpdate(true)
                 .Join(_popupContainer.DOScale(1f, _openDuration).SetEase(_openEase))
                 .Join(_canvasGroup.DOFade(1f, _openDuration).SetEase(_openEase))
                 .Join(_fade.FadeIn())
@@ -104,7 +108,10 @@ namespace RetroCat.Modules.Core.UI.Activities.Popups.Core
             _canvasGroup.interactable = false;
             _canvasGroup.blocksRaycasts = false;
 
+            // Unscaled for the same reason as the open sequence: the close animation runs while the
+            // game is still frozen, and the pause is only released once it deactivates the window.
             _animationTween = DOTween.Sequence()
+                .SetUpdate(true)
                 .Append(_canvasGroup.DOFade(0f, _closeDuration).SetEase(_closeEase))
                 .Join(_popupContainer.DOScale(_closeScale, _closeDuration).SetEase(_closeEase))
                 .Join(_fade.FadeOut())

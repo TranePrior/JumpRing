@@ -138,11 +138,19 @@ namespace JumpRing.Game.Core.Localization
                 string platformLang = PLink.Environment.Language;
                 if (!string.IsNullOrEmpty(platformLang))
                 {
-                    return platformLang == "ru" ? Language.RU : Language.EN;
+                    return IsRussian(platformLang) ? Language.RU : Language.EN;
                 }
             }
 
             return Application.systemLanguage == SystemLanguage.Russian ? Language.RU : Language.EN;
+        }
+
+        // Platform SDKs disagree on how they spell a locale: the editor stub reports "En",
+        // Yandex reports "ru", and a full tag like "ru-RU" is equally legal. An exact match
+        // against "ru" silently served English to Russian players on any of those spellings.
+        private static bool IsRussian(string languageCode)
+        {
+            return languageCode.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

@@ -8,7 +8,17 @@ using JumpRing.Game.Theming;
 
 namespace JumpRing.Game.Gameplay
 {
-    public sealed class PlayerJumpController : MonoBehaviour, IRunStartGate
+    /// <summary>
+    /// What a revive needs from the player: where it died, and a way to put it back on the line.
+    /// </summary>
+    public interface IRevivablePlayer
+    {
+        Vector2 LastDeathPosition { get; }
+
+        void RevivePlayer(float reviveX);
+    }
+
+    public sealed class PlayerJumpController : MonoBehaviour, IRunStartGate, IRevivablePlayer
     {
         private static readonly Vector3 OriginPosition = Vector3.zero;
 
@@ -60,6 +70,9 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(0f)]
         private float lineTouchTolerance = 0.001f;
 
+        [SerializeField, Min(0f), Tooltip("Input is ignored for this long after entering Ready, so the click that triggered a revive can't also start the run")]
+        private float readyInputLockSeconds = 0.3f;
+
         [Header("Fall Feel")]
         [SerializeField, Min(1f), Tooltip("Gravity multiplier when falling — makes descent snappier")]
         private float fallGravityMultiplier = 2.2f;
@@ -90,6 +103,7 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(1f)]
         private float scaleResponseSpeed = 14f;
 
+        private readonly ReadyInputLock readyInputLock = new();
         private float defaultGravityScale;
         private Vector2 lastDeathPosition;
         private float currentSizeScale = 1f;
@@ -139,16 +153,45 @@ namespace JumpRing.Game.Gameplay
 
         private void Update()
         {
+            // Sampled before the input check so the frame a revive lands in Ready is always seen,
+            // even though that is exactly the frame the offending click arrives on.
+            readyInputLock.Sample(
+                runSessionController.IsReadyAfterRevive, Time.unscaledTime, readyInputLockSeconds);
+
             if (!WasJumpPressed())
             {
                 return;
             }
 
-            bool startedFromReady = false;
+            bool startedFromThisTap = false;
+
+            if (runSessionController.CanStartRun)
+            {
+                if (UI.ShopPresenter.IsOpen ||
+                    UI.PopupTracker.IsAnyPopupActive ||
+                    UI.UIInputHelper.IsTapOverBlockingUI())
+                {
+                    return;
+                }
+
+                // One tap on "tap to start" has to do all of it. Leaving the run parked in Ready
+                // for a second tap read as the game ignoring the first one — the ring just sat on
+                // the line while the HUD was already up.
+                runSessionController.StartRun();
+                startedFromThisTap = true;
+            }
 
             if (runSessionController.IsInReadyState)
             {
-                if (UI.UIInputHelper.IsTapOverInteractableUI())
+                if (readyInputLock.IsLocked(Time.unscaledTime))
+                {
+                    return;
+                }
+
+                // Blocking, not interactable-only: a popup covers the screen with plain Graphics
+                // (card body, dim overlay, labels), and the interactable-only check let every tap
+                // that missed a button fall through and start gameplay behind the open window.
+                if (!startedFromThisTap && UI.UIInputHelper.IsTapOverBlockingUI())
                 {
                     return;
                 }
@@ -156,25 +199,17 @@ namespace JumpRing.Game.Gameplay
                 runSessionController.BeginGameplay();
                 bonusEffectManager.ActivatePendingInvincibility();
 
-                startedFromReady = true;
+                startedFromThisTap = true;
                 // Fall through to execute the first jump immediately
             }
 
+            // A start gate can refuse the run and drop it back into the menu.
             if (!runSessionController.CanControlPlayer)
             {
-                if (!runSessionController.CanStartRun ||
-                    UI.ShopPresenter.IsOpen ||
-                    UI.PopupTracker.IsAnyPopupActive ||
-                    UI.UIInputHelper.IsTapOverBlockingUI())
-                {
-                    return;
-                }
-
-                runSessionController.StartRun();
                 return;
             }
 
-            if (!startedFromReady && IsPointerOverUI())
+            if (!startedFromThisTap && IsPointerOverUI())
             {
                 return;
             }

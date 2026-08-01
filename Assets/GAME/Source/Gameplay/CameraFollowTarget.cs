@@ -2,7 +2,16 @@ using UnityEngine;
 
 namespace JumpRing.Game.Gameplay
 {
-    public sealed class CameraFollowTarget : MonoBehaviour
+    /// <summary>
+    /// What a revive needs from the camera: a cut to the player's new position, so the smoothing
+    /// doesn't sweep across the level after a teleport.
+    /// </summary>
+    public interface ICameraFollow
+    {
+        void SnapImmediate();
+    }
+
+    public sealed class CameraFollowTarget : MonoBehaviour, ICameraFollow
     {
         [SerializeField]
         private Transform target;

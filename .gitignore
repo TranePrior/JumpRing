@@ -4,7 +4,10 @@
 #
 .utmp/
 .mcp.json
-/Assets/PlatformLinkSaves/
+# PlatformLink editor saves — EditorStorage never creates its directory, so the
+# folder itself must survive a clone while its contents stay local.
+/Assets/PlatformLinkSaves/*
+!/Assets/PlatformLinkSaves/.gitkeep
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -103,10 +106,3 @@ InitTestScene*.unity*
 # macOS
 .DS_Store
 
-# Editor-runtime save dumps (PlatformStorageService fallback)
-/ActiveSkinId.txt
-/BestScore.txt
-/DiamondBalance.txt
-/OwnedSkins.txt
-/SkinUpgrades.txt
-/BonusSpawner_ConsecutiveDeaths.txt

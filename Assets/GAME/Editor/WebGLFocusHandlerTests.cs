@@ -8,7 +8,7 @@ namespace JumpRing.Tests.EditMode
     [TestFixture]
     public sealed class WebGLFocusHandlerTests
     {
-        private const PauseReason AllReasons = PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog;
+        private const PauseReason AllReasons = PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog | PauseReason.Popup;
 
         private GameObject handlerObject;
         private WebGLFocusHandler handler;

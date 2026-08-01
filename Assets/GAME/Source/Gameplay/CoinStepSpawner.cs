@@ -4,7 +4,16 @@ using UnityEngine;
 
 namespace JumpRing.Game.Gameplay
 {
-    public sealed class CoinStepSpawner : MonoBehaviour
+    /// <summary>
+    /// What a revive needs from the coin field: a clean slate laid out around wherever the player
+    /// came back, instead of the coins that belonged to the run up to its death.
+    /// </summary>
+    public interface ICoinSpawner
+    {
+        void RespawnFromCurrentPosition();
+    }
+
+    public sealed class CoinStepSpawner : MonoBehaviour, ICoinSpawner
     {
         [Header("Dependencies")]
         [SerializeField]
@@ -96,6 +105,11 @@ namespace JumpRing.Game.Gameplay
         {
             ClearSpawnedCoins();
             nextSpawnX = CalculateFirstSpawnX();
+
+            // A revive resumes a run that never fired RunFinished, so spawning happens to still be
+            // on. Saying so explicitly keeps this method correct on its own terms instead of
+            // leaning on which death path the caller came through.
+            isSpawning = true;
         }
 
         private void OnRunFinished()

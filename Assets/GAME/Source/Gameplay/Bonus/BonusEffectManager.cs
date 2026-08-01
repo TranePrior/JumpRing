@@ -4,7 +4,20 @@ using UnityEngine.Serialization;
 
 namespace JumpRing.Game.Gameplay
 {
-    public sealed class BonusEffectManager : MonoBehaviour
+    /// <summary>
+    /// What a revive needs from the bonus system: the stock of hearts it may spend, and the grace
+    /// period every revived player gets regardless of what paid for the revive.
+    /// </summary>
+    public interface ISecondChanceStock
+    {
+        int SecondChanceCount { get; }
+
+        void ConsumeSecondChance();
+
+        void StartInvincibility();
+    }
+
+    public sealed class BonusEffectManager : MonoBehaviour, ISecondChanceStock
     {
         [SerializeField]
         private BonusConfig bonusConfig;
@@ -62,6 +75,14 @@ namespace JumpRing.Game.Gameplay
 
         [SerializeField, Min(0.1f)]
         private float invincibilityDuration = 3f;
+
+        // A revive puts the player back a couple of units behind the death position, into the exact
+        // stretch of line that just killed them — at full speed that is a third of a second away,
+        // and a ring clipped by the line dies through invincibility. Flattening the line ahead for
+        // a moment is the same treatment the start of a run gets, and the zone travels with the
+        // player, so there is no seam between where they stand and where it begins.
+        [SerializeField, Min(0f)]
+        private float reviveSafeZoneDuration = 2f;
 
         public event Action<BonusType> BonusActivated;
         public event Action<BonusType> BonusDeactivated;
@@ -199,7 +220,7 @@ namespace JumpRing.Game.Gameplay
             }
 
             secondChanceCount--;
-            pendingInvincibility = true;
+            BeginRevivalGrace();
             SecondChanceCountChanged?.Invoke(secondChanceCount);
         }
 
@@ -215,6 +236,11 @@ namespace JumpRing.Game.Gameplay
 
             pendingInvincibility = false;
             invincibilityRemaining = invincibilityDuration;
+
+            // Restarted from the moment the player actually moves: the safe zone armed at revive
+            // time keeps the line ahead honest while they decide, but the full stretch has to be
+            // measured from the first tap, not from however long they spent looking at it.
+            ExtendSafeZone(reviveSafeZoneDuration);
         }
 
         /// <summary>
@@ -223,7 +249,20 @@ namespace JumpRing.Game.Gameplay
         /// </summary>
         public void StartInvincibility()
         {
+            BeginRevivalGrace();
+        }
+
+        private void BeginRevivalGrace()
+        {
             pendingInvincibility = true;
+            ExtendSafeZone(reviveSafeZoneDuration);
+        }
+
+        // Never shortens a safe zone that is already running: a revive inside the opening seconds
+        // of a run must not cut the start zone down to the shorter revive one.
+        private void ExtendSafeZone(float duration)
+        {
+            safeZoneRemaining = Mathf.Max(safeZoneRemaining, duration);
         }
 
         public void NotifyTap()

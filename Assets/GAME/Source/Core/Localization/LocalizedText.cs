@@ -16,6 +16,17 @@ namespace JumpRing.Game.Core.Localization
             label = GetComponent<TMP_Text>();
         }
 
+        /// <remarks>
+        /// A label can be shown long after <see cref="Start"/> — the double reward button only
+        /// appears when an ad is ready, and the game over card freezes its layout in the same frame
+        /// it is shown. Translating on activation keeps the frozen layout sized for the text that
+        /// actually renders instead of the one authored in the prefab.
+        /// </remarks>
+        private void OnEnable()
+        {
+            UpdateText();
+        }
+
         private void Start()
         {
             UpdateText();

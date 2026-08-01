@@ -1,6 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using JumpRing.Game.Core;
 using JumpRing.Game.Core.Services;
 using JumpRing.Game.Gameplay;
 
@@ -9,16 +10,10 @@ namespace JumpRing.Game.UI
     public sealed class SecondChancePresenter : PopupWindow
     {
         [SerializeField]
-        private BonusEffectManager bonusEffectManager;
-
-        [SerializeField]
         private RunSessionController runSessionController;
 
         [SerializeField]
-        private PlayerJumpController playerJumpController;
-
-        [SerializeField]
-        private CoinStepSpawner coinStepSpawner;
+        private ReviveService reviveService;
 
         [Header("UI References")]
         [SerializeField]
@@ -44,13 +39,6 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private RewardedAdService rewardedAdService;
 
-        [Header("Revival")]
-        [SerializeField]
-        private CameraFollowTarget cameraFollowTarget;
-
-        [SerializeField, Min(0.1f)]
-        private float reviveOffset = 2f;
-
         private float countdown;
         // Was a plain field overwritten with a literal on every show, while BonusEffectManager
         // carried an inspector-editable duration that nothing read — the inspector said 7s and the
@@ -59,7 +47,7 @@ namespace JumpRing.Game.UI
         private float countdownDuration = 5f;
         private bool isCountingDown;
         private bool adReviveUsedThisRun;
-        private bool isAdReviveMode;
+        private bool holdsDialogPause;
         private Sequence heartbeatSequence;
 
         private void OnEnable()
@@ -80,11 +68,25 @@ namespace JumpRing.Game.UI
             continueButton.onClick.RemoveListener(OnContinueClicked);
             quitButton.onClick.RemoveListener(OnQuitClicked);
             adContinueButton.onClick.RemoveListener(OnAdContinueClicked);
+
+            // Disabling this object silently strands the pause taken in ShowPanel, which would
+            // hold the whole game at timeScale 0 for the rest of the session.
+            ReleaseDialogPause();
         }
 
         private void Update()
         {
             if (!isCountingDown)
+            {
+                return;
+            }
+
+            // The countdown deliberately runs on unscaled time, so the Dialog pause this window
+            // takes can't freeze it. Any other pause must stop it dead: an ad covers this window
+            // for 15-30s against a 5s countdown, and a lost focus means nobody is looking at the
+            // screen at all. Ticking through either finished the run and opened the game over card
+            // behind the ad — the reward then revived into an already-finished session.
+            if (PauseService.HasAnyReasonExcept(PauseReason.Dialog))
             {
                 return;
             }
@@ -105,7 +107,7 @@ namespace JumpRing.Game.UI
 
         private void OnDeathRequested()
         {
-            bool hasHearts = bonusEffectManager.SecondChanceCount > 0;
+            bool hasHearts = reviveService.CanReviveWithHeart;
             bool canAdRevive = !adReviveUsedThisRun && rewardedAdService.CanShowAd;
 
             if (!hasHearts && !canAdRevive)
@@ -114,16 +116,16 @@ namespace JumpRing.Game.UI
                 return;
             }
 
-            isAdReviveMode = !hasHearts && canAdRevive;
-
             continueButton.gameObject.SetActive(hasHearts);
-            if (adContinueButton != null)
-            {
-                adContinueButton.gameObject.SetActive(canAdRevive && !hasHearts);
-            }
+            adContinueButton.gameObject.SetActive(canAdRevive && !hasHearts);
+            adContinueButton.interactable = true;
 
             countdown = countdownDuration;
             isCountingDown = true;
+
+            // The ring is only written from Update, so without this the window opens on whatever
+            // fill the scene was authored with and snaps to full a frame later.
+            timerFill.fillAmount = 1f;
 
             dimOverlay.Show();
             ShowPanel();
@@ -131,13 +133,13 @@ namespace JumpRing.Game.UI
 
         private void OnContinueClicked()
         {
-            if (bonusEffectManager.SecondChanceCount <= 0)
+            if (!reviveService.CanReviveWithHeart)
             {
                 return;
             }
 
-            bonusEffectManager.ConsumeSecondChance();
-            Revive();
+            reviveService.ReviveWithHeart();
+            CloseAfterRevive();
         }
 
         private void OnAdContinueClicked()
@@ -147,30 +149,55 @@ namespace JumpRing.Game.UI
                 return;
             }
 
-            rewardedAdService.ShowAd(
-                onReward: () =>
-                {
-                    adReviveUsedThisRun = true;
-                    bonusEffectManager.StartInvincibility();
-                    Revive();
-                },
-                onFail: () =>
-                {
-                    OnQuitClicked();
-                }
-            );
+            // The video takes seconds to appear and this button sits under it the whole time.
+            adContinueButton.interactable = false;
+
+            bool adStarted = rewardedAdService.ShowAd(OnAdFinished);
+
+            if (adStarted)
+            {
+                return;
+            }
+
+            // The platform had nothing to show — that is not the player giving up on the run.
+            // The offer is withdrawn, the countdown keeps running and the run ends on its own
+            // terms. Killing it here made a dead ad slot look exactly like a lost run.
+            WithdrawAdOffer();
         }
 
-        private void Revive()
+        private void OnAdFinished(RewardedAdResult result)
         {
-            var deathPos = playerJumpController.LastDeathPosition;
-            playerJumpController.RevivePlayer(deathPos.x - reviveOffset);
+            switch (result)
+            {
+                case RewardedAdResult.Rewarded:
+                    adReviveUsedThisRun = true;
+                    reviveService.ReviveWithAd();
+                    CloseAfterRevive();
+                    break;
 
-            coinStepSpawner.RespawnFromCurrentPosition();
-            cameraFollowTarget.SnapImmediate();
+                // The player watched the offer and turned it down. Same answer as the quit button.
+                case RewardedAdResult.Skipped:
+                    OnQuitClicked();
+                    break;
 
+                // The ad broke on the way out. The player never got to decide, so the run keeps
+                // whatever is left of its countdown instead of being ended on the platform's behalf.
+                case RewardedAdResult.Failed:
+                    WithdrawAdOffer();
+                    break;
+            }
+        }
+
+        private void WithdrawAdOffer()
+        {
+            adContinueButton.gameObject.SetActive(false);
+        }
+
+        private void CloseAfterRevive()
+        {
+            // The dim goes first: the window's own close animation plays over the live game, and
+            // fading the two together read as a flash.
             dimOverlay.HideImmediate();
-            runSessionController.ReviveToReady();
             HidePanel();
         }
 
@@ -185,6 +212,12 @@ namespace JumpRing.Game.UI
 
         private void ShowPanel()
         {
+            // GameState.Paused only stops the player from being controlled — everything driven by
+            // Time.deltaTime kept running underneath this window, so an active bonus quietly burned
+            // through its remaining seconds while the player was deciding, and the game stayed
+            // audible. The window's own animations all run unscaled and are unaffected.
+            HoldDialogPause();
+
             OpenWindow();
 
             heartbeatSequence?.Kill();
@@ -197,7 +230,30 @@ namespace JumpRing.Game.UI
             heartIcon.localScale = Vector3.one;
             isCountingDown = false;
 
+            ReleaseDialogPause();
             CloseWindow();
+        }
+
+        private void HoldDialogPause()
+        {
+            if (holdsDialogPause)
+            {
+                return;
+            }
+
+            holdsDialogPause = true;
+            PauseService.Add(PauseReason.Dialog);
+        }
+
+        private void ReleaseDialogPause()
+        {
+            if (!holdsDialogPause)
+            {
+                return;
+            }
+
+            holdsDialogPause = false;
+            PauseService.Remove(PauseReason.Dialog);
         }
 
         protected override void OnDestroy()

@@ -9,7 +9,7 @@ namespace JumpRing.Tests.EditMode
     [TestFixture]
     public sealed class PauseServiceTests
     {
-        private const PauseReason AllReasons = PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog;
+        private const PauseReason AllReasons = PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog | PauseReason.Popup;
 
         [SetUp]
         public void SetUp()

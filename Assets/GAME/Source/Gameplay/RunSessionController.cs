@@ -23,12 +23,14 @@ namespace JumpRing.Game.Gameplay
         bool CanStartRun { get; }
         bool HasActiveRun { get; }
         bool IsInReadyState { get; }
+        bool IsReadyAfterRevive { get; }
         int TapCount { get; }
 
         void StartRun();
         void BeginGameplay();
         void FinishRun();
         void ForceFinishRun();
+        void ReviveToReady();
         void PauseRun();
         void ResumeRun();
         void OpenMainMenu();
@@ -49,6 +51,7 @@ namespace JumpRing.Game.Gameplay
         private IScoreService scoreService;
         private bool isConstructed;
         private bool hasActiveRun;
+        private bool enteredReadyFromRevive;
 
         public void Construct(IGameStateMachine stateMachine, IScoreService score)
         {
@@ -72,6 +75,18 @@ namespace JumpRing.Game.Gameplay
         public int TapCount { get; private set; }
 
         public bool IsInReadyState => isConstructed && gameStateMachine.CurrentState == GameState.Ready;
+
+        /// <summary>
+        /// True only while waiting in Ready for the tap that resumes a revived run.
+        /// </summary>
+        /// <remarks>
+        /// Ready is entered from two places and they want opposite things from the next tap. A revive
+        /// must swallow it — the click that bought the revive would otherwise fall through and restart
+        /// the run before the player sees they are alive. A run started from the menu must consume it
+        /// — that tap is the player asking to play, and making them tap a second time reads as the
+        /// game ignoring the first.
+        /// </remarks>
+        public bool IsReadyAfterRevive => IsInReadyState && enteredReadyFromRevive;
 
         public void RegisterStartGate(IRunStartGate gate)
         {
@@ -106,6 +121,7 @@ namespace JumpRing.Game.Gameplay
             ScorePerTap = 1;
             TapCount = 0;
             TapCountChanged?.Invoke(TapCount);
+            enteredReadyFromRevive = false;
             gameStateMachine.Enter(GameState.Ready);
             hasActiveRun = true;
             RunStarted?.Invoke();
@@ -157,6 +173,7 @@ namespace JumpRing.Game.Gameplay
 
         public void ReviveToReady()
         {
+            enteredReadyFromRevive = true;
             gameStateMachine.Enter(GameState.Ready);
         }
 

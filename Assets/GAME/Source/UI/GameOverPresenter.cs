@@ -186,7 +186,15 @@ namespace JumpRing.Game.UI
                 return;
             }
 
-            rewardedAdService.ShowAd(onReward: ApplyDoubleReward);
+            // A skipped or broken ad simply leaves the card as it was — the offer stays on screen
+            // and the player keeps the single reward they already earned.
+            rewardedAdService.ShowAd(result =>
+            {
+                if (result == RewardedAdResult.Rewarded)
+                {
+                    ApplyDoubleReward();
+                }
+            });
         }
 
         private void ApplyDoubleReward()

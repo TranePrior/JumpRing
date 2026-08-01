@@ -102,7 +102,13 @@ namespace JumpRing.Game.UI
 
             if (rewardedAdService.CanShowAd)
             {
-                rewardedAdService.ShowAd(onReward: ApplyDoubleReward);
+                rewardedAdService.ShowAd(result =>
+                {
+                    if (result == RewardedAdResult.Rewarded)
+                    {
+                        ApplyDoubleReward();
+                    }
+                });
             }
         }
 

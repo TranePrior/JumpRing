@@ -320,16 +320,21 @@ namespace JumpRing.Game.UI
                 return;
             }
 
-            rewardedAdService.ShowAd(
-                onReward: () =>
+            // Only a watched ad starts the cooldown: a skipped or broken one leaves the offer
+            // available, since the player never collected anything for it.
+            rewardedAdService.ShowAd(result =>
+            {
+                if (result != RewardedAdResult.Rewarded)
                 {
-                    lastAdWatchTime = Time.unscaledTime;
-                    CurrencyService.Add(adRewardAmount);
-                    UpdateBalance();
-                    RefreshCards();
-                    UpdateAdButton();
+                    return;
                 }
-            );
+
+                lastAdWatchTime = Time.unscaledTime;
+                CurrencyService.Add(adRewardAmount);
+                UpdateBalance();
+                RefreshCards();
+                UpdateAdButton();
+            });
         }
 
         private void UpdateAdButton()

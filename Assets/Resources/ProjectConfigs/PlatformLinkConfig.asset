@@ -17,7 +17,7 @@ MonoBehaviour:
     _type: 0
     _editorSettings:
       _environment:
-        _language: En
+        _language: ru
         _deviceType: 0
       _storage:
         _saveFilePath: Assets/PlatformLinkSaves
@@ -76,7 +76,13 @@ MonoBehaviour:
       _yandexMetrikaId: 
       _loadingScreen:
         _manualClose: 1
-    _modules: []
+    _modules:
+    - _kind: 1
+      _adapterConfig:
+        rid: 7568003439309094976
+    - _kind: 0
+      _adapterConfig:
+        rid: 7568003439309094977
   - _name: Android
     _type: 1
     _editorSettings:
@@ -84,7 +90,7 @@ MonoBehaviour:
         _language: En
         _deviceType: 0
       _storage:
-        _saveFilePath: 
+        _saveFilePath: Assets/PlatformLinkSaves
       _purchases:
         _products: []
       _platform:
@@ -148,7 +154,7 @@ MonoBehaviour:
         _language: En
         _deviceType: 0
       _storage:
-        _saveFilePath: 
+        _saveFilePath: Assets/PlatformLinkSaves
       _purchases:
         _products: []
       _platform:
@@ -204,11 +210,17 @@ MonoBehaviour:
       _yandexMetrikaId: 
       _loadingScreen:
         _manualClose: 1
-    _modules: []
-  _activePlatformIndex: 0
+    _modules:
+    - _kind: 1
+      _adapterConfig:
+        rid: 7568003439309094974
+    - _kind: 0
+      _adapterConfig:
+        rid: 7568003439309094975
+  _activePlatformIndex: 2
   _editor:
     _environment:
-      _language: En
+      _language: ru
       _deviceType: 0
     _storage:
       _saveFilePath: Assets/PlatformLinkSaves
@@ -266,7 +278,19 @@ MonoBehaviour:
     _enableYandexMetrika: 0
     _yandexMetrikaId: 
     _loadingScreen:
-      _manualClose: 0
+      _manualClose: 1
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7568003439309094974
+      type: {class: YandexGamesRewardedAdapterConfig, ns: , asm: RetroCat.PlatformLink}
+      data: 
+    - rid: 7568003439309094975
+      type: {class: YandexGamesInterstitialAdapterConfig, ns: , asm: RetroCat.PlatformLink}
+      data: 
+    - rid: 7568003439309094976
+      type: {class: EditorRewardedAdapterConfig, ns: , asm: RetroCat.PlatformLink}
+      data: 
+    - rid: 7568003439309094977
+      type: {class: EditorInterstitialAdapterConfig, ns: , asm: RetroCat.PlatformLink}
+      data: 

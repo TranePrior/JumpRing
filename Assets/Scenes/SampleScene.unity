@@ -439,6 +439,7 @@ MonoBehaviour:
   scoreBoostCoinMultiplier: 2
   maxSecondChances: 3
   invincibilityDuration: 3
+  reviveSafeZoneDuration: 2
 --- !u!4 &43628385
 Transform:
   m_ObjectHideFlags: 0
@@ -2484,7 +2485,6 @@ GameObject:
   - component: {fileID: 322821953}
   - component: {fileID: 322821952}
   - component: {fileID: 322821956}
-  - component: {fileID: 322821957}
   m_Layer: 0
   m_Name: SecondChancePanel
   m_TagString: Untagged
@@ -2602,18 +2602,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &322821957
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 322821950}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b60a5798fb50e41559097ecc47ee9d17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.PopupTracker
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -4474,10 +4462,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.SecondChancePresenter
   panel: {fileID: 322821950}
   panelCanvasGroup: {fileID: 322821956}
-  bonusEffectManager: {fileID: 43628384}
   runSessionController: {fileID: 1632676868}
-  playerJumpController: {fileID: 7174431161555079072}
-  coinStepSpawner: {fileID: 1632676879}
+  reviveService: {fileID: 1632676902}
   continueButton: {fileID: 1162540611}
   adContinueButton: {fileID: 2035879042}
   quitButton: {fileID: 1033654679}
@@ -4485,8 +4471,6 @@ MonoBehaviour:
   heartIcon: {fileID: 1459118303}
   dimOverlay: {fileID: 982662098}
   rewardedAdService: {fileID: 1632676891}
-  cameraFollowTarget: {fileID: 330585548}
-  reviveOffset: 2
   countdownDuration: 5
 --- !u!114 &982662094
 MonoBehaviour:
@@ -7707,6 +7691,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 953b4081563c24f2dad91a4657e6f0d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Services.GameplayApiService
+--- !u!114 &1632676902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632676867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d6ce93a37b6b4e50a719086ae44b423, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.ReviveService
+  playerJumpController: {fileID: 7174431161555079072}
+  coinStepSpawner: {fileID: 1632676879}
+  cameraFollowTarget: {fileID: 330585548}
+  runSessionController: {fileID: 1632676868}
+  bonusEffectManager: {fileID: 43628384}
+  reviveOffset: 2
 --- !u!1 &1654508917
 GameObject:
   m_ObjectHideFlags: 0
@@ -10069,6 +10071,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1632676900}
+    - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1632676902}
   m_SourcePrefab: {fileID: 100100000, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
 --- !u!1001 &3530500232422484129
 PrefabInstance:
@@ -10585,6 +10590,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 22
       objectReference: {fileID: 0}
+    - target: {fileID: 2425952907872471662, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: m_Spacing.x
+      value: 34
+      objectReference: {fileID: 0}
     - target: {fileID: 2965661784157900817, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -10609,6 +10618,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3175271771337305357, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: adButtonView
+      value: 
+      objectReference: {fileID: 20746080}
+    - target: {fileID: 3175271771337305357, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: watchAdButton
+      value: 
+      objectReference: {fileID: 20746077}
+    - target: {fileID: 3175271771337305357, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: rewardedAdService
+      value: 
+      objectReference: {fileID: 1632676891}
+    - target: {fileID: 3175271771337305357, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: currencyServiceComponent
+      value: 
+      objectReference: {fileID: 1632676876}
     - target: {fileID: 4265619847647574833, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -10655,27 +10680,27 @@ PrefabInstance:
       objectReference: {fileID: 1970121815}
     - target: {fileID: 4712794872469512629, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4712794872469512629, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4712794872469512629, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 190
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4712794872469512629, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 190
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4712794872469512629, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 95
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4712794872469512629, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -95
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5275772195509093901, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_AnchorMax.y
@@ -10809,6 +10834,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -30
       objectReference: {fileID: 0}
+    - target: {fileID: 5989718616354837143, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: skinShopService
+      value: 
+      objectReference: {fileID: 739349574}
+    - target: {fileID: 5989718616354837143, guid: 9002e3c2114304b888ecf40829781193, type: 3}
+      propertyPath: ringSizeUpgradeService
+      value: 
+      objectReference: {fileID: 1632676886}
     - target: {fileID: 6001881071741512838, guid: 9002e3c2114304b888ecf40829781193, type: 3}
       propertyPath: m_IsActive
       value: 0

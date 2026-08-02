@@ -186,38 +186,16 @@ namespace JumpRing.Game.UI
                 return;
             }
 
-            bool upgradesUnlocked = skinShopService.UpgradesUnlocked;
-
             foreach (var pack in catalog.Packs)
             {
                 foreach (var skin in pack.Skins)
                 {
                     var card = Instantiate(cardPrefab, gridContent);
                     card.Setup(skin);
-
-                    if (upgradesUnlocked)
-                    {
-                        card.UpdateState(
-                            skinShopService.IsOwned(skin),
-                            skinShopService.ActiveSkin == skin,
-                            skinShopService.CanAfford(skin),
-                            true,
-                            ringSizeUpgradeService.GetLevel(skin.SkinId),
-                            ringSizeUpgradeService.MaxLevel,
-                            ringSizeUpgradeService.GetUpgradePrice(skin),
-                            ringSizeUpgradeService.CanAffordUpgrade(skin)
-                        );
-                    }
-                    else
-                    {
-                        card.UpdateState(
-                            skinShopService.IsOwned(skin),
-                            skinShopService.ActiveSkin == skin,
-                            skinShopService.CanAfford(skin)
-                        );
-                    }
+                    ApplyCardState(card);
 
                     card.ActionClicked += OnCardActionClicked;
+                    card.SelectClicked += OnCardSelectClicked;
                     activeCards.Add(card);
                 }
             }
@@ -230,30 +208,49 @@ namespace JumpRing.Game.UI
             foreach (var card in activeCards)
             {
                 card.ActionClicked -= OnCardActionClicked;
+                card.SelectClicked -= OnCardSelectClicked;
                 Destroy(card.gameObject);
             }
 
             activeCards.Clear();
         }
 
+        // The action button is the paid slot: buy the skin, then buy ring size upgrades for it. Only
+        // a fully upgraded skin has nothing left to sell, so there the button selects instead.
         private void OnCardActionClicked(SkinItem skin)
         {
-            if (!skinShopService.IsOwned(skin))
+            switch (BuildCardState(skin).ResolveAction())
             {
-                if (skinShopService.TryPurchase(skin))
-                {
+                case SkinCardAction.Buy:
+                    BuyAndSelect(skin);
+                    break;
+
+                case SkinCardAction.Upgrade:
+                    ringSizeUpgradeService.TryUpgrade(skin);
+                    break;
+
+                case SkinCardAction.Select:
                     skinShopService.SelectSkin(skin);
-                }
+                    break;
             }
-            else if (skinShopService.UpgradesUnlocked
-                     && !ringSizeUpgradeService.IsMaxed(skin.SkinId))
+        }
+
+        // A click on the card body always means "play as this one" — an owned skin is selected for
+        // free, a locked one is bought first.
+        private void OnCardSelectClicked(SkinItem skin)
+        {
+            if (skinShopService.IsOwned(skin))
             {
-                if (ringSizeUpgradeService.TryUpgrade(skin))
-                {
-                    skinShopService.SelectSkin(skin);
-                }
+                skinShopService.SelectSkin(skin);
+                return;
             }
-            else
+
+            BuyAndSelect(skin);
+        }
+
+        private void BuyAndSelect(SkinItem skin)
+        {
+            if (skinShopService.TryPurchase(skin))
             {
                 skinShopService.SelectSkin(skin);
             }
@@ -279,33 +276,27 @@ namespace JumpRing.Game.UI
 
         private void RefreshCards()
         {
-            bool upgradesUnlocked = skinShopService.UpgradesUnlocked;
-
             foreach (var card in activeCards)
             {
-                var skinItem = card.SkinItem;
-                if (upgradesUnlocked)
-                {
-                    card.UpdateState(
-                        skinShopService.IsOwned(skinItem),
-                        skinShopService.ActiveSkin == skinItem,
-                        skinShopService.CanAfford(skinItem),
-                        true,
-                        ringSizeUpgradeService.GetLevel(skinItem.SkinId),
-                        ringSizeUpgradeService.MaxLevel,
-                        ringSizeUpgradeService.GetUpgradePrice(skinItem),
-                        ringSizeUpgradeService.CanAffordUpgrade(skinItem)
-                    );
-                }
-                else
-                {
-                    card.UpdateState(
-                        skinShopService.IsOwned(skinItem),
-                        skinShopService.ActiveSkin == skinItem,
-                        skinShopService.CanAfford(skinItem)
-                    );
-                }
+                ApplyCardState(card);
             }
+        }
+
+        private void ApplyCardState(ShopSkinCardView card)
+        {
+            card.UpdateState(BuildCardState(card.SkinItem));
+        }
+
+        private SkinCardState BuildCardState(SkinItem skin)
+        {
+            return new SkinCardState(
+                skinShopService.IsOwned(skin),
+                skinShopService.ActiveSkin == skin,
+                skinShopService.CanAfford(skin),
+                ringSizeUpgradeService.GetLevel(skin.SkinId),
+                ringSizeUpgradeService.MaxLevel,
+                ringSizeUpgradeService.GetUpgradePrice(skin),
+                ringSizeUpgradeService.CanAffordUpgrade(skin));
         }
 
         private void UpdateBalance()

@@ -14,12 +14,16 @@ html, body {
     padding: 0;
     margin: 0;
     background: #111111;
+    /* Yandex Games 1.10.2: kill pull-to-refresh and browser scroll gestures. */
+    overscroll-behavior: none;
+    touch-action: none;
 }
 
 .unity-canvas {
     display: block;
     width: 100%;
     height: 100%;
+    touch-action: none;
     background: #1e1e1e;
     /* background: {{{ BACKGROUND_COLOR }}}; */
 }

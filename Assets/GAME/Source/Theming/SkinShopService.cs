@@ -47,8 +47,6 @@ namespace JumpRing.Game.Theming
             return true;
         }
 
-        public bool UpgradesUnlocked => true;
-
         public void Initialize()
         {
             LoadOwnedSkins();
@@ -91,7 +89,7 @@ namespace JumpRing.Game.Theming
 
         public void SelectSkin(SkinItem skin)
         {
-            if (!IsOwned(skin))
+            if (!IsOwned(skin) || ActiveSkin == skin)
             {
                 return;
             }

@@ -3,14 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>{{{ PRODUCT_NAME }}}</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
     <link rel="stylesheet" href="TemplateData/loading-screen.css">
 
-    <!-- Yandex Games SDK -->
-    <script src="https://yandex.ru/games/sdk/v2"></script>
+    <!-- Yandex Games SDK. Requirement 1.19.1: must be the relative /sdk.js loader.
+         Note: it only resolves on Yandex hosting — a locally opened build will not load the SDK. -->
+    <script src="/sdk.js"></script>
   </head>
 
   <body>
@@ -77,7 +78,8 @@
             canvasOverlay.style.display = "none";
           }
         }).catch((message) => {
-          alert(message);
+          // Requirement 1.6.1.7 / 1.14: no native dialogs, errors go to the console.
+          console.error(message);
         });
       };
       document.body.appendChild(script);
@@ -86,9 +88,12 @@
 				// Mobile device style: fill the whole browser client area with the game canvas:
 				const meta = document.createElement('meta');
 				meta.name = 'viewport';
-				meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+				meta.content = 'width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover';
 				document.getElementsByTagName('head')[0].appendChild(meta);
 			}
+
+			// Requirement 1.6.1.8 / 1.6.2.7: the browser context menu must not open over the game.
+			window.addEventListener('contextmenu', (e) => e.preventDefault());
     </script>
   </body>
 </html>

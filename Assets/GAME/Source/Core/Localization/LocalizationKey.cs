@@ -13,6 +13,7 @@ namespace JumpRing.Game.Core.Localization
         Active,
         DoubleReward,
         NewBest,
-        UpgradeLevel
+        UpgradeLevel,
+        MaxUpgradeLevel
     }
 }

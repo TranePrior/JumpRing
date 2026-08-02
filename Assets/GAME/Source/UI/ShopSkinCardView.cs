@@ -21,8 +21,9 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private TMP_Text priceLabel;
 
+        [Header("Card Button")]
         [SerializeField]
-        private Image selectionFrame;
+        private Button cardButton;
 
         [Header("Action Button")]
         [SerializeField]
@@ -67,7 +68,11 @@ namespace JumpRing.Game.UI
         [SerializeField]
         private float disabledContentAlpha = 0.5f;
 
+        /// <summary>Raised by the action button: buy, upgrade or select, depending on card state.</summary>
         public event Action<SkinItem> ActionClicked;
+
+        /// <summary>Raised by a click anywhere on the card outside the action button.</summary>
+        public event Action<SkinItem> SelectClicked;
 
         private SkinItem skinItem;
 
@@ -103,154 +108,111 @@ namespace JumpRing.Game.UI
             }
         }
 
-        public void UpdateState(bool isOwned, bool isActive, bool canAfford)
+        public void UpdateState(in SkinCardState state)
         {
-            UpdateState(isOwned, isActive, canAfford, false, 0, 0, 0, false);
-        }
+            upgradeLevelLabel.gameObject.SetActive(state.IsOwned);
 
-        public void UpdateState(
-            bool isOwned,
-            bool isActive,
-            bool canAfford,
-            bool upgradesUnlocked,
-            int upgradeLevel,
-            int maxLevel,
-            int upgradePrice,
-            bool canAffordUpgrade)
-        {
-            SetUpgradeLevelVisible(false);
-
-            if (!isOwned)
+            if (state.IsOwned)
             {
-                ShowPriceContent(skinItem.Price, true);
-                SetButtonState(buyButtonSprite, buyButtonColor);
-                SetContentAlpha(canAfford ? 1f : disabledContentAlpha);
-
-                if (actionButton != null)
-                    actionButton.interactable = canAfford;
+                ShowUpgradeLevel(state);
             }
-            else if (upgradesUnlocked)
-            {
-                bool isMaxed = upgradeLevel >= maxLevel;
 
-                if (isMaxed)
-                {
-                    ShowLabelContent(GetLocalizedText(isActive ? LocalizationKey.Active : LocalizationKey.Select));
+            switch (state.ResolveAction())
+            {
+                case SkinCardAction.Buy:
+                    // A locked skin has nothing to select yet, so the whole card buys it.
+                    ShowPriceContent(skinItem.Price);
+                    SetButtonState(buyButtonSprite, buyButtonColor);
+                    SetContentAlpha(state.CanAfford ? 1f : disabledContentAlpha);
+                    break;
+
+                case SkinCardAction.Upgrade:
+                    // Owned: the button buys the next ring size, the card body selects the skin. Its
+                    // colour is the only marker of the active skin until the ring is fully upgraded.
+                    ShowPriceContent(state.UpgradePrice);
                     SetButtonState(
-                        isActive ? activeButtonSprite : GetActivateSprite(),
-                        isActive ? activeButtonColor : activateButtonColor);
+                        state.IsActive ? activeButtonSprite : buyButtonSprite,
+                        state.IsActive ? activeButtonColor : buyButtonColor);
+                    SetContentAlpha(state.CanAffordUpgrade ? 1f : disabledContentAlpha);
+                    break;
+
+                case SkinCardAction.Select:
+                    // Fully upgraded: nothing left to sell, so the button selects too.
+                    ShowLabelContent(GetLocalizedText(state.IsActive ? LocalizationKey.Active : LocalizationKey.Select));
+                    SetButtonState(
+                        state.IsActive ? activeButtonSprite : activateButtonSprite,
+                        state.IsActive ? activeButtonColor : activateButtonColor);
                     SetContentAlpha(1f);
-                    if (actionButton != null) actionButton.interactable = true;
-                }
-                else
-                {
-                    ShowPriceContent(upgradePrice, true);
-                    SetButtonState(
-                        isActive ? activeButtonSprite : GetActivateSprite(),
-                        isActive ? activeButtonColor : activateButtonColor);
-                    SetContentAlpha(canAffordUpgrade ? 1f : disabledContentAlpha);
-                    if (actionButton != null) actionButton.interactable = canAffordUpgrade;
-                }
-            }
-            else
-            {
-                ShowLabelContent(GetLocalizedText(isActive ? LocalizationKey.Active : LocalizationKey.Select));
-                SetButtonState(
-                    isActive ? activeButtonSprite : GetActivateSprite(),
-                    isActive ? activeButtonColor : activateButtonColor);
-                SetContentAlpha(1f);
-                if (actionButton != null) actionButton.interactable = true;
+                    break;
             }
 
-            if (selectionFrame != null)
-                selectionFrame.enabled = false;
+            actionButton.interactable = state.IsActionAvailable();
+            cardButton.interactable = state.IsCardClickable();
         }
 
-        private Sprite GetActivateSprite()
+        private void ShowUpgradeLevel(in SkinCardState state)
         {
-            return activateButtonSprite != null ? activateButtonSprite : buyButtonSprite;
+            upgradeLevelLabel.gameObject.SetActive(true);
+            upgradeLevelLabel.text = state.IsMaxUpgraded
+                ? GetLocalizedText(LocalizationKey.MaxUpgradeLevel)
+                : string.Format(
+                    GetLocalizedText(LocalizationKey.UpgradeLevel),
+                    state.UpgradeLevel,
+                    state.MaxUpgradeLevel);
         }
 
-        private void ShowPriceContent(int price, bool showCoin)
+        private void ShowPriceContent(int price)
         {
-            if (priceLabel != null)
-            {
-                priceLabel.text = price.ToString();
-                priceLabel.gameObject.SetActive(true);
-            }
-
-            if (coinIcon != null)
-                coinIcon.gameObject.SetActive(showCoin);
-
-            if (actionButtonLabel != null)
-                actionButtonLabel.gameObject.SetActive(false);
+            priceLabel.SetText("{0}", price);
+            priceLabel.gameObject.SetActive(true);
+            coinIcon.gameObject.SetActive(true);
+            actionButtonLabel.gameObject.SetActive(false);
         }
 
         private void ShowLabelContent(string text)
         {
-            if (priceLabel != null) priceLabel.gameObject.SetActive(false);
-            if (coinIcon != null) coinIcon.gameObject.SetActive(false);
+            priceLabel.gameObject.SetActive(false);
+            coinIcon.gameObject.SetActive(false);
 
-            if (actionButtonLabel != null)
-            {
-                actionButtonLabel.text = text;
-                actionButtonLabel.gameObject.SetActive(true);
-            }
+            actionButtonLabel.text = text;
+            actionButtonLabel.gameObject.SetActive(true);
         }
 
         private void SetContentAlpha(float alpha)
         {
-            if (priceLabel != null)
-                priceLabel.alpha = alpha;
+            priceLabel.alpha = alpha;
 
-            if (coinIcon != null)
-                coinIcon.color = new Color(coinIcon.color.r, coinIcon.color.g, coinIcon.color.b, alpha);
-        }
-
-        private void SetUpgradeLevelVisible(bool visible, int level = 0, int max = 0)
-        {
-            if (upgradeLevelLabel == null)
-            {
-                return;
-            }
-
-            upgradeLevelLabel.gameObject.SetActive(visible);
-            if (visible)
-            {
-                string lvlText = GetLocalizedText(LocalizationKey.UpgradeLevel);
-                upgradeLevelLabel.text = string.Format(lvlText, level, max);
-            }
+            var coinColor = coinIcon.color;
+            coinColor.a = alpha;
+            coinIcon.color = coinColor;
         }
 
         private void SetButtonState(Sprite sprite, Color buttonColor)
         {
-            if (actionButtonImage != null)
-            {
-                if (sprite != null)
-                    actionButtonImage.sprite = sprite;
-                actionButtonImage.color = buttonColor;
-            }
+            actionButtonImage.sprite = sprite;
+            actionButtonImage.color = buttonColor;
         }
 
         private void Awake()
         {
-            if (actionButton != null)
-            {
-                actionButton.onClick.AddListener(OnActionClick);
-            }
+            actionButton.onClick.AddListener(OnActionClick);
+            cardButton.onClick.AddListener(OnCardClick);
         }
 
         private void OnDestroy()
         {
-            if (actionButton != null)
-            {
-                actionButton.onClick.RemoveListener(OnActionClick);
-            }
+            actionButton.onClick.RemoveListener(OnActionClick);
+            cardButton.onClick.RemoveListener(OnCardClick);
         }
 
         private void OnActionClick()
         {
             ActionClicked?.Invoke(skinItem);
+        }
+
+        private void OnCardClick()
+        {
+            SelectClicked?.Invoke(skinItem);
         }
 
         private static string GetLocalizedText(LocalizationKey key)

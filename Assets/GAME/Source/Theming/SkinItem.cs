@@ -1,3 +1,4 @@
+using JumpRing.Game.Core.Localization;
 using UnityEngine;
 
 namespace JumpRing.Game.Theming
@@ -8,8 +9,13 @@ namespace JumpRing.Game.Theming
         [SerializeField]
         private string skinId;
 
+        /// <summary>
+        /// Shop name of the skin. A localization key rather than a literal: the shop grid is the
+        /// most text-heavy screen in the game, and a name baked into the asset stayed Russian for
+        /// English players no matter what the platform reported.
+        /// </summary>
         [SerializeField]
-        private string displayName;
+        private LocalizationKey nameKey;
 
         [SerializeField]
         private Sprite icon;
@@ -27,7 +33,7 @@ namespace JumpRing.Game.Theming
         private ThemeData themeData;
 
         public string SkinId => skinId;
-        public string DisplayName => displayName;
+        public LocalizationKey NameKey => nameKey;
         public Sprite Icon => icon;
         public Sprite CurrencyIcon => currencyIcon;
         public Sprite ShopSprite => shopSprite;

@@ -88,6 +88,8 @@ namespace JumpRing.Game.Core.Composition
 
         private void Awake()
         {
+            PlatformLinkStringBridge.Verify();
+
             try
             {
                 PLink.Initialize(OnPlinkInitialized);
@@ -223,10 +225,22 @@ namespace JumpRing.Game.Core.Composition
             if (vibrationFeedbackService != null)
             {
                 runSessionController.DeathRequested += vibrationFeedbackService.OnDeath;
+                ScoreService.RecordBeaten += vibrationFeedbackService.OnRecordBeaten;
+                CoinCollectible.Collected += vibrationFeedbackService.OnCoinCollected;
 
                 if (playerJumpController != null)
                 {
                     playerJumpController.Jumped += vibrationFeedbackService.OnJump;
+                }
+
+                if (skinShopService != null)
+                {
+                    skinShopService.SkinPurchased += vibrationFeedbackService.OnSkinPurchased;
+                }
+
+                if (ringSizeUpgradeService != null)
+                {
+                    ringSizeUpgradeService.SkinUpgraded += vibrationFeedbackService.OnSkinUpgraded;
                 }
             }
 
@@ -248,10 +262,22 @@ namespace JumpRing.Game.Core.Composition
             if (vibrationFeedbackService != null)
             {
                 runSessionController.DeathRequested -= vibrationFeedbackService.OnDeath;
+                ScoreService.RecordBeaten -= vibrationFeedbackService.OnRecordBeaten;
+                CoinCollectible.Collected -= vibrationFeedbackService.OnCoinCollected;
 
                 if (playerJumpController != null)
                 {
                     playerJumpController.Jumped -= vibrationFeedbackService.OnJump;
+                }
+
+                if (skinShopService != null)
+                {
+                    skinShopService.SkinPurchased -= vibrationFeedbackService.OnSkinPurchased;
+                }
+
+                if (ringSizeUpgradeService != null)
+                {
+                    ringSizeUpgradeService.SkinUpgraded -= vibrationFeedbackService.OnSkinUpgraded;
                 }
             }
 

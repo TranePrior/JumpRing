@@ -1279,6 +1279,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7342733255897097736, guid: ff8d14dbe21094c4ab448412712e1558, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7342733255897097736, guid: ff8d14dbe21094c4ab448412712e1558, type: 3}
       propertyPath: m_PreserveAspect
       value: 1
       objectReference: {fileID: 0}
@@ -1327,7 +1331,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1327023389052326895, guid: ff8d14dbe21094c4ab448412712e1558, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6615765690668829212}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5026360291127087249, guid: ff8d14dbe21094c4ab448412712e1558, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2311035354747506240}
   m_SourcePrefab: {fileID: 100100000, guid: ff8d14dbe21094c4ab448412712e1558, type: 3}
 --- !u!114 &3091424697174765637 stripped
 MonoBehaviour:
@@ -1340,6 +1347,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 710617b8d7ea546a2b36df94435eaef9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &4169451150846637915 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5026360291127087249, guid: ff8d14dbe21094c4ab448412712e1558, type: 3}
+  m_PrefabInstance: {fileID: 8943557008956385226}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2311035354747506240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4169451150846637915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 38
 --- !u!224 &7959950760988750885 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1327023389052326895, guid: ff8d14dbe21094c4ab448412712e1558, type: 3}

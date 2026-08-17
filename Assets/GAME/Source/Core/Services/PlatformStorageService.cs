@@ -132,7 +132,7 @@ namespace JumpRing.Game.Core.Services
                     // would silently discard what the player just did.
                     if (!dirtyInts.Contains(k))
                     {
-                        intCache[k] = success ? value : PlayerPrefs.GetInt(k, 0);
+                        CacheInt(k, success, value);
                     }
                     LoadNextKey(index + 1);
                 });
@@ -149,7 +149,7 @@ namespace JumpRing.Game.Core.Services
                     // Same as above: a local write made mid-load must not be clobbered.
                     if (!dirtyStrings.Contains(k))
                     {
-                        stringCache[k] = success ? value : PlayerPrefs.GetString(k, "");
+                        CacheString(k, success, value);
                     }
                     LoadNextKey(index + 1);
                 });
@@ -189,18 +189,62 @@ namespace JumpRing.Game.Core.Services
             // The fallback timeout must not clobber values that did arrive.
             foreach (var key in intKeys)
             {
-                if (!intCache.ContainsKey(key))
+                if (!intCache.ContainsKey(key) && PlayerPrefs.HasKey(key))
                 {
-                    intCache[key] = PlayerPrefs.GetInt(key, 0);
+                    intCache[key] = PlayerPrefs.GetInt(key);
                 }
             }
 
             foreach (var key in stringKeys)
             {
-                if (!stringCache.ContainsKey(key))
+                if (!stringCache.ContainsKey(key) && PlayerPrefs.HasKey(key))
                 {
-                    stringCache[key] = PlayerPrefs.GetString(key, "");
+                    stringCache[key] = PlayerPrefs.GetString(key);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Caches a loaded value, but only when one is actually stored.
+        /// <para>
+        /// A cache entry shadows the default its reader passes to <see cref="GetInt"/>, so writing
+        /// one for a key nobody ever saved turns every default into zero. That is how a brand new
+        /// player used to start with music, effects and vibration switched off: the platform reports
+        /// "nothing stored" for those keys, the load wrote a 0 anyway, and
+        /// <c>GetInt(SettingsMusic, 1)</c> could never return its 1.
+        /// </para>
+        /// </summary>
+        private void CacheInt(string key, bool success, int value)
+        {
+            if (success)
+            {
+                intCache[key] = value;
+                return;
+            }
+
+            if (PlayerPrefs.HasKey(key))
+            {
+                intCache[key] = PlayerPrefs.GetInt(key);
+            }
+        }
+
+        /// <inheritdoc cref="CacheInt"/>
+        /// <remarks>
+        /// The platform answers a missing string key with an empty one, so the two are
+        /// indistinguishable here — and since no key in <see cref="StorageKeys"/> carries meaning
+        /// when empty, an empty answer is treated as "nothing stored".
+        /// </remarks>
+        private void CacheString(string key, bool success, string value)
+        {
+            if (success && !string.IsNullOrEmpty(value))
+            {
+                stringCache[key] = value;
+                return;
+            }
+
+            if (PlayerPrefs.HasKey(key))
+            {
+                stringCache[key] = PlayerPrefs.GetString(key);
             }
         }
 

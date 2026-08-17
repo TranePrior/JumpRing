@@ -256,7 +256,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -445,7 +445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -861,6 +861,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4723906038788959748, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5316757251084343738, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
       propertyPath: m_text
       value: "\u041D\u0430\u0448\u0438 \u0438\u0433\u0440\u044B"
@@ -875,6 +879,18 @@ PrefabInstance:
       objectReference: {fileID: -6260679275767720398, guid: be813aa0751314388a76f5fc7418bfd3, type: 2}
     - target: {fileID: 5316757251084343738, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
       propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355562361953052852, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6358662536295441527, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6770199036904510175, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
+      propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7208180053276691051, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
@@ -912,6 +928,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7671608116861569032, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7482344006661694732}
+    - targetCorrespondingSourceObject: {fileID: 4860399906228183952, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8695188433541471796}
   m_SourcePrefab: {fileID: 100100000, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
 --- !u!224 &2931318348614661902 stripped
 RectTransform:
@@ -983,6 +1002,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1014b7a0619434dcbacb5259847b51a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &9152882560544142448 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4860399906228183952, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
+  m_PrefabInstance: {fileID: 4356680441056155616}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8695188433541471796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9152882560544142448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 41
 --- !u!1001 &8829698001529347017
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1095,7 +1132,10 @@ PrefabInstance:
     - {fileID: 1438305279857057778, guid: 697d1bc20e44b470aa125cd9af58daee, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 437353176033581514, guid: 697d1bc20e44b470aa125cd9af58daee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7026469842265652635}
   m_SourcePrefab: {fileID: 100100000, guid: 697d1bc20e44b470aa125cd9af58daee, type: 3}
 --- !u!224 &4753831162554859785 stripped
 RectTransform:
@@ -1118,3 +1158,21 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2289797485868462574, guid: 697d1bc20e44b470aa125cd9af58daee, type: 3}
   m_PrefabInstance: {fileID: 8829698001529347017}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8978112677737710083 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 437353176033581514, guid: 697d1bc20e44b470aa125cd9af58daee, type: 3}
+  m_PrefabInstance: {fileID: 8829698001529347017}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7026469842265652635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8978112677737710083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 39

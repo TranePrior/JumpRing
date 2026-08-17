@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SkinItem_RingFrog
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinItem
   skinId: ring_frog
-  displayName: "\u041B\u044F\u0433\u0443\u0448\u043A\u0430"
+  nameKey: 29
   icon: {fileID: -8505579741359233612, guid: 99823f2adfde248c0ad696814fc152b0, type: 3}
   price: 0
   currencyIcon: {fileID: 21300000, guid: 46e8bd654219941998d811c284564320, type: 3}

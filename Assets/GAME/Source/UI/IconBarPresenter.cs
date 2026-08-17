@@ -1,4 +1,6 @@
+using JumpRing.Game.Core.Localization;
 using JumpRing.Game.Core.Services;
+using JumpRing.Game.Core.Services.Haptics;
 using RetroCat.Modules.FlexibleUI.Runtime.Activities;
 using RetroCat.Modules.UITemplates.Common.Popups.Leaderboard;
 using RetroCat.Modules.UITemplates.Common.Popups.OurGames;
@@ -95,6 +97,12 @@ namespace JumpRing.Game.UI
                     popup.gameObject.AddComponent<PopupTracker>();
                 }
 
+                popup.SetVibrationsAvailable(VibrationSupport.IsAvailable);
+
+                Language current = LocalizationService.Instance.CurrentLanguage;
+                popup.SetLanguageState(current.ToString(), current == Language.EN);
+                popup.LanguageToggled += isEnglish => SwitchLanguage(popup, isEnglish);
+
                 if (_audioSettingsService != null)
                 {
                     popup.SetInitialState(
@@ -107,6 +115,18 @@ namespace JumpRing.Game.UI
                     popup.VibrationsChanged += _audioSettingsService.SetVibration;
                 }
             });
+        }
+
+        /// <summary>
+        /// Switching writes an explicit preference, which stops the platform locale from overriding
+        /// the player's choice on the next launch.
+        /// </summary>
+        private static void SwitchLanguage(SettingsPopup popup, bool isEnglish)
+        {
+            Language language = isEnglish ? Language.EN : Language.RU;
+
+            LocalizationService.Instance.SetLanguage(language);
+            popup.SetLanguageCode(language.ToString());
         }
 
         private void ShowPopup<T>() where T : ActivityBase

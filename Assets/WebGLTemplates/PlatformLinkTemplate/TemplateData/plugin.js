@@ -184,6 +184,19 @@ function getLanguage() {
   return ysdk.environment.i18n.lang;
 }
 
+// Exposed for on-device debugging: run plinkLanguageStatus() in the console to compare the
+// language the platform reports for the player against the browser locale. The SDK value is the
+// one the game localizes by, and it is the only input that cannot be reproduced locally.
+function plinkLanguageStatus() {
+  return {
+    sdkReady: typeof ysdk !== 'undefined' && !!ysdk,
+    sdkLang: (typeof ysdk !== 'undefined' && ysdk && ysdk.environment && ysdk.environment.i18n)
+      ? ysdk.environment.i18n.lang
+      : null,
+    browserLang: (typeof navigator !== 'undefined') ? navigator.language : null
+  };
+}
+
 function getAppId() {
   return ysdk?.environment?.app?.id || '';
 }
@@ -858,45 +871,65 @@ function getVibrationAttemptBlockReason() {
   return '';
 }
 
-function canAttemptVibration() {
-  if (!isVibrationSupported()) {
-    return false;
+function getVibrationBlockReason() {
+  const support = getVibrationSupportInfo();
+  if (!support.supported) {
+    return support.reason;
   }
 
-  if (getVibrationAttemptBlockReason()) {
-    return false;
-  }
-
-  return true;
+  return getVibrationAttemptBlockReason();
 }
 
-function vibrate(durationMs) {
-  if (!canAttemptVibration()) {
-    return false;
-  }
+function canAttemptVibration() {
+  return getVibrationBlockReason() === '';
+}
 
-  if (!durationMs || durationMs <= 0) {
+// Exposed for on-device debugging: run plinkVibrationStatus() in the console to see
+// why a vibration call is being dropped on a given browser.
+function plinkVibrationStatus() {
+  const support = getVibrationSupportInfo();
+
+  return {
+    supported: support.supported,
+    reason: support.reason,
+    blockedBy: getVibrationBlockReason()
+  };
+}
+
+function runVibration(argument, label) {
+  const blockReason = getVibrationBlockReason();
+  if (blockReason) {
+    console.warn(`Vibration skipped (${label}): ${blockReason}`);
     return false;
   }
 
   const vibration = resolveVibrationFunction();
-  if (!vibration.fn) {
-    return false;
-  }
 
   try {
-    return vibration.fn(durationMs) === true;
+    // Browsers disagree on the return value: Chrome returns a boolean, others return
+    // undefined after a successful call. Only an explicit false means "rejected".
+    const result = vibration.fn(argument);
+    if (result === false) {
+      console.warn(`Vibration rejected by browser (${label}).`);
+      return false;
+    }
+
+    return true;
   } catch (error) {
-    console.warn('Vibration call failed:', error);
+    console.warn(`Vibration call failed (${label}):`, error);
     return false;
   }
 }
 
-function vibratePattern(patternCsv) {
-  if (!canAttemptVibration()) {
+function vibrate(durationMs) {
+  if (!durationMs || durationMs <= 0) {
     return false;
   }
 
+  return runVibration(durationMs, `${durationMs}ms`);
+}
+
+function vibratePattern(patternCsv) {
   if (!patternCsv || typeof patternCsv !== 'string') {
     return false;
   }
@@ -910,17 +943,7 @@ function vibratePattern(patternCsv) {
     return false;
   }
 
-  const vibration = resolveVibrationFunction();
-  if (!vibration.fn) {
-    return false;
-  }
-
-  try {
-    return vibration.fn(pattern) === true;
-  } catch (error) {
-    console.warn('Vibration pattern call failed:', error);
-    return false;
-  }
+  return runVibration(pattern, `[${pattern.join(',')}]`);
 }
 
 function copyToClipboard(text) {

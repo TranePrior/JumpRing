@@ -39,3 +39,63 @@ MonoBehaviour:
     value: Lv. {0}/{1}
   - key: 12
     value: MAX
+  - key: 13
+    value: SECOND CHANCE?
+  - key: 14
+    value: Claim
+  - key: 15
+    value: RESULT
+  - key: 16
+    value: x2 Ad
+  - key: 17
+    value: "No more \ninterstitial \nads"
+  - key: 18
+    value: "Rewarded ads \nwill stay"
+  - key: 19
+    value: Buy for
+  - key: 20
+    value: Want to compete with other players?
+  - key: 21
+    value: Sign in
+  - key: 22
+    value: Your rank
+  - key: 23
+    value: Classic game
+  - key: 24
+    value: Enjoying the game? Share it with friends!
+  - key: 25
+    value: Copy link
+  - key: 26
+    value: Share
+  - key: 27
+    value: Classic
+  - key: 28
+    value: Cat
+  - key: 29
+    value: Frog
+  - key: 30
+    value: Penguin
+  - key: 31
+    value: Vampire
+  - key: 32
+    value: Doctor
+  - key: 33
+    value: Lord
+  - key: 34
+    value: Settings
+  - key: 35
+    value: Music
+  - key: 36
+    value: Effects
+  - key: 37
+    value: Vibration
+  - key: 38
+    value: Remove Ads
+  - key: 39
+    value: Loading...
+  - key: 40
+    value: Leaders
+  - key: 41
+    value: Our Games
+  - key: 42
+    value: Play

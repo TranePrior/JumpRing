@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SkinItem_GameDefault
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinItem
   skinId: game_default
-  displayName: Classic
+  nameKey: 27
   icon: {fileID: 0}
   price: 0
   themeData: {fileID: 11400000, guid: 70edd7039312d4462b0d5f2d8226ceea, type: 2}

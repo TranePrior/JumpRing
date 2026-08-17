@@ -321,7 +321,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.706, g: 0.82, b: 0.976, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -363,6 +363,11 @@ MonoBehaviour:
   coinLabel: {fileID: 0}
   bestScoreLabel: {fileID: 0}
   tapHand: {fileID: 0}
+  watchAdButton: {fileID: 0}
+  adButtonView: {fileID: 0}
+  rewardedAdService: {fileID: 0}
+  adRewardAmount: 50
+  adCooldownSeconds: 180
   dimOverlay: {fileID: 0}
 --- !u!1 &5671010475840121042
 GameObject:
@@ -662,6 +667,7 @@ GameObject:
   - component: {fileID: 4715098034348697440}
   - component: {fileID: 3390982746775097691}
   - component: {fileID: 4031388253817224184}
+  - component: {fileID: 715052007253815166}
   m_Layer: 0
   m_Name: Title
   m_TagString: Untagged
@@ -788,6 +794,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &715052007253815166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6739950809425951718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 6
 --- !u!1 &6936638091138517565
 GameObject:
   m_ObjectHideFlags: 0
@@ -922,7 +941,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.7}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1039,7 +1058,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3910fa49feedc4e83bbc7628279a7055, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.TunedScrollRect
   m_Content: {fileID: 8288601198834534751}
   m_Horizontal: 0
@@ -1059,3 +1078,5 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+  _wheelSpeedMultiplier: 0.5
+  _maxStepPerEvent: 8

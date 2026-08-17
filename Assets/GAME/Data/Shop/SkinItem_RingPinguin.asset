@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SkinItem_RingPinguin
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinItem
   skinId: ring_pinguin
-  displayName: "\u041F\u0438\u043D\u0433\u0432\u0438\u043D"
+  nameKey: 30
   icon: {fileID: -4794135956454875951, guid: f3477308af0ef40afa9c50b5c40bf0d9, type: 3}
   price: 400
   currencyIcon: {fileID: 21300000, guid: d30853079b8204c2e9f705afaa7fc72f, type: 3}

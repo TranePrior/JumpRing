@@ -104,12 +104,11 @@ namespace JumpRing.Game.Core.Localization
         private void ReconcileWithStorage()
         {
             string saved = storageService.GetString(LanguagePrefsKey, string.Empty);
-            if (string.IsNullOrEmpty(saved))
+            if (!LanguageResolver.TryParseStored(saved, out Language stored))
             {
                 return;
             }
 
-            Language stored = saved == Language.EN.ToString() ? Language.EN : Language.RU;
             if (stored != CurrentLanguage)
             {
                 ApplyLanguage(stored);
@@ -118,10 +117,10 @@ namespace JumpRing.Game.Core.Localization
 
         private void Initialize()
         {
-            if (PlayerPrefs.HasKey(LanguagePrefsKey))
+            if (PlayerPrefs.HasKey(LanguagePrefsKey)
+                && LanguageResolver.TryParseStored(PlayerPrefs.GetString(LanguagePrefsKey), out Language chosen))
             {
-                string saved = PlayerPrefs.GetString(LanguagePrefsKey);
-                CurrentLanguage = saved == Language.EN.ToString() ? Language.EN : Language.RU;
+                CurrentLanguage = chosen;
             }
             else
             {
@@ -135,22 +134,20 @@ namespace JumpRing.Game.Core.Localization
         {
             if (PLink.IsInitialized)
             {
-                string platformLang = PLink.Environment.Language;
-                if (!string.IsNullOrEmpty(platformLang))
-                {
-                    return IsRussian(platformLang) ? Language.RU : Language.EN;
-                }
+                string platformLocale = PLink.Environment.Language;
+                Language detected = LanguageResolver.FromPlatformLocale(platformLocale);
+
+                // Logged because the platform locale is the one input that cannot be reproduced
+                // locally: it comes from the player's account, so a wrong language in the published
+                // build is only diagnosable from the browser console.
+                Debug.Log($"[Localization] Platform locale '{platformLocale}' resolved to {detected}");
+                return detected;
             }
 
+            // Placeholder for the frames before the platform SDK answers: the browser locale, which
+            // WebGL surfaces as Application.systemLanguage. Awake re-detects from the SDK as soon as
+            // it initializes, so this never decides the language of a launch that reaches the SDK.
             return Application.systemLanguage == SystemLanguage.Russian ? Language.RU : Language.EN;
-        }
-
-        // Platform SDKs disagree on how they spell a locale: the editor stub reports "En",
-        // Yandex reports "ru", and a full tag like "ru-RU" is equally legal. An exact match
-        // against "ru" silently served English to Russian players on any of those spellings.
-        private static bool IsRussian(string languageCode)
-        {
-            return languageCode.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

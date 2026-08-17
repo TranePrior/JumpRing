@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SkinItem_RingPizda
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Theming.SkinItem
   skinId: ring_pizda
-  displayName: "\u0412\u043B\u0430\u0441\u0442\u0435\u043B\u0438\u043D"
+  nameKey: 33
   icon: {fileID: -2984019044671666412, guid: ff55805143367435f83774bf74ee56ef, type: 3}
   price: 1500
   currencyIcon: {fileID: 21300000, guid: 4ca82ac11b4ef488daf07cf885e0a3b0, type: 3}

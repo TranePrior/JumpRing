@@ -2,6 +2,7 @@ using System;
 using PlatformLink;
 using RetroCat.Modules.Core.UI.Activities.Popups.Core;
 using RetroCat.Modules.Core.UI.Controls.Toggles;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -13,10 +14,16 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
         private const string DisableMusicEvent = "disable-music";
         private const string DisableEffectsEvent = "disable-effects";
         private const string DisableVibrationsEvent = "disable-vibrations";
+        private const string ChangeLanguageEvent = "change-language";
 
         [SerializeField] private ToggleButton _musicToggle;
         [SerializeField] private ToggleButton _effectsToggle;
         [SerializeField] private ToggleButton _vibrationsToggle;
+        [SerializeField] private RectTransform _vibrationsItem;
+
+        [Header("Language")]
+        [SerializeField] private ToggleButton _languageToggle;
+        [SerializeField] private TMP_Text _languageCodeLabel;
 
         [Header("Events")]
         [SerializeField] private UnityEvent<bool> _onMusicChanged;
@@ -30,12 +37,43 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
         public event Action<bool> MusicChanged;
         public event Action<bool> EffectsChanged;
         public event Action<bool> VibrationsChanged;
+        public event Action<bool> LanguageToggled;
 
         public void SetInitialState(bool musicOn, bool effectsOn, bool vibrationsOn)
         {
             _musicToggle.IsOn = musicOn;
             _effectsToggle.IsOn = effectsOn;
             _vibrationsToggle.IsOn = vibrationsOn;
+        }
+
+        /// <summary>
+        /// Initial state of the language row. Call before the popup opens, like
+        /// <see cref="SetInitialState"/>, so setting the toggle does not raise
+        /// <see cref="LanguageToggled"/> back at the caller.
+        /// </summary>
+        public void SetLanguageState(string code, bool toggleOn)
+        {
+            _languageToggle.IsOn = toggleOn;
+            SetLanguageCode(code);
+        }
+
+        /// <summary>
+        /// Shows which language the game is running in as its two-letter code ("RU", "EN").
+        /// A code rather than a word, because the row has to stay readable for a player who does not
+        /// speak the language currently selected.
+        /// </summary>
+        public void SetLanguageCode(string code)
+        {
+            _languageCodeLabel.text = code;
+        }
+
+        /// <summary>
+        /// Hides the whole vibration row on platforms without a vibration API (iOS browsers),
+        /// where the toggle would switch nothing.
+        /// </summary>
+        public void SetVibrationsAvailable(bool available)
+        {
+            _vibrationsItem.gameObject.SetActive(available);
         }
 
         protected override void OnInit() { }
@@ -57,6 +95,16 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
 
             _vibrationsToggle.StateEnabled += OnVibrationStateEnabled;
             _vibrationsToggle.StateDisabled += OnVibrationStateDisabled;
+
+            _languageToggle.StateChanged += OnLanguageToggled;
+        }
+
+        private void OnLanguageToggled(bool isOn)
+        {
+            if (PLink.IsInitialized)
+                PLink.Analytics.SendEvent(ChangeLanguageEvent);
+
+            LanguageToggled?.Invoke(isOn);
         }
 
         private void OnVibrationStateDisabled()
@@ -109,9 +157,12 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
             _vibrationsToggle.StateEnabled -= OnVibrationStateEnabled;
             _vibrationsToggle.StateDisabled -= OnVibrationStateDisabled;
 
+            _languageToggle.StateChanged -= OnLanguageToggled;
+
             MusicChanged = null;
             EffectsChanged = null;
             VibrationsChanged = null;
+            LanguageToggled = null;
 
             if (!PLink.IsInitialized)
                 return;

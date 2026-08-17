@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 1893900504979725288}
   - component: {fileID: 4688986468782780777}
   - component: {fileID: 5015669859197017833}
+  - component: {fileID: 4247840267795254233}
   m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -227,6 +228,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6366ee97f6b541449155028b9487355a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TMP_SpriteAnimator
+--- !u!114 &4247840267795254233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900789260593557126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 6
 --- !u!1 &2371174226296879981
 GameObject:
   m_ObjectHideFlags: 0
@@ -313,6 +327,7 @@ GameObject:
   - component: {fileID: 7561519954781971649}
   - component: {fileID: 6302933343216423604}
   - component: {fileID: 347679251328799890}
+  - component: {fileID: 6399124248833468836}
   m_Layer: 5
   m_Name: label_Shop
   m_TagString: Untagged
@@ -439,6 +454,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &6399124248833468836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2752763622048309042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 6
 --- !u!1 &3703529630494162713
 GameObject:
   m_ObjectHideFlags: 0
@@ -727,9 +755,11 @@ MonoBehaviour:
   runSessionController: {fileID: 0}
   shopPresenter: {fileID: 5421697809370257937}
   tapToStartLabel: {fileID: 0}
-  pulseSpeed: 1.5
+  tapHandAnimator: {fileID: 0}
   alphaMin: 0.4
   alphaMax: 1
+  scaleMin: 0.95
+  scaleMax: 1.05
 --- !u!1 &6286422091774689669
 GameObject:
   m_ObjectHideFlags: 0
@@ -789,7 +819,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1351,6 +1381,10 @@ PrefabInstance:
       propertyPath: m_TargetGraphic
       value: 
       objectReference: {fileID: 9100554761530893785}
+    - target: {fileID: 1782681960260653755, guid: 3e8b546564b44445695fd19a4f170e14, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1880851042236457550, guid: 3e8b546564b44445695fd19a4f170e14, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -1435,6 +1469,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 0590984078dc747b39981d6ac7e59199, type: 3}
+    - target: {fileID: 2723754988000489517, guid: 3e8b546564b44445695fd19a4f170e14, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2723754988000489517, guid: 3e8b546564b44445695fd19a4f170e14, type: 3}
       propertyPath: m_PixelsPerUnitMultiplier
       value: 0.5

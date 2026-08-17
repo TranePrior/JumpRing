@@ -98,7 +98,7 @@ namespace JumpRing.Game.UI
 
             if (nameLabel != null)
             {
-                nameLabel.text = skin.DisplayName;
+                nameLabel.text = GetLocalizedText(skin.NameKey);
             }
 
             if (currencyIconImage != null)

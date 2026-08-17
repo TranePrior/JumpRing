@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8258011603412166809}
   - component: {fileID: 60049802414339724}
   - component: {fileID: 416969781366953102}
+  - component: {fileID: 4158554248463283147}
   m_Layer: 5
   m_Name: Label_Title
   m_TagString: Untagged
@@ -139,6 +140,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4158554248463283147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1097872647257531713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 17
 --- !u!1 &1498379767217136928
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,7 +365,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -515,6 +529,7 @@ GameObject:
   - component: {fileID: 6966135962749041896}
   - component: {fileID: 2968465552703213791}
   - component: {fileID: 5264531683410556889}
+  - component: {fileID: 5181030473438593785}
   m_Layer: 5
   m_Name: Label_Purchase
   m_TagString: Untagged
@@ -641,6 +656,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5181030473438593785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5058243780383605402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 19
 --- !u!1 &5766289337830673574
 GameObject:
   m_ObjectHideFlags: 0
@@ -652,6 +680,7 @@ GameObject:
   - component: {fileID: 1464835711234912779}
   - component: {fileID: 126203551692980692}
   - component: {fileID: 1859527773188735344}
+  - component: {fileID: 6716276635869954440}
   m_Layer: 5
   m_Name: Label_Subtitle
   m_TagString: Untagged
@@ -779,6 +808,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &6716276635869954440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5766289337830673574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
+  key: 18
 --- !u!1 &8267486429699151624
 GameObject:
   m_ObjectHideFlags: 0
@@ -1297,6 +1339,8 @@ MonoBehaviour:
   _closeScale: 0.7
   _openEase: 27
   _closeEase: 26
+  _purchaseRoot: {fileID: 0}
+  _purchasedRoot: {fileID: 0}
 --- !u!1001 &4166239594963220968
 PrefabInstance:
   m_ObjectHideFlags: 0

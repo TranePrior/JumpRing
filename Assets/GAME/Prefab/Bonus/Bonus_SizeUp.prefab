@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7204082237427694988}
   - component: {fileID: 5264875445594545479}
   - component: {fileID: 8271530073792011087}
+  - component: {fileID: 7773543000552388055}
   m_Layer: 0
   m_Name: Bonus_SizeUp
   m_TagString: Untagged
@@ -143,6 +144,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.BonusCollectible
   bonusType: 0
+--- !u!114 &7773543000552388055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6547391494147176627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03821e90c04ad425caed93fa28218b26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.Pooling.PooledInstance
 --- !u!1 &6680712912904749364
 GameObject:
   m_ObjectHideFlags: 0

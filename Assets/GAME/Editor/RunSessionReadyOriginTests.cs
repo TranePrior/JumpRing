@@ -108,6 +108,13 @@ namespace JumpRing.Tests.EditMode
         {
             public event Action<int> ScoreChanged;
 
+            // Not exercised by these tests: no backing field, so no unused-event warning.
+            public event Action RecordBeaten
+            {
+                add { }
+                remove { }
+            }
+
             public int CurrentScore { get; private set; }
 
             public int BestScore { get; private set; }

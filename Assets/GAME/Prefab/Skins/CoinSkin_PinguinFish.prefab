@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5983316758573872238}
   - component: {fileID: 5501630039217288238}
   - component: {fileID: 3904354027869651810}
+  - component: {fileID: 1321775307810767019}
   m_Layer: 0
   m_Name: CoinSkin_PinguinFish
   m_TagString: Untagged
@@ -142,3 +143,15 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0.00823915, y: 0}
   m_Radius: 0.6503663
+--- !u!114 &1321775307810767019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6497736988391728183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03821e90c04ad425caed93fa28218b26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.Pooling.PooledInstance

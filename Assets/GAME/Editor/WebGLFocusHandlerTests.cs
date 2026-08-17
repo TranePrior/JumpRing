@@ -82,6 +82,41 @@ namespace JumpRing.Tests.EditMode
         }
 
         [Test]
+        public void PageHidden_SilencesTheGame()
+        {
+            // Minimizing the browser or switching apps hides the page without blurring the canvas,
+            // so the DOM bridge is the only thing that reports it. Yandex requirement 1.3.
+            handler.OnPageHidden();
+
+            Assert.IsTrue(AudioListener.pause, "A hidden page must silence the game.");
+            Assert.AreEqual(0f, Time.timeScale, "A hidden page must freeze the game.");
+        }
+
+        [Test]
+        public void PageVisibleAgain_RestoresSound()
+        {
+            handler.OnPageHidden();
+            handler.OnPageVisible();
+
+            Assert.IsFalse(AudioListener.pause, "Coming back to the page must restore the sound.");
+            Assert.AreEqual(1f, Time.timeScale, "Coming back to the page must resume the game.");
+        }
+
+        [Test]
+        public void PageHiddenDuringAd_LeavesTheAdInCharge()
+        {
+            PauseService.Add(PauseReason.Ad);
+
+            handler.OnPageHidden();
+            handler.OnPageVisible();
+
+            Assert.IsTrue(AudioListener.pause, "The ad still owns the pause, so the game stays silent.");
+            PauseService.Remove(PauseReason.Ad);
+            Assert.IsFalse(AudioListener.pause,
+                "Closing the ad must not leave a stray FocusLost pause behind.");
+        }
+
+        [Test]
         public void DuplicateFocusLossEvents_DoNotCorruptRestoredScale()
         {
             // focus-lost can arrive twice (OnApplicationFocus + OnApplicationPause) on one blur.

@@ -1,5 +1,6 @@
 using System;
 using JumpRing.Game.Core.Services;
+using JumpRing.Game.Gameplay.Pooling;
 using UnityEngine;
 
 namespace JumpRing.Game.Gameplay
@@ -30,6 +31,12 @@ namespace JumpRing.Game.Gameplay
             riskRewardSystem = riskReward;
             microEventSystem = microEvent;
             bonusEffectManager = bonusEffect;
+        }
+
+        private void OnEnable()
+        {
+            // Instances come back out of the pool, so the picked-up flag has to start clean.
+            isCollected = false;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -81,7 +88,7 @@ namespace JumpRing.Game.Gameplay
             var finalAmount = Mathf.Max(1, Mathf.RoundToInt(amount * coinMultiplier));
             Collected?.Invoke(transform.position, finalAmount);
             currencyService.Add(finalAmount);
-            Destroy(gameObject);
+            GetComponent<PooledInstance>().Release();
         }
     }
 }

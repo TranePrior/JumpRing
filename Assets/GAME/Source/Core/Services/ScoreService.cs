@@ -8,6 +8,7 @@ namespace JumpRing.Game.Core.Services
         private const string BestScoreKey = StorageKeys.BestScore;
         private const string DefaultLeaderboardId = "TopScore";
         private const float SubmitCooldown = 1.5f;
+        private const int NoBaseline = -1;
 
         [SerializeField]
         private PlatformStorageService storageService;
@@ -16,8 +17,12 @@ namespace JumpRing.Game.Core.Services
         private string leaderboardId = DefaultLeaderboardId;
 
         private ThrottledScoreSubmitter _scoreSubmitter;
+        private int _recordToBeat = NoBaseline;
+        private bool _recordBeatenThisRun;
 
         public event Action<int> ScoreChanged;
+
+        public event Action RecordBeaten;
 
         public int CurrentScore { get; private set; }
 
@@ -28,11 +33,14 @@ namespace JumpRing.Game.Core.Services
         public void Reset()
         {
             CurrentScore = 0;
+            _recordToBeat = NoBaseline;
+            _recordBeatenThisRun = false;
             ScoreChanged?.Invoke(CurrentScore);
         }
 
         public void Add(int points)
         {
+            CaptureRecordToBeat();
             CurrentScore += points;
 
             if (CurrentScore > BestScore)
@@ -42,6 +50,34 @@ namespace JumpRing.Game.Core.Services
             }
 
             ScoreChanged?.Invoke(CurrentScore);
+            TryRaiseRecordBeaten();
+        }
+
+        /// <summary>
+        /// Freezes the score to beat at the start of the run. Every point past the old best
+        /// rewrites the stored record, so comparing against the live one would report a new
+        /// record on every single point.
+        /// </summary>
+        private void CaptureRecordToBeat()
+        {
+            if (_recordToBeat == NoBaseline)
+            {
+                _recordToBeat = BestScore;
+            }
+        }
+
+        /// <summary>
+        /// Raises the record once per run. A first-ever run has nothing to beat and stays silent.
+        /// </summary>
+        private void TryRaiseRecordBeaten()
+        {
+            if (_recordBeatenThisRun || _recordToBeat <= 0 || CurrentScore <= _recordToBeat)
+            {
+                return;
+            }
+
+            _recordBeatenThisRun = true;
+            RecordBeaten?.Invoke();
         }
 
         private void Awake()

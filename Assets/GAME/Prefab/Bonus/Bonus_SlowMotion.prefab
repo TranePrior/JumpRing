@@ -117,6 +117,7 @@ GameObject:
   - component: {fileID: 3456074700522893059}
   - component: {fileID: 2261136553113589452}
   - component: {fileID: 1196714550565976364}
+  - component: {fileID: 7494297685433902171}
   m_Layer: 0
   m_Name: Bonus_SlowMotion
   m_TagString: Untagged
@@ -248,3 +249,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.BonusCollectible
   bonusType: 0
+--- !u!114 &7494297685433902171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6635800985633573414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03821e90c04ad425caed93fa28218b26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Gameplay.Pooling.PooledInstance

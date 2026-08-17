@@ -1030,6 +1030,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4723906038788959748, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5316757251084343738, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
       propertyPath: m_text
       value: "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"
@@ -1044,6 +1048,18 @@ PrefabInstance:
       objectReference: {fileID: -6260679275767720398, guid: be813aa0751314388a76f5fc7418bfd3, type: 2}
     - target: {fileID: 5316757251084343738, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
       propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355562361953052852, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6358662536295441527, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6770199036904510175, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
+      propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7208180053276691051, guid: 72aca11d579b34fcc81255505aadb883, type: 3}

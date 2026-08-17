@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using JumpRing.Game.Core.Services;
+using JumpRing.Game.Gameplay.Pooling;
 using UnityEngine;
 
 namespace JumpRing.Game.Gameplay
@@ -83,7 +84,11 @@ namespace JumpRing.Game.Gameplay
         [SerializeField, Min(1f)]
         private float despawnBehindDistance = 8f;
 
-        private readonly Queue<GameObject> spawnedBonuses = new();
+        /// <summary>Only a couple of bonuses of one kind are ever alive at once.</summary>
+        private const int PrewarmCount = 2;
+
+        private readonly Queue<PooledInstance> spawnedBonuses = new();
+        private PrefabPoolRegistry bonusPools;
 
         private int currentTapCount;
         private int currentSegment;
@@ -323,7 +328,8 @@ namespace JumpRing.Game.Gameplay
             var spawnPos = new Vector3(spawnX, spawnY, 0f);
 
             var parent = spawnedBonusParent != null ? spawnedBonusParent : transform;
-            var go = Instantiate(entry.prefab, spawnPos, Quaternion.identity, parent);
+            bonusPools ??= new PrefabPoolRegistry(parent, PrewarmCount);
+            var go = bonusPools.Rent(entry.prefab, spawnPos);
             var collectible = go.GetComponent<BonusCollectible>();
 
             if (collectible != null)
@@ -343,7 +349,7 @@ namespace JumpRing.Game.Gameplay
         {
             foreach (var bonus in spawnedBonuses)
             {
-                if (bonus == null)
+                if (!bonus.gameObject.activeSelf)
                 {
                     continue;
                 }
@@ -362,7 +368,8 @@ namespace JumpRing.Game.Gameplay
             {
                 var bonus = spawnedBonuses.Peek();
 
-                if (bonus == null)
+                // Already picked up: the collectible handed itself back to the pool.
+                if (!bonus.gameObject.activeSelf)
                 {
                     spawnedBonuses.Dequeue();
                     continue;
@@ -373,7 +380,7 @@ namespace JumpRing.Game.Gameplay
                     break;
                 }
 
-                Destroy(bonus);
+                bonus.Release();
                 spawnedBonuses.Dequeue();
             }
         }
@@ -384,9 +391,9 @@ namespace JumpRing.Game.Gameplay
             {
                 var bonus = spawnedBonuses.Dequeue();
 
-                if (bonus != null)
+                if (bonus.gameObject.activeSelf)
                 {
-                    Destroy(bonus);
+                    bonus.Release();
                 }
             }
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using JumpRing.Game.Core.Services;
+using JumpRing.Game.Gameplay.Pooling;
 using UnityEngine;
 
 namespace JumpRing.Game.Gameplay
@@ -64,11 +65,20 @@ namespace JumpRing.Game.Gameplay
             coinPrefab = prefab;
         }
 
-        private readonly Queue<GameObject> spawnedCoins = new();
+        /// <summary>Enough to cover the coins alive on screen at once, so a run never allocates.</summary>
+        private const int PrewarmCount = 8;
+
+        private readonly Queue<PooledInstance> spawnedCoins = new();
+        private PrefabPoolRegistry coinPools;
         private float nextSpawnX;
         private bool isSpawning;
 
         private ICurrencyService CurrencyService => currencyService;
+
+        private void Awake()
+        {
+            coinPools = new PrefabPoolRegistry(spawnedCoinsParent, PrewarmCount);
+        }
 
         private void OnEnable()
         {
@@ -136,7 +146,8 @@ namespace JumpRing.Game.Gameplay
             {
                 var coin = spawnedCoins.Peek();
 
-                if (coin == null)
+                // Already picked up: the collectible handed itself back to the pool.
+                if (!coin.gameObject.activeSelf)
                 {
                     spawnedCoins.Dequeue();
                     continue;
@@ -147,7 +158,7 @@ namespace JumpRing.Game.Gameplay
                     break;
                 }
 
-                Destroy(coin);
+                coin.Release();
                 spawnedCoins.Dequeue();
             }
         }
@@ -156,7 +167,7 @@ namespace JumpRing.Game.Gameplay
         {
             var yPosition = linePathGenerator.EvaluateHeightAtX(xPosition) + spawnYOffset;
             var spawnPosition = new Vector3(xPosition, yPosition, 0f);
-            var spawnedCoin = Instantiate(coinPrefab, spawnPosition, Quaternion.identity, spawnedCoinsParent);
+            var spawnedCoin = coinPools.Rent(coinPrefab, spawnPosition);
             var coinCollectible = spawnedCoin.GetComponent<CoinCollectible>();
             coinCollectible.Construct(CurrencyService, runSessionController, riskRewardSystem, microEventSystem, bonusEffectManager);
             spawnedCoins.Enqueue(spawnedCoin);
@@ -166,7 +177,7 @@ namespace JumpRing.Game.Gameplay
         {
             foreach (var coin in spawnedCoins)
             {
-                if (coin == null)
+                if (!coin.gameObject.activeSelf)
                 {
                     continue;
                 }
@@ -185,20 +196,20 @@ namespace JumpRing.Game.Gameplay
 
         public void RemoveCoinNear(float x, float tolerance)
         {
-            var tempQueue = new Queue<GameObject>();
+            var tempQueue = new Queue<PooledInstance>();
 
             while (spawnedCoins.Count > 0)
             {
                 var coin = spawnedCoins.Dequeue();
 
-                if (coin == null)
+                if (!coin.gameObject.activeSelf)
                 {
                     continue;
                 }
 
                 if (Mathf.Abs(coin.transform.position.x - x) <= tolerance)
                 {
-                    Destroy(coin);
+                    coin.Release();
                     continue;
                 }
 
@@ -217,12 +228,12 @@ namespace JumpRing.Game.Gameplay
             {
                 var coin = spawnedCoins.Dequeue();
 
-                if (coin == null)
+                if (!coin.gameObject.activeSelf)
                 {
                     continue;
                 }
 
-                Destroy(coin);
+                coin.Release();
             }
         }
     }

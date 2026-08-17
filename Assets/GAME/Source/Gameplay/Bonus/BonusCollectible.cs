@@ -1,3 +1,4 @@
+using JumpRing.Game.Gameplay.Pooling;
 using UnityEngine;
 
 namespace JumpRing.Game.Gameplay
@@ -18,6 +19,12 @@ namespace JumpRing.Game.Gameplay
             this.effectManager = effectManager;
             runSessionController = runSession;
             bonusType = type;
+        }
+
+        private void OnEnable()
+        {
+            // Instances come back out of the pool, so the picked-up flag has to start clean.
+            isCollected = false;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -62,7 +69,7 @@ namespace JumpRing.Game.Gameplay
 
             isCollected = true;
             effectManager.ActivateBonus(bonusType);
-            Destroy(gameObject);
+            GetComponent<PooledInstance>().Release();
         }
     }
 }

@@ -336,12 +336,17 @@ MonoBehaviour:
   jumpImpulse: 6
   runSessionController: {fileID: 0}
   playerSkinSlot: {fileID: 2227094313106591048}
+  linePathGenerator: {fileID: 0}
+  difficultyManager: {fileID: 0}
+  riskRewardSystem: {fileID: 0}
+  bonusEffectManager: {fileID: 0}
   hitTop: {fileID: 7271300337975368435}
   hitBottom: {fileID: 4496593039391498421}
   hitTopCollider: {fileID: 2335946220672250747}
   hitBottomCollider: {fileID: 7800544112585952436}
   lineBoundsPadding: 0.001
   lineTouchTolerance: 0.001
+  readyInputLockSeconds: 0.3
   fallGravityMultiplier: 2.2
   peakGravityMultiplier: 1.6
   peakVelocityThreshold: 1.5
@@ -426,7 +431,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.10368001
   m_Pitch: 1
   Loop: 0
   Mute: 0

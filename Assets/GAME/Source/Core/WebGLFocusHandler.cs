@@ -1,13 +1,19 @@
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace JumpRing.Game.Core
 {
     /// <summary>
-    /// Pauses the game while the WebGL page loses focus. Owns only the
+    /// Pauses the game while the WebGL page loses focus or gets minimized. Owns only the
     /// <see cref="PauseReason.FocusLost"/> reason and never touches timeScale directly.
     /// </summary>
     public sealed class WebGLFocusHandler : MonoBehaviour
     {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        private static extern void JumpRing_RegisterPageVisibility(string targetObjectName);
+#endif
+
         // After an ad closes the browser emits a trailing focus/blur burst around the WebGL canvas.
         // Ignoring focus events for a short window after the ad prevents that burst from stranding
         // the game under a leftover FocusLost pause (the interstitial "tap counts, ring won't jump" bug).
@@ -15,6 +21,17 @@ namespace JumpRing.Game.Core
 
         private bool adWasActive;
         private float ignoreFocusUntil;
+
+        private void Start()
+        {
+            // Unity's focus callbacks only track the canvas: minimizing the browser (or switching
+            // apps on mobile) hides the page without blurring the canvas, and the game would keep
+            // playing its audio in the background. The DOM bridge reports those cases via
+            // OnPageVisible/OnPageHidden below.
+#if UNITY_WEBGL && !UNITY_EDITOR
+            JumpRing_RegisterPageVisibility(gameObject.name);
+#endif
+        }
 
         private void OnEnable()
         {
@@ -43,6 +60,12 @@ namespace JumpRing.Game.Core
             HandleFocus(!isPaused);
 #endif
         }
+
+        /// <summary>Called from the browser by PageVisibility.jslib when the page becomes visible.</summary>
+        public void OnPageVisible() => HandleFocus(true);
+
+        /// <summary>Called from the browser by PageVisibility.jslib when the page gets hidden.</summary>
+        public void OnPageHidden() => HandleFocus(false);
 
         private void OnReasonsChanged()
         {

@@ -42,10 +42,11 @@
         companyName: "{{{ COMPANY_NAME }}}",
         productName: "{{{ PRODUCT_NAME }}}",
         productVersion: "{{{ PRODUCT_VERSION }}}",
-        // Capped at 1.5: phones report a DPR of 3, and rendering a 2D hyper-casual game at 2x
-        // means drawing four times the pixels for detail nobody sees on that screen size.
-        // This is the cheapest frame-rate win available on mobile browsers.
-        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 1.5),
+        // Capped at 2: phones report a DPR of 3, and the third step costs 2.25x the pixels of
+        // this one for detail nobody resolves on a phone screen. The previous cap of 1.5 was
+        // below the point where edges stay clean, which is what made the game look soft.
+        // This is the first dial to turn back down if frame rate becomes a problem.
+        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
       };
 
       const container = document.querySelector("#unity-container");
@@ -57,7 +58,13 @@
         fit(container);
       };
 
-        window.addEventListener('resize', fitGameScreen);
+      window.addEventListener('resize', fitGameScreen);
+      window.addEventListener('orientationchange', fitGameScreen);
+      // Mobile browsers collapse the URL bar without firing a window resize — visualViewport does.
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', fitGameScreen);
+      }
+      fitGameScreen();
 
       let myGameInstance = null;
 

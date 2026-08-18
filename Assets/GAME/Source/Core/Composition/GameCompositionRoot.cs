@@ -74,9 +74,6 @@ namespace JumpRing.Game.Core.Composition
         [SerializeField]
         private GameplayApiService gameplayApiService;
 
-        [SerializeField]
-        private VibrationFeedbackService vibrationFeedbackService;
-
         private IGameStateMachine GameStateMachine => (IGameStateMachine)gameStateMachineComponent;
 
         private IScoreService ScoreService => (IScoreService)scoreServiceComponent;
@@ -222,28 +219,6 @@ namespace JumpRing.Game.Core.Composition
                 GameStateMachine.StateChanged += gameplayApiService.OnStateChanged;
             }
 
-            if (vibrationFeedbackService != null)
-            {
-                runSessionController.DeathRequested += vibrationFeedbackService.OnDeath;
-                ScoreService.RecordBeaten += vibrationFeedbackService.OnRecordBeaten;
-                CoinCollectible.Collected += vibrationFeedbackService.OnCoinCollected;
-
-                if (playerJumpController != null)
-                {
-                    playerJumpController.Jumped += vibrationFeedbackService.OnJump;
-                }
-
-                if (skinShopService != null)
-                {
-                    skinShopService.SkinPurchased += vibrationFeedbackService.OnSkinPurchased;
-                }
-
-                if (ringSizeUpgradeService != null)
-                {
-                    ringSizeUpgradeService.SkinUpgraded += vibrationFeedbackService.OnSkinUpgraded;
-                }
-            }
-
             GameStateMachine.Enter(GameState.MainMenu);
 
             _storageReady = true;
@@ -257,28 +232,6 @@ namespace JumpRing.Game.Core.Composition
             if (gameplayApiService != null)
             {
                 GameStateMachine.StateChanged -= gameplayApiService.OnStateChanged;
-            }
-
-            if (vibrationFeedbackService != null)
-            {
-                runSessionController.DeathRequested -= vibrationFeedbackService.OnDeath;
-                ScoreService.RecordBeaten -= vibrationFeedbackService.OnRecordBeaten;
-                CoinCollectible.Collected -= vibrationFeedbackService.OnCoinCollected;
-
-                if (playerJumpController != null)
-                {
-                    playerJumpController.Jumped -= vibrationFeedbackService.OnJump;
-                }
-
-                if (skinShopService != null)
-                {
-                    skinShopService.SkinPurchased -= vibrationFeedbackService.OnSkinPurchased;
-                }
-
-                if (ringSizeUpgradeService != null)
-                {
-                    ringSizeUpgradeService.SkinUpgraded -= vibrationFeedbackService.OnSkinUpgraded;
-                }
             }
 
             if (difficultyManager != null)

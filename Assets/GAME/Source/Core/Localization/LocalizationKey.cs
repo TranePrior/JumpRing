@@ -40,7 +40,7 @@ namespace JumpRing.Game.Core.Localization
         SkinNamePenguin,
         SkinNameVampire,
         SkinNameDoctor,
-        SkinNameLord,
+        SkinNameKing,
         SettingsTitle,
         SettingsMusic,
         SettingsEffects,

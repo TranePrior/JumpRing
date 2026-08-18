@@ -6,8 +6,8 @@ using UnityEngine;
 namespace JumpRing.Tests.EditMode
 {
     /// <summary>
-    /// A brand new player used to start with music, effects and vibration switched off: the storage
-    /// load wrote a cache entry even for keys nobody had ever saved, and that entry shadowed the
+    /// A brand new player used to start with music and effects switched off: the storage load
+    /// wrote a cache entry even for keys nobody had ever saved, and that entry shadowed the
     /// default each reader passes to <see cref="PlatformStorageService.GetInt"/>.
     /// </summary>
     [TestFixture]
@@ -16,8 +16,7 @@ namespace JumpRing.Tests.EditMode
         private static readonly string[] SoundKeys =
         {
             StorageKeys.SettingsMusic,
-            StorageKeys.SettingsEffects,
-            StorageKeys.SettingsVibration
+            StorageKeys.SettingsEffects
         };
 
         private GameObject serviceObject;
@@ -48,7 +47,7 @@ namespace JumpRing.Tests.EditMode
         }
 
         [Test]
-        public void NewPlayer_StartsWithSoundAndVibrationOn()
+        public void NewPlayer_StartsWithSoundOn()
         {
             LoadStorage();
 
@@ -56,7 +55,6 @@ namespace JumpRing.Tests.EditMode
 
             Assert.IsTrue(audioSettings.IsMusicEnabled, "music");
             Assert.IsTrue(audioSettings.IsEffectsEnabled, "effects");
-            Assert.IsTrue(audioSettings.IsVibrationEnabled, "vibration");
         }
 
         [Test]
@@ -73,7 +71,6 @@ namespace JumpRing.Tests.EditMode
 
             Assert.IsFalse(audioSettings.IsMusicEnabled, "music");
             Assert.IsFalse(audioSettings.IsEffectsEnabled, "effects");
-            Assert.IsFalse(audioSettings.IsVibrationEnabled, "vibration");
         }
 
         [Test]

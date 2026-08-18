@@ -61,6 +61,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e2c1938a08244673ac2e5d453391031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Services.ScoreService
+  storageService: {fileID: 0}
+  leaderboardId: TopScore
 --- !u!114 &2202510746887098519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,6 +75,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 285f36c3b6c854991bcc6913fea88ef9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Services.CurrencyService
+  storageService: {fileID: 0}
 --- !u!114 &7826434118583931153
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,3 +105,16 @@ MonoBehaviour:
   currencyServiceComponent: {fileID: 2202510746887098519}
   runSessionController: {fileID: 7826434118583931153}
   hudPresenter: {fileID: 0}
+  worldTapCounterPresenter: {fileID: 0}
+  themeManager: {fileID: 0}
+  skinShopService: {fileID: 0}
+  difficultyManager: {fileID: 0}
+  microEventSystem: {fileID: 0}
+  riskRewardSystem: {fileID: 0}
+  bonusEffectManager: {fileID: 0}
+  noAdsService: {fileID: 0}
+  audioSettingsService: {fileID: 0}
+  ringSizeUpgradeService: {fileID: 0}
+  playerJumpController: {fileID: 0}
+  platformStorageService: {fileID: 0}
+  gameplayApiService: {fileID: 0}

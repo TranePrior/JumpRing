@@ -1,6 +1,5 @@
 using JumpRing.Game.Core.Localization;
 using JumpRing.Game.Core.Services;
-using JumpRing.Game.Core.Services.Haptics;
 using RetroCat.Modules.FlexibleUI.Runtime.Activities;
 using RetroCat.Modules.UITemplates.Common.Popups.Leaderboard;
 using RetroCat.Modules.UITemplates.Common.Popups.OurGames;
@@ -20,6 +19,10 @@ namespace JumpRing.Game.UI
         [SerializeField] private Button _ourGamesButton;
         [SerializeField] private Button _shareButton;
         [SerializeField] private Button _settingsButton;
+
+        [Header("Language Flags")]
+        [SerializeField] private Sprite _flagRu;
+        [SerializeField] private Sprite _flagEn;
 
         [Header("Services")]
         [SerializeField] private NoAdsService _noAdsService;
@@ -97,10 +100,11 @@ namespace JumpRing.Game.UI
                     popup.gameObject.AddComponent<PopupTracker>();
                 }
 
-                popup.SetVibrationsAvailable(VibrationSupport.IsAvailable);
+                // The game ships without haptics, so the row would be a dead switch.
+                popup.SetVibrationsAvailable(false);
 
                 Language current = LocalizationService.Instance.CurrentLanguage;
-                popup.SetLanguageState(current.ToString(), current == Language.EN);
+                popup.SetLanguageState(current.ToString(), FlagOf(current), current == Language.EN);
                 popup.LanguageToggled += isEnglish => SwitchLanguage(popup, isEnglish);
 
                 if (_audioSettingsService != null)
@@ -108,11 +112,10 @@ namespace JumpRing.Game.UI
                     popup.SetInitialState(
                         _audioSettingsService.IsMusicEnabled,
                         _audioSettingsService.IsEffectsEnabled,
-                        _audioSettingsService.IsVibrationEnabled);
+                        vibrationsOn: false);
 
                     popup.MusicChanged += _audioSettingsService.SetMusic;
                     popup.EffectsChanged += _audioSettingsService.SetEffects;
-                    popup.VibrationsChanged += _audioSettingsService.SetVibration;
                 }
             });
         }
@@ -121,13 +124,15 @@ namespace JumpRing.Game.UI
         /// Switching writes an explicit preference, which stops the platform locale from overriding
         /// the player's choice on the next launch.
         /// </summary>
-        private static void SwitchLanguage(SettingsPopup popup, bool isEnglish)
+        private void SwitchLanguage(SettingsPopup popup, bool isEnglish)
         {
             Language language = isEnglish ? Language.EN : Language.RU;
 
             LocalizationService.Instance.SetLanguage(language);
-            popup.SetLanguageCode(language.ToString());
+            popup.SetLanguageCode(language.ToString(), FlagOf(language));
         }
+
+        private Sprite FlagOf(Language language) => language == Language.EN ? _flagEn : _flagRu;
 
         private void ShowPopup<T>() where T : ActivityBase
         {

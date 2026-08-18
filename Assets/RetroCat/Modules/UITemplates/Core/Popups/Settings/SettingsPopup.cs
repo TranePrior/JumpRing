@@ -5,6 +5,7 @@ using RetroCat.Modules.Core.UI.Controls.Toggles;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
 {
@@ -24,6 +25,7 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
         [Header("Language")]
         [SerializeField] private ToggleButton _languageToggle;
         [SerializeField] private TMP_Text _languageCodeLabel;
+        [SerializeField] private Image _languageFlagIcon;
 
         [Header("Events")]
         [SerializeField] private UnityEvent<bool> _onMusicChanged;
@@ -51,20 +53,22 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
         /// <see cref="SetInitialState"/>, so setting the toggle does not raise
         /// <see cref="LanguageToggled"/> back at the caller.
         /// </summary>
-        public void SetLanguageState(string code, bool toggleOn)
+        public void SetLanguageState(string code, Sprite flag, bool toggleOn)
         {
             _languageToggle.IsOn = toggleOn;
-            SetLanguageCode(code);
+            SetLanguageCode(code, flag);
         }
 
         /// <summary>
-        /// Shows which language the game is running in as its two-letter code ("RU", "EN").
-        /// A code rather than a word, because the row has to stay readable for a player who does not
-        /// speak the language currently selected.
+        /// Shows which language the game is running in as its two-letter code ("RU", "EN") plus the
+        /// matching flag. A code rather than a word, because the row has to stay readable for a
+        /// player who does not speak the language currently selected. The flag comes from the caller
+        /// so this popup stays a template that knows nothing about which languages a game ships.
         /// </summary>
-        public void SetLanguageCode(string code)
+        public void SetLanguageCode(string code, Sprite flag)
         {
             _languageCodeLabel.text = code;
+            _languageFlagIcon.sprite = flag;
         }
 
         /// <summary>

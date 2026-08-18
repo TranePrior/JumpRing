@@ -19,7 +19,6 @@ namespace JumpRing.Game.Core.Services
         public const string NoAdsPurchased = "NoAdsPurchased";
         public const string SettingsMusic = "Settings_Music";
         public const string SettingsEffects = "Settings_Effects";
-        public const string SettingsVibration = "Settings_Vibration";
 
         public const string OwnedSkins = "OwnedSkins";
         public const string ActiveSkinId = "ActiveSkinId";
@@ -33,8 +32,7 @@ namespace JumpRing.Game.Core.Services
             ConsecutiveDeaths,
             NoAdsPurchased,
             SettingsMusic,
-            SettingsEffects,
-            SettingsVibration
+            SettingsEffects
         };
 
         public static readonly string[] StringKeys =

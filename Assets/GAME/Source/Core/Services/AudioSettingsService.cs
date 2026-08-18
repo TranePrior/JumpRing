@@ -6,7 +6,6 @@ namespace JumpRing.Game.Core.Services
     {
         private const string MusicKey = StorageKeys.SettingsMusic;
         private const string EffectsKey = StorageKeys.SettingsEffects;
-        private const string VibrationKey = StorageKeys.SettingsVibration;
 
         [SerializeField]
         private PlatformStorageService storageService;
@@ -19,13 +18,11 @@ namespace JumpRing.Game.Core.Services
 
         public bool IsMusicEnabled { get; private set; } = true;
         public bool IsEffectsEnabled { get; private set; } = true;
-        public bool IsVibrationEnabled { get; private set; } = true;
 
         public void Initialize()
         {
             IsMusicEnabled = storageService.GetInt(MusicKey, 1) == 1;
             IsEffectsEnabled = storageService.GetInt(EffectsKey, 1) == 1;
-            IsVibrationEnabled = storageService.GetInt(VibrationKey, 1) == 1;
             ApplyMusic();
             ApplyEffects();
         }
@@ -42,12 +39,6 @@ namespace JumpRing.Game.Core.Services
             IsEffectsEnabled = enabled;
             storageService.SetInt(EffectsKey, enabled ? 1 : 0);
             ApplyEffects();
-        }
-
-        public void SetVibration(bool enabled)
-        {
-            IsVibrationEnabled = enabled;
-            storageService.SetInt(VibrationKey, enabled ? 1 : 0);
         }
 
         private void ApplyMusic()

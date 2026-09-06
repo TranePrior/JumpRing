@@ -53,5 +53,32 @@ namespace JumpRing.Tests.EditMode
         {
             Assert.IsFalse(LanguageResolver.TryParseStored(stored, out _));
         }
+
+        // The regression this pins: switching the language once wrote it to the local mirror as well
+        // as the cloud, and the mirror was then read as the player's choice forever. Clearing the
+        // cloud save — or the SDK's language override moderation tests with — could no longer reach
+        // the game, which kept serving the stale language.
+        [Test]
+        public void IsStoredChoiceTrustworthy_CloudAnsweredWithoutTheKey_DropsTheLocalLeftover()
+        {
+            Assert.IsFalse(LanguageResolver.IsStoredChoiceTrustworthy(
+                cloudAuthoritative: true, storedInCloud: false));
+        }
+
+        [Test]
+        public void IsStoredChoiceTrustworthy_CloudHoldsTheChoice_KeepsIt()
+        {
+            Assert.IsTrue(LanguageResolver.IsStoredChoiceTrustworthy(
+                cloudAuthoritative: true, storedInCloud: true));
+        }
+
+        // Offline, or after a load timeout, the mirror is the only record of what the player picked
+        // — discarding it there would reset the language of every launch the platform is slow on.
+        [Test]
+        public void IsStoredChoiceTrustworthy_CloudSilent_KeepsTheLocalChoice()
+        {
+            Assert.IsTrue(LanguageResolver.IsStoredChoiceTrustworthy(
+                cloudAuthoritative: false, storedInCloud: false));
+        }
     }
 }

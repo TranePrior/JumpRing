@@ -88,10 +88,17 @@ namespace JumpRing.Game.Core.Localization
             return string.Format(activeData.GetText(key), args);
         }
 
+        /// <remarks>
+        /// Flushed immediately rather than on the storage batching delay: a choice that only made it
+        /// into the local mirror is discarded on the next launch by
+        /// <see cref="ReconcileWithStorage"/>, and a player who switches the language and closes the
+        /// tab right away is exactly the case where that delay loses the write.
+        /// </remarks>
         public void SetLanguage(Language language)
         {
             ApplyLanguage(language);
             storageService.SetString(LanguagePrefsKey, language.ToString());
+            storageService.FlushNow();
         }
 
         private void ApplyLanguage(Language language)
@@ -101,18 +108,45 @@ namespace JumpRing.Game.Core.Localization
             LanguageChanged?.Invoke(language);
         }
 
+        /// <summary>
+        /// Settles the language once the save is in, which is the first moment the game can tell an
+        /// explicit choice from a leftover.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="Initialize"/> runs at Awake, where the local mirror is the only thing to read,
+        /// so a language the player once picked and then cleared from the cloud still decides the
+        /// first frames. Here that leftover is dropped and the platform locale gets to speak again.
+        /// </remarks>
         private void ReconcileWithStorage()
         {
+            bool trustStored = LanguageResolver.IsStoredChoiceTrustworthy(
+                storageService.IsCloudAuthoritative,
+                storageService.IsResolvedFromCloud(LanguagePrefsKey));
+
+            if (!trustStored)
+            {
+                storageService.ForgetLocal(LanguagePrefsKey);
+                ApplyIfChanged(DetectSystemLanguage());
+                return;
+            }
+
             string saved = storageService.GetString(LanguagePrefsKey, string.Empty);
             if (!LanguageResolver.TryParseStored(saved, out Language stored))
             {
                 return;
             }
 
-            if (stored != CurrentLanguage)
+            ApplyIfChanged(stored);
+        }
+
+        private void ApplyIfChanged(Language language)
+        {
+            if (language == CurrentLanguage)
             {
-                ApplyLanguage(stored);
+                return;
             }
+
+            ApplyLanguage(language);
         }
 
         private void Initialize()

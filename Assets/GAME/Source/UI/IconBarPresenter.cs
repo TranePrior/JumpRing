@@ -1,11 +1,9 @@
-using JumpRing.Game.Core.Localization;
 using JumpRing.Game.Core.Services;
 using RetroCat.Modules.FlexibleUI.Runtime.Activities;
 using RetroCat.Modules.UITemplates.Common.Popups.Leaderboard;
 using RetroCat.Modules.UITemplates.Common.Popups.OurGames;
 using RetroCat.Modules.UITemplates.Common.Popups.Share;
 using RetroCat.Modules.UITemplates.Core.Popups.NoAds;
-using RetroCat.Modules.UITemplates.Core.Popups.Settings;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,14 +18,10 @@ namespace JumpRing.Game.UI
         [SerializeField] private Button _shareButton;
         [SerializeField] private Button _settingsButton;
 
-        [Header("Language Flags")]
-        [SerializeField] private Sprite _flagRu;
-        [SerializeField] private Sprite _flagEn;
-
         [Header("Services")]
         [SerializeField] private NoAdsService _noAdsService;
         [SerializeField] private MonoBehaviour _scoreServiceComponent;
-        [SerializeField] private AudioSettingsService _audioSettingsService;
+        [SerializeField] private SettingsPopupOpener _settingsPopupOpener;
 
         private void OnEnable()
         {
@@ -93,46 +87,8 @@ namespace JumpRing.Game.UI
 
         private void OnSettingsClicked()
         {
-            UIActivities.Instance.ShowActivity<SettingsPopup>(gameObject.scene, popup =>
-            {
-                if (popup.gameObject.GetComponent<PopupTracker>() == null)
-                {
-                    popup.gameObject.AddComponent<PopupTracker>();
-                }
-
-                // The game ships without haptics, so the row would be a dead switch.
-                popup.SetVibrationsAvailable(false);
-
-                Language current = LocalizationService.Instance.CurrentLanguage;
-                popup.SetLanguageState(current.ToString(), FlagOf(current), current == Language.EN);
-                popup.LanguageToggled += isEnglish => SwitchLanguage(popup, isEnglish);
-
-                if (_audioSettingsService != null)
-                {
-                    popup.SetInitialState(
-                        _audioSettingsService.IsMusicEnabled,
-                        _audioSettingsService.IsEffectsEnabled,
-                        vibrationsOn: false);
-
-                    popup.MusicChanged += _audioSettingsService.SetMusic;
-                    popup.EffectsChanged += _audioSettingsService.SetEffects;
-                }
-            });
+            _settingsPopupOpener.Open();
         }
-
-        /// <summary>
-        /// Switching writes an explicit preference, which stops the platform locale from overriding
-        /// the player's choice on the next launch.
-        /// </summary>
-        private void SwitchLanguage(SettingsPopup popup, bool isEnglish)
-        {
-            Language language = isEnglish ? Language.EN : Language.RU;
-
-            LocalizationService.Instance.SetLanguage(language);
-            popup.SetLanguageCode(language.ToString(), FlagOf(language));
-        }
-
-        private Sprite FlagOf(Language language) => language == Language.EN ? _flagEn : _flagRu;
 
         private void ShowPopup<T>() where T : ActivityBase
         {

@@ -9,12 +9,10 @@ namespace JumpRing.Tests.EditMode
     [TestFixture]
     public sealed class PauseServiceTests
     {
-        private const PauseReason AllReasons = PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog | PauseReason.Popup;
-
         [SetUp]
         public void SetUp()
         {
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
             Time.timeScale = 1f;
             AudioListener.pause = false;
         }
@@ -22,7 +20,7 @@ namespace JumpRing.Tests.EditMode
         [TearDown]
         public void TearDown()
         {
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
             Time.timeScale = 1f;
             AudioListener.pause = false;
         }

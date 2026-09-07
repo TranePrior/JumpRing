@@ -1,22 +1,25 @@
 using System;
-using JumpRing.Game.Core.Services;
 using PlatformLink;
 using UnityEngine;
 
 namespace JumpRing.Game.Core.Localization
 {
+    /// <summary>
+    /// Serves the game's texts in the language the platform reports for the player.
+    /// </summary>
+    /// <remarks>
+    /// The platform locale is the only input (Yandex requirement 2.14). There is deliberately no
+    /// in-game override: a stored choice used to outrank the SDK, and the moment moderation switched
+    /// the locale mock the game kept its old language and was rejected for "not using the SDK".
+    /// A player who wants another language changes it on the platform, and the game follows.
+    /// </remarks>
     public sealed class LocalizationService : MonoBehaviour
     {
-        private const string LanguagePrefsKey = StorageKeys.SelectedLanguage;
-
         [SerializeField]
         private LocalizationData russianData;
 
         [SerializeField]
         private LocalizationData englishData;
-
-        [SerializeField]
-        private PlatformStorageService storageService;
 
         private LocalizationData activeData;
 
@@ -29,49 +32,18 @@ namespace JumpRing.Game.Core.Localization
         private void Awake()
         {
             Instance = this;
-            Initialize();
+            ApplyLanguage(DetectPlatformLanguage());
 
-            // PLink isn't ready at Awake, so a first-launch default may have fallen back to
-            // the unreliable Application.systemLanguage. Re-detect from the platform once it
-            // initializes — but only when the player has no explicit saved preference.
-            if (!PlayerPrefs.HasKey(LanguagePrefsKey))
+            // PLink is not ready at Awake, so the first frames run on the browser locale. Re-detect
+            // from the platform as soon as it answers; LocalizedText picks the change up.
+            if (!PLink.IsInitialized)
             {
-                if (PLink.IsInitialized)
-                {
-                    ApplyLanguage(DetectSystemLanguage());
-                }
-                else
-                {
-                    PLink.Initilized += OnPlinkReadyDetectLanguage;
-                }
-            }
-        }
-
-        private void OnPlinkReadyDetectLanguage()
-        {
-            PLink.Initilized -= OnPlinkReadyDetectLanguage;
-
-            if (!PlayerPrefs.HasKey(LanguagePrefsKey))
-            {
-                ApplyLanguage(DetectSystemLanguage());
-            }
-        }
-
-        private void Start()
-        {
-            if (storageService.IsLoaded)
-            {
-                ReconcileWithStorage();
-            }
-            else
-            {
-                storageService.Loaded += ReconcileWithStorage;
+                PLink.Initilized += OnPlinkReadyDetectLanguage;
             }
         }
 
         private void OnDestroy()
         {
-            storageService.Loaded -= ReconcileWithStorage;
             PLink.Initilized -= OnPlinkReadyDetectLanguage;
 
             if (Instance == this)
@@ -88,17 +60,15 @@ namespace JumpRing.Game.Core.Localization
             return string.Format(activeData.GetText(key), args);
         }
 
-        /// <remarks>
-        /// Flushed immediately rather than on the storage batching delay: a choice that only made it
-        /// into the local mirror is discarded on the next launch by
-        /// <see cref="ReconcileWithStorage"/>, and a player who switches the language and closes the
-        /// tab right away is exactly the case where that delay loses the write.
-        /// </remarks>
-        public void SetLanguage(Language language)
+        private void OnPlinkReadyDetectLanguage()
         {
-            ApplyLanguage(language);
-            storageService.SetString(LanguagePrefsKey, language.ToString());
-            storageService.FlushNow();
+            PLink.Initilized -= OnPlinkReadyDetectLanguage;
+
+            Language detected = DetectPlatformLanguage();
+            if (detected != CurrentLanguage)
+            {
+                ApplyLanguage(detected);
+            }
         }
 
         private void ApplyLanguage(Language language)
@@ -108,63 +78,7 @@ namespace JumpRing.Game.Core.Localization
             LanguageChanged?.Invoke(language);
         }
 
-        /// <summary>
-        /// Settles the language once the save is in, which is the first moment the game can tell an
-        /// explicit choice from a leftover.
-        /// </summary>
-        /// <remarks>
-        /// <see cref="Initialize"/> runs at Awake, where the local mirror is the only thing to read,
-        /// so a language the player once picked and then cleared from the cloud still decides the
-        /// first frames. Here that leftover is dropped and the platform locale gets to speak again.
-        /// </remarks>
-        private void ReconcileWithStorage()
-        {
-            bool trustStored = LanguageResolver.IsStoredChoiceTrustworthy(
-                storageService.IsCloudAuthoritative,
-                storageService.IsResolvedFromCloud(LanguagePrefsKey));
-
-            if (!trustStored)
-            {
-                storageService.ForgetLocal(LanguagePrefsKey);
-                ApplyIfChanged(DetectSystemLanguage());
-                return;
-            }
-
-            string saved = storageService.GetString(LanguagePrefsKey, string.Empty);
-            if (!LanguageResolver.TryParseStored(saved, out Language stored))
-            {
-                return;
-            }
-
-            ApplyIfChanged(stored);
-        }
-
-        private void ApplyIfChanged(Language language)
-        {
-            if (language == CurrentLanguage)
-            {
-                return;
-            }
-
-            ApplyLanguage(language);
-        }
-
-        private void Initialize()
-        {
-            if (PlayerPrefs.HasKey(LanguagePrefsKey)
-                && LanguageResolver.TryParseStored(PlayerPrefs.GetString(LanguagePrefsKey), out Language chosen))
-            {
-                CurrentLanguage = chosen;
-            }
-            else
-            {
-                CurrentLanguage = DetectSystemLanguage();
-            }
-
-            activeData = CurrentLanguage == Language.RU ? russianData : englishData;
-        }
-
-        private static Language DetectSystemLanguage()
+        private static Language DetectPlatformLanguage()
         {
             if (PLink.IsInitialized)
             {

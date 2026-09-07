@@ -10,8 +10,6 @@ namespace JumpRing.Tests.EditMode
     [TestFixture]
     public sealed class GameplayApiServiceTests
     {
-        private const PauseReason AllReasons = PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog | PauseReason.Popup;
-
         private GameObject serviceObject;
         private GameplayApiService service;
 
@@ -20,7 +18,7 @@ namespace JumpRing.Tests.EditMode
         {
             // Clear leftover reasons BEFORE the service exists, so releasing them can't arm the
             // post-ad settle window on the fresh service and swallow this test's focus events.
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
 
             serviceObject = new GameObject("GameplayApiService");
             service = serviceObject.AddComponent<GameplayApiService>();
@@ -35,7 +33,7 @@ namespace JumpRing.Tests.EditMode
         {
             Invoke("OnDisable");
             Object.DestroyImmediate(serviceObject);
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
         }
 
         private void Invoke(string methodName)
@@ -136,6 +134,20 @@ namespace JumpRing.Tests.EditMode
             Focus(false);
 
             Assert.IsFalse(IsActive(), "Leaving the tab while playing must stop the gameplay report.");
+        }
+
+        [Test]
+        public void PlatformPauseWhileInGameplay_ReportsGameplayInactive()
+        {
+            service.OnStateChanged(GameState.Gameplay);
+
+            // Yandex pairs its own pause event with GameplayAPI.stop() — the panel's stop button
+            // freezes the game, and frozen time is not gameplay.
+            PauseService.Add(PauseReason.Platform);
+            Assert.IsFalse(IsActive(), "A platform pause must stop the gameplay report.");
+
+            PauseService.Remove(PauseReason.Platform);
+            Assert.IsTrue(IsActive(), "A platform resume must restart the gameplay report.");
         }
 
         [Test]

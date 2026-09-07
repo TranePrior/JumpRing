@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using JumpRing.Game.Core.Services;
+using JumpRing.Game.Core.Services.Haptics;
 using JumpRing.Game.Core.State;
 using JumpRing.Game.Gameplay;
 using JumpRing.Game.Theming;
@@ -59,6 +60,10 @@ namespace JumpRing.Game.Core.Composition
         [Header("Audio Settings")]
         [SerializeField]
         private AudioSettingsService audioSettingsService;
+
+        [Header("Haptics")]
+        [SerializeField]
+        private ClickHapticService clickHapticService;
 
         [Header("Ring Upgrade")]
         [SerializeField]
@@ -178,6 +183,8 @@ namespace JumpRing.Game.Core.Composition
             {
                 audioSettingsService.Initialize();
             }
+
+            clickHapticService.Initialize();
 
             if (skinShopService != null)
             {

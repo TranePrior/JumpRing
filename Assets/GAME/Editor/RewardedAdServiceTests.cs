@@ -10,8 +10,6 @@ namespace JumpRing.Tests.EditMode
     [TestFixture]
     public sealed class RewardedAdServiceTests
     {
-        private const PauseReason AllReasons = PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog | PauseReason.Popup;
-
         private GameObject serviceObject;
         private RewardedAdService service;
         private int rewardCount;
@@ -22,7 +20,7 @@ namespace JumpRing.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
             rewardCount = 0;
             failCount = 0;
             lastResult = null;
@@ -36,7 +34,7 @@ namespace JumpRing.Tests.EditMode
         public void TearDown()
         {
             UnityEngine.Object.DestroyImmediate(serviceObject);
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
         }
 
         /// <summary>

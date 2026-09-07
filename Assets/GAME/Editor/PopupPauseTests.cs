@@ -13,14 +13,11 @@ namespace JumpRing.Tests.EditMode
     [TestFixture]
     public sealed class PopupPauseTests
     {
-        private const PauseReason AllReasons =
-            PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog | PauseReason.Popup;
-
         [SetUp]
         public void SetUp()
         {
             ResetTrackerCount();
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
             Time.timeScale = 1f;
             AudioListener.pause = false;
         }
@@ -29,7 +26,7 @@ namespace JumpRing.Tests.EditMode
         public void TearDown()
         {
             ResetTrackerCount();
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
             Time.timeScale = 1f;
             AudioListener.pause = false;
         }

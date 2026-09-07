@@ -8,8 +8,6 @@ namespace JumpRing.Tests.EditMode
     [TestFixture]
     public sealed class WebGLFocusHandlerTests
     {
-        private const PauseReason AllReasons = PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog | PauseReason.Popup;
-
         private GameObject handlerObject;
         private WebGLFocusHandler handler;
 
@@ -18,7 +16,7 @@ namespace JumpRing.Tests.EditMode
         {
             // Clear leftover reasons BEFORE the handler exists, so releasing them can't arm
             // the post-ad settle window on the fresh handler and swallow this test's focus events.
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
             Time.timeScale = 1f;
             AudioListener.pause = false;
 
@@ -30,7 +28,7 @@ namespace JumpRing.Tests.EditMode
         public void TearDown()
         {
             Object.DestroyImmediate(handlerObject);
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
             Time.timeScale = 1f;
             AudioListener.pause = false;
         }

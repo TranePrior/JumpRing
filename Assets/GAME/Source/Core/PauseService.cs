@@ -22,7 +22,17 @@ namespace JumpRing.Game.Core
         // A modal UI window (settings, leaderboard, our games, no-ads) is open over the game.
         // Kept apart from Dialog so a window that freezes the game itself can still tell its own
         // freeze from one held by a window stacked on top of it.
-        Popup = 1 << 3
+        Popup = 1 << 3,
+
+        // The platform asked the game to stop: the stop button in the Yandex SDK panel, a store
+        // window, or the pause the SDK takes before a fullscreen ad. None of that hides the page,
+        // so FocusLost never covers it, and it is kept apart from FocusLost so a focus event
+        // around an ad cannot resume a run the platform deliberately froze.
+        Platform = 1 << 4,
+
+        // The whole set. Callers that clear every reason at once use this instead of spelling the
+        // flags out, so a new reason cannot be silently missed by a reset.
+        All = Ad | FocusLost | Dialog | Popup | Platform
     }
 
     /// <summary>
@@ -36,7 +46,8 @@ namespace JumpRing.Game.Core
         // Reasons that silence the game on top of freezing it. Popup is deliberately absent: the
         // settings window toggles music and effects, and a muted AudioListener under it would make
         // every toggle look dead.
-        private const PauseReason MutingReasons = PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog;
+        private const PauseReason MutingReasons =
+            PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog | PauseReason.Platform;
 
         private static PauseReason reasons;
 

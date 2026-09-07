@@ -11,6 +11,7 @@ function initializePlugin()
     console.log('Yandex SDK initialized');
     ysdk = sdk;
     window.ysdk = sdk;
+    registerPlatformPauseEvents();
     initializePlayer();
 });
 }
@@ -287,6 +288,49 @@ function sendAnalyticsEventWithData(eventName, eventDataJson) {
   } catch (error) {
     console.warn('Yandex Metrika event send with data failed:', error);
   }
+}
+
+// The stop button in the Yandex panel is the only way the platform can pause a game that stays
+// visible — the page is never hidden, so the visibilitychange bridge does not fire. The same pair
+// of events also wraps store windows and fullscreen ads. Without this subscription the panel's
+// stop button did nothing at all.
+function registerPlatformPauseEvents() {
+  if (!ysdk || typeof ysdk.on !== 'function') {
+    console.warn('Yandex SDK events API is not available');
+    return;
+  }
+
+  ysdk.on('game_api_pause', () => notifyPlatformPause(true));
+  ysdk.on('game_api_resume', () => notifyPlatformPause(false));
+}
+
+// The bridge object is installed by PlatformPause.jslib once PlatformPauseHandler registers. The
+// platform can pause before that happens (it shows a fullscreen ad on startup), so a pause that
+// arrives early is parked here and replayed on registration.
+function notifyPlatformPause(paused) {
+  console.log(paused ? 'Platform paused the game.' : 'Platform resumed the game.');
+
+  const bridge = window.jumpRingPlatformPause;
+  if (!bridge) {
+    window.jumpRingPlatformPausePending = paused;
+    return;
+  }
+
+  window.jumpRingPlatformPausePending = false;
+  bridge.notify(paused);
+}
+
+// Exposed for on-device debugging: run plinkPlatformPauseStatus() in the console on the real
+// Yandex page. The panel's stop button cannot be reproduced locally, so this is the only way to
+// tell "the SDK never sent the event" apart from "Unity never received it".
+function plinkPlatformPauseStatus() {
+  const bridge = window.jumpRingPlatformPause;
+  return {
+    sdkReady: typeof ysdk !== 'undefined' && !!ysdk,
+    eventsApi: typeof ysdk !== 'undefined' && !!ysdk && typeof ysdk.on === 'function',
+    unityReceiver: bridge ? bridge.target : null,
+    pendingPause: window.jumpRingPlatformPausePending === true
+  };
 }
 
 function sendGameReadyMessage() {
@@ -829,6 +873,82 @@ function resolveVibrationFunction() {
   };
 }
 
+// iOS has no Vibration API at all: navigator.vibrate simply does not exist in Safari or in
+// any iOS browser (they all run WebKit). The single documented way to make an iPhone tick from
+// a web page is Safari's own switch control: toggling an <input type="checkbox" switch> by
+// clicking its <label> plays the system haptic. Available since iOS 17.4 — older iPhones stay
+// silent, and there is nothing on the platform to fall back to.
+let iosHapticLabel = null;
+
+function isIosWebKit() {
+  const nav = getVibrationNavigator();
+  if (!nav) {
+    return false;
+  }
+
+  const ua = nav.userAgent || '';
+  if (/iPad|iPhone|iPod/.test(ua)) {
+    return true;
+  }
+
+  // iPadOS reports itself as desktop Safari; the touch points give it away.
+  return nav.platform === 'MacIntel' && nav.maxTouchPoints > 1;
+}
+
+function isSwitchHapticSupported() {
+  if (typeof document === 'undefined' || !isIosWebKit()) {
+    return false;
+  }
+
+  // The 'switch' attribute is reflected as a property only on Safari 17.4+.
+  return 'switch' in document.createElement('input');
+}
+
+function getSwitchHapticElement() {
+  if (iosHapticLabel && iosHapticLabel.isConnected) {
+    return iosHapticLabel;
+  }
+
+  if (!document.body) {
+    return null;
+  }
+
+  const label = document.createElement('label');
+  label.setAttribute('aria-hidden', 'true');
+  // Kept in the layout (not display:none) so WebKit still treats it as a real control,
+  // but sized to nothing and deaf to pointers so it can never eat a game tap.
+  label.style.cssText =
+    'position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none;';
+
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.setAttribute('switch', '');
+  input.tabIndex = -1;
+
+  label.appendChild(input);
+  document.body.appendChild(label);
+  iosHapticLabel = label;
+
+  return label;
+}
+
+// The switch plays one fixed system tick — iOS exposes no duration and no amplitude, so a
+// pattern collapses into a single tick instead of trying to replay its shape.
+function runSwitchHaptic() {
+  const label = getSwitchHapticElement();
+  if (!label) {
+    return false;
+  }
+
+  try {
+    label.click();
+    return true;
+  } catch (error) {
+    console.warn('iOS switch haptic failed:', error);
+    return false;
+  }
+}
+
 function getVibrationSupportInfo() {
   const nav = getVibrationNavigator();
   if (!nav) {
@@ -840,6 +960,13 @@ function getVibrationSupportInfo() {
 
   const vibration = resolveVibrationFunction();
   if (!vibration.fn) {
+    if (isSwitchHapticSupported()) {
+      return {
+        supported: true,
+        reason: 'iOS switch haptic is available'
+      };
+    }
+
     return {
       supported: false,
       reason: 'no vibration method found (vibrate/webkitVibrate/mozVibrate/msVibrate)'
@@ -904,6 +1031,9 @@ function runVibration(argument, label) {
   }
 
   const vibration = resolveVibrationFunction();
+  if (!vibration.fn) {
+    return runSwitchHaptic();
+  }
 
   try {
     // Browsers disagree on the return value: Chrome returns a boolean, others return

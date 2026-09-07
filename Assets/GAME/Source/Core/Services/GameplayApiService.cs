@@ -24,6 +24,7 @@ namespace JumpRing.Game.Core.Services
         private bool _isActive;
         private bool _adActive;
         private bool _popupActive;
+        private bool _platformPaused;
         private float _ignoreFocusUntil;
 
         private void OnEnable()
@@ -78,8 +79,9 @@ namespace JumpRing.Game.Core.Services
         {
             bool adActive = PauseService.HasReason(PauseReason.Ad);
             bool popupActive = PauseService.HasReason(PauseReason.Popup);
+            bool platformPaused = PauseService.HasReason(PauseReason.Platform);
 
-            if (adActive == _adActive && popupActive == _popupActive)
+            if (adActive == _adActive && popupActive == _popupActive && platformPaused == _platformPaused)
             {
                 return;
             }
@@ -91,6 +93,7 @@ namespace JumpRing.Game.Core.Services
 
             _adActive = adActive;
             _popupActive = popupActive;
+            _platformPaused = platformPaused;
             UpdateActivity();
         }
 
@@ -98,8 +101,9 @@ namespace JumpRing.Game.Core.Services
         {
             // The platform must never count ad time as gameplay: Yandex expects GameplayAPI.stop()
             // for the whole duration of an ad, whatever state the game was in when it started. The
-            // same holds for a modal window opened over a run — the game is frozen behind it.
-            bool shouldBeActive = _stateIsGameplay && _hasFocus && !_adActive && !_popupActive;
+            // same holds for a modal window opened over a run — the game is frozen behind it — and
+            // for a pause the platform itself asked for, which the docs pair with stop() outright.
+            bool shouldBeActive = _stateIsGameplay && _hasFocus && !_adActive && !_popupActive && !_platformPaused;
             if (shouldBeActive == _isActive)
             {
                 return;

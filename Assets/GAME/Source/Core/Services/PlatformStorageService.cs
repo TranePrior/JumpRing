@@ -20,11 +20,6 @@ namespace JumpRing.Game.Core.Services
         private readonly Dictionary<string, string> stringCache = new();
         private readonly HashSet<string> dirtyInts = new();
         private readonly HashSet<string> dirtyStrings = new();
-
-        // Keys the cloud itself answered for. A cached value can just as well have come from the
-        // local PlayerPrefs mirror, and the two have to stay distinguishable: a value that exists
-        // only locally outlived a cloud wipe, so it no longer describes the account being played.
-        private readonly HashSet<string> cloudResolved = new();
         private bool isLoaded;
         private bool callbackFired;
         private bool loadStarted;
@@ -41,13 +36,6 @@ namespace JumpRing.Game.Core.Services
         private Action pendingOnComplete;
 
         public bool IsLoaded => isLoaded;
-
-        /// <summary>
-        /// Whether the cloud answered the load, which makes "the cloud has no value for this key"
-        /// a fact rather than an unknown. False after a timeout or on a platform that never became
-        /// ready, where the local mirror is all there is.
-        /// </summary>
-        public bool IsCloudAuthoritative => cloudWritable;
 
         public event Action Loaded;
 
@@ -232,7 +220,6 @@ namespace JumpRing.Game.Core.Services
             if (success)
             {
                 intCache[key] = value;
-                cloudResolved.Add(key);
                 return;
             }
 
@@ -253,7 +240,6 @@ namespace JumpRing.Game.Core.Services
             if (success && !string.IsNullOrEmpty(value))
             {
                 stringCache[key] = value;
-                cloudResolved.Add(key);
                 return;
             }
 
@@ -271,35 +257,6 @@ namespace JumpRing.Game.Core.Services
         public string GetString(string key, string defaultValue = "")
         {
             return stringCache.TryGetValue(key, out var value) ? value : defaultValue;
-        }
-
-        /// <summary>
-        /// Whether the value cached for this key came from the cloud rather than from the local
-        /// PlayerPrefs mirror. Only meaningful while <see cref="IsCloudAuthoritative"/> is true.
-        /// </summary>
-        public bool IsResolvedFromCloud(string key)
-        {
-            return cloudResolved.Contains(key);
-        }
-
-        /// <summary>
-        /// Drops a key from the caches and from the local mirror, so the next read falls through to
-        /// the caller's default instead of resurrecting a value the cloud no longer holds.
-        /// </summary>
-        public void ForgetLocal(string key)
-        {
-            intCache.Remove(key);
-            stringCache.Remove(key);
-            dirtyInts.Remove(key);
-            dirtyStrings.Remove(key);
-
-            if (!PlayerPrefs.HasKey(key))
-            {
-                return;
-            }
-
-            PlayerPrefs.DeleteKey(key);
-            PlayerPrefs.Save();
         }
 
         // Writing an unchanged value would still queue a cloud save, and the platform rejects
@@ -345,16 +302,6 @@ namespace JumpRing.Game.Core.Services
         {
             yield return new WaitForSecondsRealtime(SaveFlushSeconds);
             flushScheduled = false;
-            Flush();
-        }
-
-        /// <summary>
-        /// Pushes pending writes now instead of on the batching delay. For the rare write whose
-        /// cost of not reaching the cloud outweighs the flush — a language the player picked, which
-        /// is only honoured on the next launch if the cloud, not just the local mirror, has it.
-        /// </summary>
-        public void FlushNow()
-        {
             Flush();
         }
 

@@ -14,7 +14,6 @@ namespace JumpRing.Tests.EditMode
     [TestFixture]
     public sealed class SecondChanceCountdownTests
     {
-        private const PauseReason AllReasons = PauseReason.Ad | PauseReason.FocusLost | PauseReason.Dialog | PauseReason.Popup;
         private const float CountdownDuration = 5f;
 
         private GameObject presenterObject;
@@ -24,7 +23,7 @@ namespace JumpRing.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
 
             presenterObject = new GameObject("SecondChancePresenter");
             presenter = presenterObject.AddComponent<SecondChancePresenter>();
@@ -40,7 +39,7 @@ namespace JumpRing.Tests.EditMode
         public void TearDown()
         {
             Object.DestroyImmediate(presenterObject);
-            PauseService.Remove(AllReasons);
+            PauseService.Remove(PauseReason.All);
         }
 
         private void SetField(string name, object value)

@@ -12,40 +12,24 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
         private const string OpenSettingsEvent = "open-settings";
         private const string DisableMusicEvent = "disable-music";
         private const string DisableEffectsEvent = "disable-effects";
-        private const string DisableVibrationsEvent = "disable-vibrations";
 
         [SerializeField] private ToggleButton _musicToggle;
         [SerializeField] private ToggleButton _effectsToggle;
-        [SerializeField] private ToggleButton _vibrationsToggle;
-        [SerializeField] private RectTransform _vibrationsItem;
 
         [Header("Events")]
         [SerializeField] private UnityEvent<bool> _onMusicChanged;
         [SerializeField] private UnityEvent<bool> _onEffectsChanged;
-        [SerializeField] private UnityEvent<bool> _onVibrationsChanged;
 
         private bool _isMusicEnabledOnOpen;
         private bool _isEffectsEnabledOnOpen;
-        private bool _isVibrationsEnabledOnOpen;
 
         public event Action<bool> MusicChanged;
         public event Action<bool> EffectsChanged;
-        public event Action<bool> VibrationsChanged;
 
-        public void SetInitialState(bool musicOn, bool effectsOn, bool vibrationsOn)
+        public void SetInitialState(bool musicOn, bool effectsOn)
         {
             _musicToggle.IsOn = musicOn;
             _effectsToggle.IsOn = effectsOn;
-            _vibrationsToggle.IsOn = vibrationsOn;
-        }
-
-        /// <summary>
-        /// Hides the whole vibration row on platforms without a vibration API (iOS browsers),
-        /// where the toggle would switch nothing.
-        /// </summary>
-        public void SetVibrationsAvailable(bool available)
-        {
-            _vibrationsItem.gameObject.SetActive(available);
         }
 
         protected override void OnInit() { }
@@ -54,7 +38,6 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
         {
             _isMusicEnabledOnOpen = _musicToggle.IsOn;
             _isEffectsEnabledOnOpen = _effectsToggle.IsOn;
-            _isVibrationsEnabledOnOpen = _vibrationsToggle.IsOn;
 
             if (PLink.IsInitialized)
                 PLink.Analytics.SendEvent(OpenSettingsEvent);
@@ -64,21 +47,6 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
 
             _effectsToggle.StateEnabled += OnEffectsStateEnabled;
             _effectsToggle.StateDisabled += OnEffectsStateDisabled;
-
-            _vibrationsToggle.StateEnabled += OnVibrationStateEnabled;
-            _vibrationsToggle.StateDisabled += OnVibrationStateDisabled;
-        }
-
-        private void OnVibrationStateDisabled()
-        {
-            _onVibrationsChanged?.Invoke(false);
-            VibrationsChanged?.Invoke(false);
-        }
-
-        private void OnVibrationStateEnabled()
-        {
-            _onVibrationsChanged?.Invoke(true);
-            VibrationsChanged?.Invoke(true);
         }
 
         private void OnMusicStateEnabled()
@@ -116,12 +84,8 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
             _effectsToggle.StateEnabled -= OnEffectsStateEnabled;
             _effectsToggle.StateDisabled -= OnEffectsStateDisabled;
 
-            _vibrationsToggle.StateEnabled -= OnVibrationStateEnabled;
-            _vibrationsToggle.StateDisabled -= OnVibrationStateDisabled;
-
             MusicChanged = null;
             EffectsChanged = null;
-            VibrationsChanged = null;
 
             if (!PLink.IsInitialized)
                 return;
@@ -131,9 +95,6 @@ namespace RetroCat.Modules.UITemplates.Core.Popups.Settings
 
             if (_isEffectsEnabledOnOpen && !_effectsToggle.IsOn)
                 PLink.Analytics.SendEvent(DisableEffectsEvent);
-
-            if (_isVibrationsEnabledOnOpen && !_vibrationsToggle.IsOn)
-                PLink.Analytics.SendEvent(DisableVibrationsEvent);
         }
     }
 }

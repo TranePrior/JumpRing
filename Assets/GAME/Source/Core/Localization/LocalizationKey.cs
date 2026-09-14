@@ -44,7 +44,6 @@ namespace JumpRing.Game.Core.Localization
         SettingsTitle,
         SettingsMusic,
         SettingsEffects,
-        SettingsVibration,
         NoAdsPopupTitle,
         Loading,
         LeaderboardTitle,

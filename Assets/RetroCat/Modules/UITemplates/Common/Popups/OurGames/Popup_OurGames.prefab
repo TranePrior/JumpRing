@@ -1019,7 +1019,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
-  key: 41
+  key: 40
 --- !u!1001 &8829698001529347017
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1175,4 +1175,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
-  key: 39
+  key: 38

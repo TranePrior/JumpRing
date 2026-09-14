@@ -210,7 +210,7 @@ namespace JumpRing.Game.Core.Services
         /// <para>
         /// A cache entry shadows the default its reader passes to <see cref="GetInt"/>, so writing
         /// one for a key nobody ever saved turns every default into zero. That is how a brand new
-        /// player used to start with music, effects and vibration switched off: the platform reports
+        /// player used to start with music and effects switched off: the platform reports
         /// "nothing stored" for those keys, the load wrote a 0 anyway, and
         /// <c>GetInt(SettingsMusic, 1)</c> could never return its 1.
         /// </para>

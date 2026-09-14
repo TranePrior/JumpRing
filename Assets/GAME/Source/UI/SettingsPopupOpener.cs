@@ -1,5 +1,4 @@
 using JumpRing.Game.Core.Services;
-using JumpRing.Game.Core.Services.Haptics;
 using RetroCat.Modules.FlexibleUI.Runtime.Activities;
 using RetroCat.Modules.UITemplates.Core.Popups.Settings;
 using UnityEngine;
@@ -18,7 +17,6 @@ namespace JumpRing.Game.UI
     {
         [Header("Services")]
         [SerializeField] private AudioSettingsService _audioSettingsService;
-        [SerializeField] private ClickHapticService _clickHapticService;
 
         public void Open()
         {
@@ -29,18 +27,12 @@ namespace JumpRing.Game.UI
                     popup.gameObject.AddComponent<PopupTracker>();
                 }
 
-                // iOS below 17.4 and desktop browsers have nothing to vibrate: hide the row
-                // instead of offering a switch that does nothing.
-                popup.SetVibrationsAvailable(_clickHapticService.IsSupported);
-
                 popup.SetInitialState(
                     _audioSettingsService.IsMusicEnabled,
-                    _audioSettingsService.IsEffectsEnabled,
-                    _clickHapticService.IsEnabled);
+                    _audioSettingsService.IsEffectsEnabled);
 
                 popup.MusicChanged += _audioSettingsService.SetMusic;
                 popup.EffectsChanged += _audioSettingsService.SetEffects;
-                popup.VibrationsChanged += _clickHapticService.SetEnabled;
             });
         }
     }

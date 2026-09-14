@@ -88,14 +88,12 @@ MonoBehaviour:
   - key: 36
     value: Effects
   - key: 37
-    value: Vibration
-  - key: 38
     value: Remove Ads
-  - key: 39
+  - key: 38
     value: Loading...
-  - key: 40
+  - key: 39
     value: Leaders
-  - key: 41
+  - key: 40
     value: Our Games
-  - key: 42
+  - key: 41
     value: Play

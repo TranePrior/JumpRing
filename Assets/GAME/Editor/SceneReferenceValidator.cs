@@ -13,7 +13,7 @@ namespace JumpRing.Editor
     /// </summary>
     /// <remarks>
     /// An unassigned reference used to mean a silently disabled feature: the game booted, the
-    /// console stayed clean, and nobody noticed that vibration never fired, that Yandex was never
+    /// console stayed clean, and nobody noticed that Yandex was never
     /// told gameplay had started, or that the dim overlay never animated. Those three sat broken
     /// for a long time and only surfaced during a frame-by-frame review of a screen recording.
     /// This turns that class of bug back into something the editor tells you about up front.

@@ -7973,19 +7973,6 @@ MonoBehaviour:
   runSessionController: {fileID: 1632676868}
   bonusEffectManager: {fileID: 43628384}
   reviveOffset: 2
---- !u!114 &1632676903
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1632676867}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: efe3a7471a2394a408e2f3daaaa4aacd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Services.Haptics.ClickHapticService
-  storageService: {fileID: 1632676890}
 --- !u!1 &1654508917
 GameObject:
   m_ObjectHideFlags: 0
@@ -10299,10 +10286,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 43628384}
     - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
-      propertyPath: clickHapticService
-      value: 
-      objectReference: {fileID: 1632676903}
-    - target: {fileID: 4730723540593765493, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       propertyPath: gameplayApiService
       value: 
       objectReference: {fileID: 1632676901}
@@ -10379,9 +10362,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1632676902}
-    - targetCorrespondingSourceObject: {fileID: 1330158504120533242, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1632676903}
   m_SourcePrefab: {fileID: 100100000, guid: 881be17e8929646fd8ecdc68c69ae9e1, type: 3}
 --- !u!1001 &3530500232422484129
 PrefabInstance:
@@ -11442,7 +11422,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.UI.SettingsPopupOpener
   _audioSettingsService: {fileID: 1632676898}
-  _clickHapticService: {fileID: 1632676903}
 --- !u!114 &8879506715369951992
 MonoBehaviour:
   m_ObjectHideFlags: 0

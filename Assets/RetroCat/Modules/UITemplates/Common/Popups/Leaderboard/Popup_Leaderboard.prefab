@@ -3799,7 +3799,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3578892a1aabd4dfe8de497fddbbf18a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpRing.Game.Core.Localization.LocalizedText
-  key: 40
+  key: 39
 --- !u!114 &3170398660579742310 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5628900908829931960, guid: 72aca11d579b34fcc81255505aadb883, type: 3}
